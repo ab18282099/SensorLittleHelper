@@ -1,0 +1,28 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:orientation="vertical">
+
+    <!--<TableLayout-->
+    <!--android:id="@+id/tlMain"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="50dp" />-->
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/_vpMain"
+        android:layout_width="match_parent"
+        android:layout_height="500dp" />
+
+    <net.lucode.hackware.magicindicator.MagicIndicator
+        android:id="@+id/magic_indicator"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="5dp"/>
+
+    <!--<Button-->
+    <!--android:id="@+id/btn_main"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:text="Button" />-->
+</LinearLayout>

@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">Supervise 2</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_main">感測器監控小幫手</string>
+    <string name="title_activity_main1">Main2Activity</string>
+    <string name="next_demo">to_Next_Demo</string>
+    <string name="id">ID</string>
+    <string name="time">時間</string>
+    <string name="sensor_setting">Sensor設定</string>
+    <string name="done">DONE</string>
+    <string name="on">ON</string>
+    <string name="off">OFF</string>
+    <string name="deleted">刪除資料</string>
+    <string name="clean_db">清空資料庫</string>
+    <string name="ID">ID : </string>
+    <string name="TIME">時間 : </string>
+    <string name="warn">%1$s 低於 : %2$s</string>
+    <string name="wifi_ip">當前遙控IP : %1$s</string>
+    <string name="wifi_port">當前遙控Port : %1$s</string>
+    <string name="pin_title">感測器名稱</string>
+    <string name="pin_num">對應PIN腳</string>
+    <string name="pin_state">PIN狀態</string>
+    <string name="getPinState">取得PIN狀態</string>
+    <string name="countDown">%1$s秒後將開啟PIN : %2$s</string>
+    <string name="cancel">取消</string>
+</resources>

@@ -1,0 +1,35 @@
+-- Merging decision tree log ---
+manifest
+ADDED from C:\Users\user\AndroidStudioProjects\Soil_supervise_kotlin\magicindicator\src\main\AndroidManifest.xml:1:1-58
+INJECTED from C:\Users\user\AndroidStudioProjects\Soil_supervise_kotlin\magicindicator\src\main\AndroidManifest.xml:1:1-58
+INJECTED from C:\Users\user\AndroidStudioProjects\Soil_supervise_kotlin\magicindicator\src\main\AndroidManifest.xml:1:1-58
+INJECTED from C:\Users\user\AndroidStudioProjects\Soil_supervise_kotlin\magicindicator\src\main\AndroidManifest.xml:1:1-58
+INJECTED from C:\Users\user\AndroidStudioProjects\Soil_supervise_kotlin\magicindicator\src\main\AndroidManifest.xml:1:1-58
+INJECTED from C:\Users\user\AndroidStudioProjects\Soil_supervise_kotlin\magicindicator\src\main\AndroidManifest.xml:1:1-58
+INJECTED from C:\Users\user\AndroidStudioProjects\Soil_supervise_kotlin\magicindicator\src\main\AndroidManifest.xml:1:1-58
+	package
+		ADDED from C:\Users\user\AndroidStudioProjects\Soil_supervise_kotlin\magicindicator\src\main\AndroidManifest.xml:1:11-55
+		INJECTED from C:\Users\user\AndroidStudioProjects\Soil_supervise_kotlin\magicindicator\src\main\AndroidManifest.xml
+		INJECTED from C:\Users\user\AndroidStudioProjects\Soil_supervise_kotlin\magicindicator\src\main\AndroidManifest.xml
+	android:versionName
+		INJECTED from C:\Users\user\AndroidStudioProjects\Soil_supervise_kotlin\magicindicator\src\main\AndroidManifest.xml
+		ADDED from C:\Users\user\AndroidStudioProjects\Soil_supervise_kotlin\magicindicator\src\main\AndroidManifest.xml:1:1-58
+		INJECTED from C:\Users\user\AndroidStudioProjects\Soil_supervise_kotlin\magicindicator\src\main\AndroidManifest.xml
+	android:versionCode
+		INJECTED from C:\Users\user\AndroidStudioProjects\Soil_supervise_kotlin\magicindicator\src\main\AndroidManifest.xml
+		ADDED from C:\Users\user\AndroidStudioProjects\Soil_supervise_kotlin\magicindicator\src\main\AndroidManifest.xml:1:1-58
+		INJECTED from C:\Users\user\AndroidStudioProjects\Soil_supervise_kotlin\magicindicator\src\main\AndroidManifest.xml
+uses-sdk
+INJECTED from C:\Users\user\AndroidStudioProjects\Soil_supervise_kotlin\magicindicator\src\main\AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from C:\Users\user\AndroidStudioProjects\Soil_supervise_kotlin\magicindicator\src\main\AndroidManifest.xml
+INJECTED from C:\Users\user\AndroidStudioProjects\Soil_supervise_kotlin\magicindicator\src\main\AndroidManifest.xml
+INJECTED from C:\Users\user\AndroidStudioProjects\Soil_supervise_kotlin\magicindicator\src\main\AndroidManifest.xml
+INJECTED from C:\Users\user\AndroidStudioProjects\Soil_supervise_kotlin\magicindicator\src\main\AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from C:\Users\user\AndroidStudioProjects\Soil_supervise_kotlin\magicindicator\src\main\AndroidManifest.xml
+		ADDED from C:\Users\user\AndroidStudioProjects\Soil_supervise_kotlin\magicindicator\src\main\AndroidManifest.xml
+		INJECTED from C:\Users\user\AndroidStudioProjects\Soil_supervise_kotlin\magicindicator\src\main\AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from C:\Users\user\AndroidStudioProjects\Soil_supervise_kotlin\magicindicator\src\main\AndroidManifest.xml
+		ADDED from C:\Users\user\AndroidStudioProjects\Soil_supervise_kotlin\magicindicator\src\main\AndroidManifest.xml
+		INJECTED from C:\Users\user\AndroidStudioProjects\Soil_supervise_kotlin\magicindicator\src\main\AndroidManifest.xml
