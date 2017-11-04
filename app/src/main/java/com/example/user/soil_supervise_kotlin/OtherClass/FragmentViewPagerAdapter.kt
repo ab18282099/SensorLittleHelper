@@ -7,7 +7,6 @@ import android.support.v13.app.FragmentPagerAdapter
 class FragmentViewPagerAdapter constructor(fragmentManager: FragmentManager,
                                            private val fragmentList: ArrayList<Fragment>) : FragmentPagerAdapter(fragmentManager)
 {
-
     override fun getCount(): Int
     {
         return fragmentList.size
@@ -33,5 +32,4 @@ class FragmentViewPagerAdapter constructor(fragmentManager: FragmentManager,
     {
         return fragmentList[position]
     }
-
 }

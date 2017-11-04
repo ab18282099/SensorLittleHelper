@@ -19,7 +19,6 @@ import java.util.ArrayList
 
 class HttpRequest
 {
-
     companion object
     {
         fun sendRequest(parameterValue: String, ipAddress: String, portNumber: String, parameterName: String): String?
@@ -150,5 +149,4 @@ class HttpRequest
             return result
         }
     }
-
 }

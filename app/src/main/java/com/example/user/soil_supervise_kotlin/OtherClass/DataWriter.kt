@@ -9,7 +9,6 @@ import java.io.FileWriter
 
 class DataWriter
 {
-
     companion object
     {
         fun writeData(context: Context, fileName: String, strWrite: String?)
@@ -56,5 +55,4 @@ class DataWriter
             }
         }
     }
-
 }

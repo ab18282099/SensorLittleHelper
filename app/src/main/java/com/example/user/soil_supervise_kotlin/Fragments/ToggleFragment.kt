@@ -107,7 +107,7 @@ class ToggleFragment : BaseFragment(), FragmentBackPressedListener
             val port = _sharePref!!.getPort()
             val parameterValue = "78%78"
 
-            httpThread(ipAddress, port, parameterValue)
+            _httpThread(ipAddress, port, parameterValue)
         }
     }
 
@@ -138,7 +138,7 @@ class ToggleFragment : BaseFragment(), FragmentBackPressedListener
     override fun onDestroyView()
     {
         super.onDestroyView()
-        recycleThread()
+        _recycleThread()
         Log.e("ToggleFragment", "onDestroyView")
     }
 
@@ -162,7 +162,7 @@ class ToggleFragment : BaseFragment(), FragmentBackPressedListener
 
     override fun OnFragmentBackPressed()
     {
-        recycleThread()
+        _recycleThread()
         val vpMain = activity.findViewById<ViewPager>(R.id._vpMain) as ViewPager
         vpMain.currentItem = 1
     }
@@ -193,7 +193,7 @@ class ToggleFragment : BaseFragment(), FragmentBackPressedListener
                     val port = _sharePref!!.getPort()
                     val parameterValue = _sharePref!!.getSensorPin(position) // pin 4~13
 
-                    httpThread(ipAddress, port, parameterValue)
+                    _httpThread(ipAddress, port, parameterValue)
                 }
             }
         })
@@ -202,7 +202,7 @@ class ToggleFragment : BaseFragment(), FragmentBackPressedListener
         _recyclerToggle?.addItemDecoration(SimpleDividerItemDecoration(context))
     }
 
-    private fun httpThread(ipAddress: String, port: String, parameterValue: String)
+    private fun _httpThread(ipAddress: String, port: String, parameterValue: String)
     {
         _progressDialog = ProgressDialog.dialogProgress(activity, "連接中…", View.VISIBLE)
         _progressDialog!!.show()
@@ -226,13 +226,13 @@ class ToggleFragment : BaseFragment(), FragmentBackPressedListener
 
                 if (requestReply != null && requestReply.isNotEmpty())
                 {
-                    postExecute(requestReply)
+                    _postExecute(requestReply)
                 }
             }
         }
     }
 
-    private fun postExecute(requestReply: String)
+    private fun _postExecute(requestReply: String)
     {
         if (_progressDialog!!.isShowing) _progressDialog!!.dismiss()
 
@@ -271,7 +271,6 @@ class ToggleFragment : BaseFragment(), FragmentBackPressedListener
     inner class ToggleRecyclerViewAdapter : RecyclerView.Adapter<ToggleFragment.ToggleRecyclerViewAdapter.ViewHolder>(),
             View.OnClickListener
     {
-
         inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
         {
 
@@ -380,7 +379,6 @@ class ToggleFragment : BaseFragment(), FragmentBackPressedListener
 
     inner class SimpleDividerItemDecoration constructor(context: Context) : RecyclerView.ItemDecoration()
     {
-
         private val mDivider = ContextCompat.getDrawable(context, R.drawable.divider_line)
 
         override fun onDrawOver(c: Canvas?, parent: RecyclerView?, state: RecyclerView.State?)
@@ -402,10 +400,9 @@ class ToggleFragment : BaseFragment(), FragmentBackPressedListener
                 mDivider.draw(c)
             }
         }
-
     }
 
-    private fun recycleThread()
+    private fun _recycleThread()
     {
         if (_threadHandler != null && _httpThread != null)
         {
@@ -414,5 +411,4 @@ class ToggleFragment : BaseFragment(), FragmentBackPressedListener
             _httpThread?.interrupt()
         }
     }
-
 }

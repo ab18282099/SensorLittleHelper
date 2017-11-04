@@ -22,7 +22,6 @@ import com.example.user.soil_supervise_kotlin.OtherClass.MySharedPreferences
 
 class MainFragment : BaseFragment(), FragmentBackPressedListener
 {
-
     companion object
     {
         fun newInstance(): MainFragment
@@ -159,5 +158,4 @@ class MainFragment : BaseFragment(), FragmentBackPressedListener
         val vpMain = activity.findViewById<ViewPager>(R.id._vpMain) as ViewPager
         vpMain.currentItem = 0
     }
-
 }

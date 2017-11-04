@@ -6,7 +6,6 @@ import org.json.JSONException
 
 class SensorDataAnalyser
 {
-
     companion object
     {
         @Volatile private var instance: SensorDataAnalyser? = null
@@ -96,5 +95,4 @@ class SensorDataAnalyser
         if (jsonArray.length() != 0) return jsonArray.length()
         return 0
     }
-
 }

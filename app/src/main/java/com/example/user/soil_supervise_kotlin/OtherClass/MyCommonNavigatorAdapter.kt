@@ -18,7 +18,6 @@ class MyCommonNavigatorAdapter(private val _fragmentTitleList: ArrayList<String>
                                private val _fragmentImgList: ArrayList<Int>,
                                private val _viewPager: ViewPager?) : CommonNavigatorAdapter()
 {
-
     override fun getCount(): Int
     {
         if (_fragmentTitleList.isEmpty()) return 0
@@ -79,5 +78,4 @@ class MyCommonNavigatorAdapter(private val _fragmentTitleList: ArrayList<String>
 
         return commonPagerTitleView
     }
-
 }

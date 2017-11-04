@@ -117,7 +117,7 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener
 
         btn_deleted.text = getString(R.string.deleted)
         btn_deleted.setOnClickListener {
-            val dialog = setDeletedDialog(activity)
+            val dialog = _setDeletedDialog(activity)
             dialog.show()
             dialog.window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
             dialog.window.clearFlags(WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM)
@@ -284,7 +284,7 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener
         _checkButton()
     }
 
-    private fun setDeletedDialog(context: Context): AlertDialog
+    private fun _setDeletedDialog(context: Context): AlertDialog
     {
         val nullParent: ViewGroup? = null
         val convertView = LayoutInflater.from(context).inflate(R.layout.dialog_deleted, nullParent)
@@ -305,7 +305,7 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener
 
             alert("你要確定喔?") {
                 yesButton {
-                    tryEditDataBase(phpAddress)
+                    _tryEditDataBase(phpAddress)
                 }
                 noButton { }
             }.show()
@@ -326,7 +326,7 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener
                 val phpAddress = "http://$ServerIP/deletedjson.php?&server=$ServerIP&user=$user&pass=$pass&id=$id&id2=$id2"
                 alert("你要確定喔?") {
                     yesButton {
-                        tryEditDataBase(phpAddress)
+                        _tryEditDataBase(phpAddress)
                     }
                     noButton { }
                 }.show()
@@ -494,7 +494,6 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener
 
     inner class SimpleDividerItemDecoration constructor(context: Context) : RecyclerView.ItemDecoration()
     {
-
         private val mDivider = ContextCompat.getDrawable(context, R.drawable.divider_line)
 
         override fun onDrawOver(c: Canvas?, parent: RecyclerView?, state: RecyclerView.State?)
@@ -516,12 +515,11 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener
                 mDivider.draw(c)
             }
         }
-
     }
 
-    private fun tryEditDataBase(phpAddress: String)
+    private fun _tryEditDataBase(phpAddress: String)
     {
-        Log.e("HistoryFragment", "tryEditDataBase")
+        Log.e("HistoryFragment", "_tryEditDataBase")
 
         val queue: RequestQueue = Volley.newRequestQueue(context)
         val progressDialog = ProgressDialog.dialogProgress(activity, "連接中…", View.VISIBLE)
@@ -532,61 +530,53 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener
             progressDialog.setCancelable(false)
         }
 
-        val connectRequest = JsonObjectRequest(phpAddress, null, object : Response.Listener<JSONObject>
-        {
-            override fun onResponse(p0: JSONObject?)
+        val connectRequest = JsonObjectRequest(phpAddress, null, { jsonObject ->
+            try
             {
-                try
+                val success = jsonObject?.getString("message")
+                if (success == "Deleted Successfully.")
                 {
-                    val success = p0?.getString("message")
-                    if (success == "Deleted Successfully.")
+                    if (progressDialog.isShowing)
                     {
-                        if (progressDialog.isShowing)
-                        {
-                            progressDialog.dismiss()
-                        }
-
-                        MainActivity().loadHistoryData(this@HistoryDataFragment, activity, "1", "100")
-                        toast("操作成功")
+                        progressDialog.dismiss()
                     }
-                    else if (success == "DB is clean.")
-                    {
-                        if (progressDialog.isShowing)
-                        {
-                            progressDialog.dismiss()
-                        }
 
-                        MainActivity().loadHistoryData(this@HistoryDataFragment, activity, "1", "100")
-                        toast("操作成功")
-                    }
-                    else
-                    {
-                        if (progressDialog.isShowing)
-                        {
-                            progressDialog.dismiss()
-                        }
-
-                        //MainActivity().loadHistoryData(this@HistoryDataFragment, activity)
-                        toast("操作失敗")
-                    }
+                    MainActivity().loadHistoryData(this@HistoryDataFragment, activity, "1", "100")
+                    toast("操作成功")
                 }
-                catch (e: Exception)
+                else if (success == "DB is clean.")
                 {
-                    Log.e("editSensor", e.toString())
-                    toast(e.toString())
+                    if (progressDialog.isShowing)
+                    {
+                        progressDialog.dismiss()
+                    }
+
+                    MainActivity().loadHistoryData(this@HistoryDataFragment, activity, "1", "100")
+                    toast("操作成功")
+                }
+                else
+                {
+                    if (progressDialog.isShowing)
+                    {
+                        progressDialog.dismiss()
+                    }
+
+                    //MainActivity().loadHistoryData(this@HistoryDataFragment, activity)
+                    toast("操作失敗")
                 }
             }
-        }, object : Response.ErrorListener
-        {
-            override fun onErrorResponse(p0: VolleyError?)
+            catch (e: Exception)
             {
-                if (progressDialog.isShowing)
-                {
-                    progressDialog.dismiss()
-                }
-                VolleyLog.e("ERROR", p0.toString())
-                toast("CONNECT ERROR")
+                Log.e("editSensor", e.toString())
+                toast(e.toString())
             }
+        }, { volleyError ->
+            if (progressDialog.isShowing)
+            {
+                progressDialog.dismiss()
+            }
+            VolleyLog.e("ERROR", volleyError.toString())
+            toast("CONNECT ERROR")
         })
         val Timeout = 9000
         val policy = DefaultRetryPolicy(Timeout,
@@ -595,5 +585,4 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener
         connectRequest.retryPolicy = policy
         queue.add(connectRequest)
     }
-
 }

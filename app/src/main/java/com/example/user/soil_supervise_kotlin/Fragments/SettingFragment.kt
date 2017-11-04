@@ -28,7 +28,6 @@ import kotlinx.android.synthetic.main.fragment_setting.*
 import org.jetbrains.anko.toast
 import org.jetbrains.anko.vibrator
 import org.json.JSONException
-import org.json.JSONObject
 
 class SettingFragment : BaseFragment(), FragmentBackPressedListener
 {
@@ -97,7 +96,7 @@ class SettingFragment : BaseFragment(), FragmentBackPressedListener
 
         btn_sensor_setting.text = getString(R.string.sensor_setting)
         btn_sensor_setting.setOnClickListener {
-            val dialog = dialogSensorSetter(activity)
+            val dialog = _dialogSensorSetter(activity)
             dialog.show()
             dialog.window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
             dialog.window.clearFlags(WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM)
@@ -107,7 +106,7 @@ class SettingFragment : BaseFragment(), FragmentBackPressedListener
 
         btn_done_setting.text = getString(R.string.done)
         btn_done_setting.setOnClickListener {
-            doneSetting()
+            _doneSetting()
         }
     }
 
@@ -250,7 +249,7 @@ class SettingFragment : BaseFragment(), FragmentBackPressedListener
         }
     }
 
-    private fun doneSetting()
+    private fun _doneSetting()
     {
         val regIPAddress = Regex("^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\$")
         val regPort = Regex("([0-9][0-9])|([0-9][0-9][0-9])")
@@ -278,7 +277,7 @@ class SettingFragment : BaseFragment(), FragmentBackPressedListener
         Log.e("SettingFragment", isVisibleToUser.toString())
     }
 
-    private fun dialogSensorSetter(context: Context): AlertDialog
+    private fun _dialogSensorSetter(context: Context): AlertDialog
     {
         val nullParent: ViewGroup? = null
         val convertView = LayoutInflater.from(context).inflate(R.layout.dialog_sensor_setting, nullParent)
@@ -301,7 +300,7 @@ class SettingFragment : BaseFragment(), FragmentBackPressedListener
 
         btn_insert.setOnClickListener {
             val id = dialogAdapter.itemCount
-            tryEditSensorQuantity("create_sensor", (id + 1).toString(), dialogAdapter)
+            _tryEditSensorQuantity("create_sensor", (id + 1).toString(), dialogAdapter)
         }
         btn_drop.setOnClickListener {
             if (_sharePref!!.getSensorQuantity() == 5)
@@ -311,11 +310,11 @@ class SettingFragment : BaseFragment(), FragmentBackPressedListener
             else
             {
                 val id = dialogAdapter.itemCount
-                tryEditSensorQuantity("delete_sensor", id.toString(), dialogAdapter)
+                _tryEditSensorQuantity("delete_sensor", id.toString(), dialogAdapter)
             }
         }
         btn_sensor_done.setOnClickListener {
-            val wrongInput = checkInputType()
+            val wrongInput = _checkInputType()
 
             if (wrongInput == -1)
             {
@@ -461,9 +460,9 @@ class SettingFragment : BaseFragment(), FragmentBackPressedListener
         }
     }
 
-    private fun tryEditSensorQuantity(query: String, sensorID: String, dialogAdapter: DialogRecyclerViewAdapter)
+    private fun _tryEditSensorQuantity(query: String, sensorID: String, dialogAdapter: DialogRecyclerViewAdapter)
     {
-        Log.e("SettingFragment", "tryEditSensorQuantity")
+        Log.e("SettingFragment", "_tryEditSensorQuantity")
 
         val queue: RequestQueue = Volley.newRequestQueue(context)
         val progressDialog = ProgressDialog.dialogProgress(activity, "連接中…", View.VISIBLE)
@@ -478,59 +477,51 @@ class SettingFragment : BaseFragment(), FragmentBackPressedListener
         val pass = _sharePref!!.getPass()
         val phpAddress = "http://$ServerIP/$query.php?&server=$ServerIP&user=$user&pass=$pass&sensor_id=$sensorID"
 
-        val connectRequest = JsonObjectRequest(phpAddress, null, object : Response.Listener<JSONObject>
-        {
-            override fun onResponse(p0: JSONObject?)
+        val connectRequest = JsonObjectRequest(phpAddress, null, { jsonObject ->
+            try
             {
-                try
+                val success = jsonObject?.getInt("success")
+                val message = jsonObject?.getString("message")
+                if (success == 1 && message == "Created Successfully.")
                 {
-                    val success = p0?.getInt("success")
-                    val message = p0?.getString("message")
-                    if (success == 1 && message == "Created Successfully.")
+                    if (progressDialog.isShowing)
                     {
-                        if (progressDialog.isShowing)
-                        {
-                            progressDialog.dismiss()
-                        }
-                        dialogAdapter.notifyItemInserted(_sharePref!!.getSensorQuantity())
-                        _sharePref!!.PutInt("getSensorQuantity", _sharePref!!.getSensorQuantity() + 1)
-                        toast("已新增Sensor")
+                        progressDialog.dismiss()
                     }
-                    else if (success == 1 && message == "Deleted Successfully.")
-                    {
-                        if (progressDialog.isShowing)
-                        {
-                            progressDialog.dismiss()
-                        }
-                        dialogAdapter.notifyItemRemoved(_sharePref!!.getSensorQuantity() - 1)
-                        _sharePref!!.PutInt("getSensorQuantity", _sharePref!!.getSensorQuantity() - 1)
-                        toast("已移除Sensor")
-                    }
-                    else
-                    {
-                        if (progressDialog.isShowing)
-                        {
-                            progressDialog.dismiss()
-                        }
-                        toast("操作失敗")
-                    }
+                    dialogAdapter.notifyItemInserted(_sharePref!!.getSensorQuantity())
+                    _sharePref!!.PutInt("getSensorQuantity", _sharePref!!.getSensorQuantity() + 1)
+                    toast("已新增Sensor")
                 }
-                catch (e: JSONException)
+                else if (success == 1 && message == "Deleted Successfully.")
                 {
-                    Log.e("editSensor", e.toString())
+                    if (progressDialog.isShowing)
+                    {
+                        progressDialog.dismiss()
+                    }
+                    dialogAdapter.notifyItemRemoved(_sharePref!!.getSensorQuantity() - 1)
+                    _sharePref!!.PutInt("getSensorQuantity", _sharePref!!.getSensorQuantity() - 1)
+                    toast("已移除Sensor")
+                }
+                else
+                {
+                    if (progressDialog.isShowing)
+                    {
+                        progressDialog.dismiss()
+                    }
+                    toast("操作失敗")
                 }
             }
-        }, object : Response.ErrorListener
-        {
-            override fun onErrorResponse(p0: VolleyError?)
+            catch (e: JSONException)
             {
-                if (progressDialog.isShowing)
-                {
-                    progressDialog.dismiss()
-                }
-                VolleyLog.e("ERROR", p0.toString())
-                toast("CONNECT ERROR")
+                Log.e("editSensor", e.toString())
             }
+        }, { volleyError ->
+            if (progressDialog.isShowing)
+            {
+                progressDialog.dismiss()
+            }
+            VolleyLog.e("ERROR", volleyError.toString())
+            toast("CONNECT ERROR")
         })
         val Timeout = 9000
         val policy = DefaultRetryPolicy(Timeout,
@@ -540,7 +531,7 @@ class SettingFragment : BaseFragment(), FragmentBackPressedListener
         queue.add(connectRequest)
     }
 
-    private fun checkInputType(): Int
+    private fun _checkInputType(): Int
     {
         val regWarningCondition = Regex("[0-9]*.?[0-9]+")
         val regPin = Regex("[0-9]{1,2}")
@@ -559,5 +550,4 @@ class SettingFragment : BaseFragment(), FragmentBackPressedListener
 
         return -1
     }
-
 }

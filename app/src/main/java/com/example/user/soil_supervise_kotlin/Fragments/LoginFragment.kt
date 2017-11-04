@@ -24,7 +24,6 @@ import org.json.JSONObject
 
 class LoginFragment : BaseFragment(), FragmentBackPressedListener
 {
-
     companion object
     {
         fun newInstance(): LoginFragment
@@ -95,7 +94,7 @@ class LoginFragment : BaseFragment(), FragmentBackPressedListener
 
         btn_login.text = "登入"
         btn_login.setOnClickListener {
-            tryConnectDataBase(edit_user.text.toString(), edit_pass.text.toString())
+            _tryConnectDataBase(edit_user.text.toString(), edit_pass.text.toString())
         }
     }
 
@@ -163,9 +162,9 @@ class LoginFragment : BaseFragment(), FragmentBackPressedListener
         }, 1000)
     }
 
-    private fun tryConnectDataBase(user: String, pass: String)
+    private fun _tryConnectDataBase(user: String, pass: String)
     {
-        Log.e("LoginFragment", "tryConnectDataBase")
+        Log.e("LoginFragment", "_tryConnectDataBase")
 
         val queue: RequestQueue = Volley.newRequestQueue(context)
         val progressDialog = ProgressDialog.dialogProgress(activity, "連接中…", View.VISIBLE)
@@ -177,57 +176,49 @@ class LoginFragment : BaseFragment(), FragmentBackPressedListener
         }
         val ServerIP = _sharePref!!.getServerIP()
         val phpAddress = "http://$ServerIP/conn_json.php?&server=$ServerIP&user=$user&pass=$pass"
-        val connectRequest = JsonObjectRequest(phpAddress, null, object : Response.Listener<JSONObject>
-        {
-            override fun onResponse(p0: JSONObject?)
+        val connectRequest = JsonObjectRequest(phpAddress, null, { jsonObject ->
+            try
             {
-                try
+                val success = jsonObject?.getInt("success")
+                if (success == 1)
                 {
-                    val success = p0?.getInt("success")
-                    if (success == 1)
+                    if (progressDialog.isShowing)
                     {
-                        if (progressDialog.isShowing)
-                        {
-                            progressDialog.dismiss()
-                        }
-                        toast("已連接資料庫")
-                        _sharePref!!.PutString("getUser", edit_user.text.toString())
-                        _sharePref!!.PutString("getPass", edit_pass.text.toString())
+                        progressDialog.dismiss()
+                    }
+                    toast("已連接資料庫")
+                    _sharePref!!.PutString("getUser", edit_user.text.toString())
+                    _sharePref!!.PutString("getPass", edit_pass.text.toString())
 
-                        val vpMain = activity.findViewById<ViewPager>(R.id._vpMain) as ViewPager
-                        vpMain.currentItem = 1
-                    }
-                    else
-                    {
-                        if (progressDialog.isShowing)
-                        {
-                            progressDialog.dismiss()
-                        }
-                        toast("連接失敗")
-                        _sharePref!!.PutString("getUser", edit_user.text.toString())
-                        _sharePref!!.PutString("getPass", edit_pass.text.toString())
-                    }
+                    val vpMain = activity.findViewById<ViewPager>(R.id._vpMain) as ViewPager
+                    vpMain.currentItem = 1
                 }
-                catch (e: JSONException)
+                else
                 {
-                    Log.e("connJSON", e.toString())
+                    if (progressDialog.isShowing)
+                    {
+                        progressDialog.dismiss()
+                    }
+                    toast("連接失敗")
                     _sharePref!!.PutString("getUser", edit_user.text.toString())
                     _sharePref!!.PutString("getPass", edit_pass.text.toString())
                 }
             }
-        }, object : Response.ErrorListener
-        {
-            override fun onErrorResponse(p0: VolleyError?)
+            catch (e: JSONException)
             {
-                if (progressDialog.isShowing)
-                {
-                    progressDialog.dismiss()
-                }
-                VolleyLog.e("ERROR", p0.toString())
-                toast("CONNECT ERROR")
+                Log.e("connJSON", e.toString())
                 _sharePref!!.PutString("getUser", edit_user.text.toString())
                 _sharePref!!.PutString("getPass", edit_pass.text.toString())
             }
+        }, { volleyError ->
+            if (progressDialog.isShowing)
+            {
+                progressDialog.dismiss()
+            }
+            VolleyLog.e("ERROR", volleyError.toString())
+            toast("CONNECT ERROR")
+            _sharePref!!.PutString("getUser", edit_user.text.toString())
+            _sharePref!!.PutString("getPass", edit_pass.text.toString())
         })
         val Timeout = 9000
         val policy = DefaultRetryPolicy(Timeout,
@@ -236,5 +227,4 @@ class LoginFragment : BaseFragment(), FragmentBackPressedListener
         connectRequest.retryPolicy = policy
         queue.add(connectRequest)
     }
-
 }

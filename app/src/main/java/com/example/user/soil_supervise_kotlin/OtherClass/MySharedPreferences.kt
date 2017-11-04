@@ -6,7 +6,6 @@ import android.view.View
 
 class MySharedPreferences constructor(context: Context)
 {
-
     companion object
     {
         @Volatile private var instance: MySharedPreferences? = null
@@ -180,5 +179,4 @@ class MySharedPreferences constructor(context: Context)
     {
         _sharedPreferences!!.unregisterOnSharedPreferenceChangeListener(listener)
     }
-
 }

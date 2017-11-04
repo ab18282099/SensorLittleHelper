@@ -33,7 +33,6 @@ import org.json.JSONObject
 
 class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
 {
-
     companion object
     {
         fun newInstance(): OnTimeFragment
@@ -131,7 +130,7 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
 
     override fun OnFragmentBackPressed()
     {
-        recycleThread()
+        _recycleThread()
 
         val vpMain = activity.findViewById<ViewPager>(R.id._vpMain) as ViewPager
         vpMain.currentItem = 1
@@ -142,7 +141,7 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
         super.onDestroyView()
         Log.e("OnTimeFragment", "onDestroyView")
 
-        recycleThread()
+        _recycleThread()
     }
 
     override fun onDestroy()
@@ -217,7 +216,7 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
                         if (_sensorDataList[position] == "") sensorDataFloat = (-1).toFloat()
                         else sensorDataFloat = _sensorDataList[position]!!.toFloat()
 
-                        if (isWarning(sensorDataFloat, warnCondition))
+                        if (_isWarning(sensorDataFloat, warnCondition))
                         {
                             holder.tx_on_time_text!!.text = getString(R.string.warn, _sensorDataList[position], String.format("%.2f", warnCondition))
                             holder.tx_on_time_text!!.setTextColor(Color.RED)
@@ -371,7 +370,7 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
                     progressDialog.dismiss()
                 }
                 toast("連接成功")
-                warningDialog(_sensorDataList)
+                _warningDialog(_sensorDataList)
             }
             catch (e: Exception)
             {
@@ -398,7 +397,7 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
         queue.add(connectRequest)
     }
 
-    private fun isWarning(sensorData: Float?, warnConditional: Float?): Boolean
+    private fun _isWarning(sensorData: Float?, warnConditional: Float?): Boolean
     {
         val invalidFloat = (-1).toFloat()
 
@@ -410,7 +409,7 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
         return false
     }
 
-    private fun warningDialog(sensorDataList: ArrayList<String?>)
+    private fun _warningDialog(sensorDataList: ArrayList<String?>)
     {
 
         val warnSensorList = ArrayList<String>()
@@ -424,7 +423,7 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
             if (sensorDataList[i] == "") sensorDataFloat = (-1).toFloat()
             else sensorDataFloat = sensorDataList[i]!!.toFloat()
 
-            if (isWarning(sensorDataFloat, warnCondition) && _sharePref!!.getSensorVisibility(i - 1) == View.VISIBLE)
+            if (_isWarning(sensorDataFloat, warnCondition) && _sharePref!!.getSensorVisibility(i - 1) == View.VISIBLE)
             {
                 warnSensorList.add(_sharePref!!.getSensorName(i - 1))
                 warnSensorPinList.add(_sharePref!!.getSensorPin(i - 1))
@@ -451,7 +450,7 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
             {
                 true ->
                 {
-                    val autoDialog = autoToggle(warnPin)
+                    val autoDialog = _autoToggle(warnPin)
                     autoDialog.show()
                     autoDialog.setCancelable(false)
                 }
@@ -470,7 +469,7 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
         }
     }
 
-    private fun autoToggle(warnPin: String): AlertDialog
+    private fun _autoToggle(warnPin: String): AlertDialog
     {
         val nullParent: ViewGroup? = null
         val convertView = LayoutInflater.from(activity).inflate(R.layout.dialog_count_down, nullParent)
@@ -490,7 +489,7 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
 
                 val ipAddress = _sharePref!!.getIPAddress()
                 val port = _sharePref!!.getPort()
-                httpThread(ipAddress, port, warnPin)
+                _httpThread(ipAddress, port, warnPin)
             }
             else
             {
@@ -506,13 +505,13 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
             dialog.dismiss()
             _count = 5
             _countHandler!!.removeCallbacks(_countRunnable)
-            recycleThread()
+            _recycleThread()
         }
 
         return dialog
     }
 
-    private fun httpThread(ipAddress: String, port: String, parameterValue: String)
+    private fun _httpThread(ipAddress: String, port: String, parameterValue: String)
     {
         _progressDialog = ProgressDialog.dialogProgress(activity, "連接中…", View.VISIBLE)
         _progressDialog!!.show()
@@ -536,13 +535,13 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
 
                 if (requestReply != null && requestReply.isNotEmpty())
                 {
-                    postExecute(requestReply)
+                    _postExecute(requestReply)
                 }
             }
         }
     }
 
-    private fun postExecute(requestReply: String)
+    private fun _postExecute(requestReply: String)
     {
         if (_progressDialog!!.isShowing) _progressDialog!!.dismiss()
 
@@ -574,7 +573,7 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
         }
     }
 
-    private fun recycleThread()
+    private fun _recycleThread()
     {
         if (_threadHandler != null && _httpThread != null)
         {

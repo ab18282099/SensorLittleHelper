@@ -9,7 +9,6 @@ import android.os.HandlerThread
 import android.support.v4.view.ViewPager
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
@@ -31,10 +30,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
-
 class ChartFragment : BaseFragment(), FragmentBackPressedListener
 {
-
     companion object
     {
         fun newInstance(): ChartFragment
@@ -86,7 +83,7 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener
 
         btn_chart_dialog.text = "選擇感測器"
         btn_chart_dialog.setOnClickListener {
-            val setChartDialog = setChartDialog(activity)
+            val setChartDialog = _setChartDialog(activity)
             setChartDialog.show()
             setChartDialog.setCanceledOnTouchOutside(true)
         }
@@ -161,7 +158,7 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener
         Log.e("ChartFragment", isVisibleToUser.toString())
     }
 
-    private fun setChartDialog(context: Context): AlertDialog
+    private fun _setChartDialog(context: Context): AlertDialog
     {
         val nullParent: ViewGroup? = null
         val factory = LayoutInflater.from(context)
@@ -198,14 +195,14 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener
 
         btn_set_chart.setOnClickListener {
             dialog.dismiss()
-            setChartView(chartId)
+            _setChartView(chartId)
         }
 
         // DO NOT USE getApplicationContext!!!
         return dialog
     }
 
-    private fun setChartView(chartID: Int)
+    private fun _setChartView(chartID: Int)
     {
         val progressDialog = ProgressDialog.dialogProgress(activity, "連接中…", View.VISIBLE)
         progressDialog.show()
@@ -228,7 +225,7 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener
                 val jsonString: String?
                 jsonString = data
 
-                chartDataRenew(jsonString, chartID)
+                _chartDataRenew(jsonString, chartID)
                 progressDialog.dismiss()
             }
             catch (e: Exception)
@@ -244,7 +241,7 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener
         }
     }
 
-    private fun chartDataRenew(jsonString: String?, chartID: Int)
+    private fun _chartDataRenew(jsonString: String?, chartID: Int)
     {
         val title: String
         val interval: Int
@@ -293,9 +290,9 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener
             y.add(yData)
             title = _sharePref!!.getSensorName(chartID)
 
-            val dataSet = buildDataSet(title, x, y, interval)
-            val renderer = buildRenderer(Color.BLUE, PointStyle.CIRCLE, true)
-            initChartSetting(renderer, "數據折線圖", "TIME", "%", firstTime, lastTime, (-50).toDouble(), (100).toDouble(), Color.BLACK)
+            val dataSet = _buildDataSet(title, x, y, interval)
+            val renderer = _buildRenderer(Color.BLUE, PointStyle.CIRCLE, true)
+            _initChartSetting(renderer, "數據折線圖", "TIME", "%", firstTime, lastTime, (-50).toDouble(), (100).toDouble(), Color.BLACK)
 
             val seriesLength = renderer.seriesRendererCount
 
@@ -323,8 +320,8 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener
         }
     }
 
-    private fun buildDataSet(title: String, xValue: ArrayList<kotlin.Array<Date?>>,
-                             yVale: ArrayList<DoubleArray>, interval: Int): XYMultipleSeriesDataset
+    private fun _buildDataSet(title: String, xValue: ArrayList<kotlin.Array<Date?>>,
+                              yVale: ArrayList<DoubleArray>, interval: Int): XYMultipleSeriesDataset
     {
         val dataSet = XYMultipleSeriesDataset()
 
@@ -341,7 +338,7 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener
         return dataSet
     }
 
-    private fun buildRenderer(color: Int, style: PointStyle, fill: Boolean): XYMultipleSeriesRenderer
+    private fun _buildRenderer(color: Int, style: PointStyle, fill: Boolean): XYMultipleSeriesRenderer
     {
         val renderer = XYMultipleSeriesRenderer()
 
@@ -354,9 +351,9 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener
         return renderer
     }
 
-    private fun initChartSetting(renderer: XYMultipleSeriesRenderer, title: String, xTitle: String,
-                                 yTitle: String, xMin: Double, xMax: Double,
-                                 yMin: Double, yMax: Double, axisColor: Int)
+    private fun _initChartSetting(renderer: XYMultipleSeriesRenderer, title: String, xTitle: String,
+                                  yTitle: String, xMin: Double, xMax: Double,
+                                  yMin: Double, yMax: Double, axisColor: Int)
     {
         renderer.chartTitle = title // 折線圖名稱
         renderer.chartTitleTextSize = (45).toFloat() // 折線圖名稱字形大小

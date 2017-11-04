@@ -5,7 +5,6 @@ import java.util.LinkedList
 
 class ExitApplication
 {
-
     private val _activityList = LinkedList<Activity>()
 
     // add open activities in list_sensor_data
@@ -41,5 +40,4 @@ class ExitApplication
             return instance
         }
     }
-
 }
