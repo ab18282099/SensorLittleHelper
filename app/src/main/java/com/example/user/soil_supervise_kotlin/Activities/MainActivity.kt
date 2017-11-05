@@ -403,7 +403,7 @@ class MainActivity : BaseActivity()
                 else
                 {
                     runOnUiThread {
-                        historyFragment.setCurrentId("1", "100")
+                        historyFragment.setCurrentId("1", "10")
                         historyFragment.setSensorDataList(ArrayList()) // empty list
                         historyFragment.setJsonArrayLength(0)
                         historyFragment.renewRecyclerView()
