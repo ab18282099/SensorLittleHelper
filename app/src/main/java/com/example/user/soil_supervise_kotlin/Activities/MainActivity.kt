@@ -26,7 +26,7 @@ import java.lang.ref.WeakReference
 class MainActivity : BaseActivity()
 {
 
-    private val _fragmentLogin = LoginFragment.newInstance() as Fragment
+    private val _fragmentLogin = LoginFragment.newInstance() as Fragment //just test for ssd
     private val _fragmentSetting = SettingFragment.newInstance() as Fragment // These fragments implement FragmentBackPressedListener, should be "as Fragment"
     private val _fragmentHistory = HistoryDataFragment.newInstance() as Fragment
     private val _fragmentMain = MainFragment.newInstance() as Fragment
