@@ -246,9 +246,10 @@ class ToggleFragment : BaseFragment(), FragmentBackPressedListener
             try
             {
                 val jsonResult = JSONObject(requestReply)
+
                 for (i in 0 until _sensorQuantity)
                 {
-                    _sharePref!!.PutString("getPin" + i.toString() + "State", jsonResult.getString("PIN" + (i + 7).toString()))
+                    _sharePref!!.PutString("getPin" + i.toString() + "State", jsonResult.getString("PIN" + _sharePref!!.getSensorPin(i)))
                 }
 
                 runOnUiThread {
@@ -273,7 +274,6 @@ class ToggleFragment : BaseFragment(), FragmentBackPressedListener
     {
         inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
         {
-
             var tx_toggle_sensor: TextView? = null
             var tx_toggle_pin: TextView? = null
             var tx_toggle_state: TextView? = null

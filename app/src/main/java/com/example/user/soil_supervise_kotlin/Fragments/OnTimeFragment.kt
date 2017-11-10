@@ -340,7 +340,7 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
         }
         val ServerIP = _sharePref!!.getServerIP()
         val phpAddress = "http://$ServerIP/android_mysql_last.php?&server=$ServerIP&user=$user&pass=$pass"
-        val connectRequest = JsonObjectRequest(phpAddress, null, {jsonObject ->
+        val connectRequest = JsonObjectRequest(phpAddress, null, { jsonObject ->
             try
             {
                 val sensorQuantity = _sharePref!!.getSensorQuantity()
@@ -369,8 +369,9 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
                 {
                     progressDialog.dismiss()
                 }
+
                 toast("連接成功")
-                _warningDialog(_sensorDataList)
+                _warningFunction(_sensorDataList)
             }
             catch (e: Exception)
             {
@@ -381,7 +382,7 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
                 }
                 toast(e.toString())
             }
-        }, {volleyError ->
+        }, { volleyError ->
             if (progressDialog.isShowing)
             {
                 progressDialog.dismiss()
@@ -397,6 +398,67 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
         queue.add(connectRequest)
     }
 
+    private fun _warningFunction(sensorDataList: ArrayList<String?>)
+    {
+        val toggleSensorList = ArrayList<String>()
+        val toggleSensorPinList = ArrayList<String>()
+        val toggleText: String
+        val togglePin: String
+
+        for (i in 1.._sensorQuantity)
+        {
+            val warnCondition = _sharePref!!.getSensorCondition(i - 1).toFloat()
+            val sensorDataFloat = if (sensorDataList[i] == "") (-1).toFloat() else sensorDataList[i]!!.toFloat()
+
+            if (_sharePref!!.getSensorVisibility(i - 1) == View.VISIBLE)
+            {
+                if (_isWarning(sensorDataFloat, warnCondition))
+                {
+                    if (_sharePref!!.getPinState(i - 1) == "OFF")
+                    {
+                        toggleSensorList.add(_sharePref!!.getSensorName(i - 1))
+                        toggleSensorPinList.add(_sharePref!!.getSensorPin(i - 1))
+                    }
+                }
+                else
+                {
+                    if (_sharePref!!.getPinState(i - 1) == "ON")
+                    {
+                        toggleSensorList.add(_sharePref!!.getSensorName(i - 1))
+                        toggleSensorPinList.add(_sharePref!!.getSensorPin(i - 1))
+                    }
+                }
+            }
+        }
+
+        if (toggleSensorList.isNotEmpty() && toggleSensorPinList.isNotEmpty())
+        {
+            toggleText = toggleSensorList.joinToString(separator = ", ")
+            togglePin = toggleSensorPinList.joinToString(separator = ",")
+
+            when(_sharePref!!.getIsAutoToggle())
+            {
+                true ->
+                {
+                    val autoDialog = _autoToggle(togglePin, "發現狀態改變！")
+                    autoDialog.show()
+                    autoDialog.setCancelable(false)
+                }
+                false ->
+                {
+                    alert("警告！") {
+                        message = toggleText + "數值狀態改變！是否移至Wi-Fi遙控頁面?"
+                        yesButton {
+                            val vpMain = activity.findViewById<ViewPager>(R.id._vpMain) as ViewPager
+                            vpMain.currentItem = 2
+                        }
+                        noButton { }
+                    }.show()
+                }
+            }
+        }
+    }
+
     private fun _isWarning(sensorData: Float?, warnConditional: Float?): Boolean
     {
         val invalidFloat = (-1).toFloat()
@@ -409,67 +471,7 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
         return false
     }
 
-    private fun _warningDialog(sensorDataList: ArrayList<String?>)
-    {
-
-        val warnSensorList = ArrayList<String>()
-        val warnSensorPinList = ArrayList<String>()
-
-        for (i in 1.._sensorQuantity)
-        {
-            val warnCondition = _sharePref!!.getSensorCondition(i - 1).toFloat()
-            val sensorDataFloat: Float
-
-            if (sensorDataList[i] == "") sensorDataFloat = (-1).toFloat()
-            else sensorDataFloat = sensorDataList[i]!!.toFloat()
-
-            if (_isWarning(sensorDataFloat, warnCondition) && _sharePref!!.getSensorVisibility(i - 1) == View.VISIBLE)
-            {
-                warnSensorList.add(_sharePref!!.getSensorName(i - 1))
-                warnSensorPinList.add(_sharePref!!.getSensorPin(i - 1))
-            }
-        }
-
-        val warnText: String
-        val warnPin: String
-        if (warnSensorList.isNotEmpty() && warnSensorPinList.isNotEmpty())
-        {
-            warnText = warnSensorList.joinToString(separator = ", ")
-            warnPin = warnSensorPinList.joinToString(separator = ",")
-        }
-        else
-        {
-            warnText = "NO WARNING"
-            warnPin = "NO WARNING"
-        }
-
-        if (warnText != "NO WARNING")
-        {
-            val isAutoToggle = _sharePref!!.getIsAutoToggle()
-            when (isAutoToggle)
-            {
-                true ->
-                {
-                    val autoDialog = _autoToggle(warnPin)
-                    autoDialog.show()
-                    autoDialog.setCancelable(false)
-                }
-                false ->
-                {
-                    alert("警告!!") {
-                        message = warnText + "數值過低!是否移至Wi-Fi遙控頁面?"
-                        yesButton {
-                            val vpMain = activity.findViewById<ViewPager>(R.id._vpMain) as ViewPager
-                            vpMain.currentItem = 2
-                        }
-                        noButton { }
-                    }.show()
-                }
-            }
-        }
-    }
-
-    private fun _autoToggle(warnPin: String): AlertDialog
+    private fun _autoToggle(togglePin: String, message: String): AlertDialog
     {
         val nullParent: ViewGroup? = null
         val convertView = LayoutInflater.from(activity).inflate(R.layout.dialog_count_down, nullParent)
@@ -489,12 +491,12 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
 
                 val ipAddress = _sharePref!!.getIPAddress()
                 val port = _sharePref!!.getPort()
-                _httpThread(ipAddress, port, warnPin)
+                _httpThread(ipAddress, port, togglePin)
             }
             else
             {
                 _count -= 1
-                tx_count.text = getString(R.string.countDown, (_count + 1).toString(), warnPin)
+                tx_count.text = getString(R.string.countDown, message, (_count + 1).toString(), togglePin)
                 _countHandler!!.postDelayed(_countRunnable, 1000)
             }
         }
@@ -557,7 +559,7 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
                 val jsonResult = JSONObject(requestReply)
                 for (i in 0 until _sensorQuantity)
                 {
-                    _sharePref!!.PutString("getPin" + i.toString() + "State", jsonResult.getString("PIN" + (i + 7).toString()))
+                    _sharePref!!.PutString("getPin" + i.toString() + "State", jsonResult.getString("PIN" + _sharePref!!.getSensorPin(i)))
                 }
 
                 val resultDialog = ProgressDialog.dialogProgress(activity, "完成", View.GONE)

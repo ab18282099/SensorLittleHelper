@@ -54,7 +54,7 @@ class MainFragment : BaseFragment(), FragmentBackPressedListener
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View
     {
         val view = inflater!!.inflate(R.layout.fragment_main, container, false)
-        _gridMain = view.findViewById<GridView>(R.id._gridMain) as GridView
+        _gridMain = view.findViewById(R.id._gridMain)
 
         _sharePref = MySharedPreferences.initInstance(activity)
 

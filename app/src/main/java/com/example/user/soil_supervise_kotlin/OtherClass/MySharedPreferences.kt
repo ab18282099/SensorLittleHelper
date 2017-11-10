@@ -48,16 +48,6 @@ class MySharedPreferences constructor(context: Context)
         return _sharedPreferences!!.getString("getIPAddress", "192.168.43.211")// Get  esp8266's ip
     }
 
-    fun getColumn(): Int
-    {
-        return _sharedPreferences!!.getInt("getColumn", 0)// Get which_column will be deleted
-    }
-
-    fun getChartId(): Int
-    {
-        return _sharedPreferences!!.getInt("getChartId", 0)// Get which_Chart will be create
-    }
-
     //////////////////////////////////////////////////////////////////////////////////////////////////-Sensor Setting-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     fun getCheck(position: Int): Boolean
     {
