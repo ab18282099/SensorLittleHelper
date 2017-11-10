@@ -20,7 +20,6 @@ import com.example.user.soil_supervise_kotlin.R
 import kotlinx.android.synthetic.main.fragment_login.*
 import org.jetbrains.anko.toast
 import org.json.JSONException
-import org.json.JSONObject
 
 class LoginFragment : BaseFragment(), FragmentBackPressedListener
 {
