@@ -24,7 +24,7 @@ import java.util.concurrent.CopyOnWriteArrayList
  * 2.b) Register to be notified (useful in Service or other non-UI components):
  *
  *
- * Foreground.Listener myListener = new Foreground.Listener(){
+ * Foreground.FragmentMenuItemClickListenerObject myListener = new Foreground.FragmentMenuItemClickListenerObject(){
  * public void onBecameForeground(){
  * // ... whatever you want to do
  * }
@@ -88,7 +88,7 @@ class Foreground : Application.ActivityLifecycleCallbacks
                 }
                 catch (exc: Exception)
                 {
-                    //                    Log.e(TAG, "Listener threw exception!", exc);
+                    //                    Log.e(TAG, "FragmentMenuItemClickListenerObject threw exception!", exc);
                 }
             }
         }
@@ -118,7 +118,7 @@ class Foreground : Application.ActivityLifecycleCallbacks
                     }
                     catch (exc: Exception)
                     {
-                        // Log.e(TAG, "Listener threw exception!", exc);
+                        // Log.e(TAG, "FragmentMenuItemClickListenerObject threw exception!", exc);
                     }
                 }
             }

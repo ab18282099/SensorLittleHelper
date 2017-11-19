@@ -11,7 +11,7 @@ import android.view.View
 import android.view.WindowManager
 import com.example.user.soil_supervise_kotlin.Fragments.*
 import com.example.user.soil_supervise_kotlin.Interfaces.FragmentBackPressedListener
-import com.example.user.soil_supervise_kotlin.Interfaces.FragmentOptionsMenu
+import com.example.user.soil_supervise_kotlin.Interfaces.FragmentMenuItemClickListener
 import com.example.user.soil_supervise_kotlin.OtherClass.*
 import com.example.user.soil_supervise_kotlin.R
 import kotlinx.android.synthetic.main.activity_main.*
@@ -252,24 +252,14 @@ class MainActivity : BaseActivity()
                     4 ->
                     {
                         val historyFragment = _mAdapter!!.GetFragment(4) as HistoryDataFragment
+                        val historyFragmentMenuClickListener = historyFragment as FragmentMenuItemClickListener
 
                         SetActivityTitle("歷史數據")
                         SetRightImageAndClickListener(R.drawable.refresh, View.OnClickListener {
                             LoadHistoryData(historyFragment, this@MainActivity, historyFragment.GetCurrentId1(), historyFragment.GetCurrentId2())
                         })
 
-                        SetMenuClickListener{ item ->
-
-                            when(item.itemId)
-                            {
-                                R.id.menu_backup ->
-                                {
-                                    toast("FUCK YOU")
-                                }
-                            }
-
-                            true
-                        }
+                        SetMenuClickListener(historyFragmentMenuClickListener)
 
                         LoadHistoryData(historyFragment, this@MainActivity, "1", "100")
                         RemoveCallOnTime()

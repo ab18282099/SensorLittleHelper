@@ -139,13 +139,13 @@ class MySharedPreferences constructor(context: Context)
         _listener = PinListListener()
     }
 
-    // method for register SharedPreferences Change Listener
+    // method for register SharedPreferences Change FragmentMenuItemClickListenerObject
     fun RegisterPreferenceChangeListener()
     {
         _sharedPreferences!!.registerOnSharedPreferenceChangeListener(_listener)
     }
 
-    // method for unregister SharedPreferences Change Listener
+    // method for unregister SharedPreferences Change FragmentMenuItemClickListenerObject
     fun UnregisterPreferenceChangeListener()
     {
         _sharedPreferences!!.unregisterOnSharedPreferenceChangeListener(_listener)

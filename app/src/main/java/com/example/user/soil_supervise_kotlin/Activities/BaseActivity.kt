@@ -12,6 +12,7 @@ import android.view.*
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import com.example.user.soil_supervise_kotlin.Interfaces.FragmentMenuItemClickListener
 import com.example.user.soil_supervise_kotlin.R
 
 abstract class BaseActivity : AppCompatActivity()
@@ -131,6 +132,11 @@ abstract class BaseActivity : AppCompatActivity()
     {
 //        this._onMenuItemClickListener =
         _mToolbar!!.setOnMenuItemClickListener(onMenuItemClickListener)
+    }
+
+    fun SetMenuClickListener(onMenuItemClickListener: FragmentMenuItemClickListener)
+    {
+        _mToolbar!!.setOnMenuItemClickListener(onMenuItemClickListener.FragmentMenuItemClickListenerObject())
     }
 
     fun SetMenuInstance(@MenuRes menuRes: Int, onMenuItemClickListener: (MenuItem) -> Boolean)

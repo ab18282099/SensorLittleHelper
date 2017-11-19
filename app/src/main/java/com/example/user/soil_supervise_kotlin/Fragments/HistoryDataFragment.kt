@@ -21,14 +21,14 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.example.user.soil_supervise_kotlin.Activities.MainActivity
 import com.example.user.soil_supervise_kotlin.Interfaces.FragmentBackPressedListener
-import com.example.user.soil_supervise_kotlin.Interfaces.FragmentOptionsMenu
+import com.example.user.soil_supervise_kotlin.Interfaces.FragmentMenuItemClickListener
 import com.example.user.soil_supervise_kotlin.OtherClass.ProgressDialog
 import com.example.user.soil_supervise_kotlin.OtherClass.MySharedPreferences
 import com.example.user.soil_supervise_kotlin.R
 import kotlinx.android.synthetic.main.fragment_history.*
 import org.jetbrains.anko.*
 
-class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener
+class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, FragmentMenuItemClickListener
 {
     companion object
     {
@@ -316,6 +316,22 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener
         inflater!!.inflate(R.menu.menu_history, menu)
 
         super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun FragmentMenuItemClickListenerObject(): (MenuItem) -> Boolean
+    {
+        return { item ->
+
+            when(item.itemId)
+            {
+                R.id.menu_backup ->
+                {
+                    toast("FUCK YOU")
+                }
+            }
+
+            true
+        }
     }
 
     override fun OnFragmentBackPressed()
