@@ -11,7 +11,7 @@ class DataWriter
 {
     companion object
     {
-        fun writeData(context: Context, fileName: String, strWrite: String?)
+        fun WriteData(context: Context, fileName: String, strWrite: String?)
         {
             try
             {

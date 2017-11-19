@@ -24,7 +24,7 @@ class MainFragment : BaseFragment(), FragmentBackPressedListener
 {
     companion object
     {
-        fun newInstance(): MainFragment
+        fun NewInstance(): MainFragment
         {
             val fragment = MainFragment()
             val args = Bundle()
@@ -56,7 +56,7 @@ class MainFragment : BaseFragment(), FragmentBackPressedListener
         val view = inflater!!.inflate(R.layout.fragment_main, container, false)
         _gridMain = view.findViewById(R.id._gridMain)
 
-        _sharePref = MySharedPreferences.initInstance(activity)
+        _sharePref = MySharedPreferences.InitInstance(activity)
 
         Log.e("MainFragment", "onCreateView")
         return view
@@ -97,7 +97,7 @@ class MainFragment : BaseFragment(), FragmentBackPressedListener
                 5 ->
                 {
                     alert("離開程式?") {
-                        yesButton { ExitApplication.initInstance()!!.exit() }
+                        yesButton { ExitApplication.InitInstance()!!.Exit() }
                         noButton { }
                     }.show()
                 }

@@ -9,7 +9,7 @@ class SensorDataAnalyser
     companion object
     {
         @Volatile private var instance: SensorDataAnalyser? = null
-        fun initInstance(): SensorDataAnalyser?
+        fun InitInstance(): SensorDataAnalyser?
         {
             if (instance == null)
             {

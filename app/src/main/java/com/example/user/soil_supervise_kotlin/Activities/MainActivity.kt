@@ -11,6 +11,7 @@ import android.view.View
 import android.view.WindowManager
 import com.example.user.soil_supervise_kotlin.Fragments.*
 import com.example.user.soil_supervise_kotlin.Interfaces.FragmentBackPressedListener
+import com.example.user.soil_supervise_kotlin.Interfaces.FragmentOptionsMenu
 import com.example.user.soil_supervise_kotlin.OtherClass.*
 import com.example.user.soil_supervise_kotlin.R
 import kotlinx.android.synthetic.main.activity_main.*
@@ -25,14 +26,13 @@ import java.lang.ref.WeakReference
 
 class MainActivity : BaseActivity()
 {
-
-    private val _fragmentLogin = LoginFragment.newInstance() as Fragment //just test for ssd
-    private val _fragmentSetting = SettingFragment.newInstance() as Fragment // These fragments implement FragmentBackPressedListener, should be "as Fragment"
-    private val _fragmentHistory = HistoryDataFragment.newInstance() as Fragment
-    private val _fragmentMain = MainFragment.newInstance() as Fragment
-    private val _fragmentOnTime = OnTimeFragment.newInstance() as Fragment
-    private val _fragmentChart = ChartFragment.newInstance() as Fragment
-    private val _fragmentToggle = ToggleFragment.newInstance() as Fragment
+    private val _fragmentLogin = LoginFragment.NewInstance() as Fragment //just test for ssd
+    private val _fragmentSetting = SettingFragment.NewInstance() as Fragment // These fragments implement FragmentBackPressedListener, should be "as Fragment"
+    private val _fragmentHistory = HistoryDataFragment.NewInstance() as Fragment
+    private val _fragmentMain = MainFragment.NewInstance() as Fragment
+    private val _fragmentOnTime = OnTimeFragment.NewInstance() as Fragment
+    private val _fragmentChart = ChartFragment.NewInstance() as Fragment
+    private val _fragmentToggle = ToggleFragment.NewInstance() as Fragment
 
     private val _fragmentList = ArrayList<Fragment>()
     private val _fragmentTitleList = ArrayList<String>()
@@ -56,15 +56,15 @@ class MainActivity : BaseActivity()
     {
         super.onCreate(savedInstanceState)
 
-        _sharePref = MySharedPreferences.initInstance(this)
-        _sharePref!!.PutString("getUser", "")
+        _sharePref = MySharedPreferences.InitInstance(this)
+        _sharePref!!.PutString("GetUsername", "")
 
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
         setContentView(R.layout.activity_main)
 
         Log.e("MainActivity", "onCreate")
 
-        ExitApplication.initInstance()!!.addActivity(this)
+        ExitApplication.InitInstance()!!.AddActivity(this)
     }
 
     override fun onAttachFragment(fragment: Fragment?)
@@ -105,7 +105,7 @@ class MainActivity : BaseActivity()
     }
 
     //After onCreate(in baseActivity) add Fragment
-    override fun findView()
+    override fun FindView()
     {
         val fragmentsTitleList = arrayOf("登入", "主頁", "Wi-Fi遙控", "即時監控", "歷史數據", "折線圖", "設定")
         _fragmentTitleList.addAll(fragmentsTitleList)
@@ -119,68 +119,69 @@ class MainActivity : BaseActivity()
         _vpMain = findViewById<ViewPager>(R.id._vpMain) as ViewPager
     }
 
-    override fun initActionBar()
+    override fun InitActionBar()
     {
-        setActivityTitle("SOIL SUPERVISE")
-//        setRightTextAndClickListener("MAIN", View.OnClickListener {
+        SetActivityTitle("SOIL SUPERVISE")
+//        SetRightTextAndClickListener("MAIN", View.OnClickListener {
 //            _vpMain?.currentItem = 0
 //        })
-        setRightImageAndClickListener(R.drawable.exit, View.OnClickListener {
+        SetRightImageAndClickListener(R.drawable.exit, View.OnClickListener {
             alert("你確定要離開?") {
-                yesButton { ExitApplication.initInstance()?.exit() }
+                yesButton { ExitApplication.InitInstance()?.Exit() }
                 noButton { }
             }.show()
         })
-        setOnNavigationClickListener(View.OnClickListener {
+
+        SetOnNavigationClickListener(View.OnClickListener {
 
         })
 
-        setMenu(R.menu.menu_main, { item ->
-
-            when (item.itemId)
-            {
-                R.id.menu_login ->
-                {
-                    _vpMain?.currentItem = 0
-                }
-                R.id.menu_main ->
-                {
-                    _vpMain?.currentItem = 1
-                }
-                R.id.menu_wifield ->
-                {
-                    _vpMain?.currentItem = 2
-                }
-                R.id.menu_current ->
-                {
-                    _vpMain?.currentItem = 3
-                }
-                R.id.menu_history ->
-                {
-                    _vpMain?.currentItem = 4
-                }
-                R.id.menu_chart ->
-                {
-                    _vpMain?.currentItem = 5
-                }
-                R.id.menu_mainSet ->
-                {
-                    _vpMain?.currentItem = 6
-                }
-                R.id.menu_mainExit ->
-                {
-                    alert("你確定要離開?") {
-                        yesButton { ExitApplication.initInstance()?.exit() }
-                        noButton { }
-                    }.show()
-                }
-            }
-
-            true
-        })
+//        SetMenu(R.menu.menu_main, { item ->
+//
+//            when (item.itemId)
+//            {
+//                R.id.menu_login ->
+//                {
+//                    _vpMain?.currentItem = 0
+//                }
+//                R.id.menu_main ->
+//                {
+//                    _vpMain?.currentItem = 1
+//                }
+//                R.id.menu_wifield ->
+//                {
+//                    _vpMain?.currentItem = 2
+//                }
+//                R.id.menu_current ->
+//                {
+//                    _vpMain?.currentItem = 3
+//                }
+//                R.id.menu_history ->
+//                {
+//                    _vpMain?.currentItem = 4
+//                }
+//                R.id.menu_chart ->
+//                {
+//                    _vpMain?.currentItem = 5
+//                }
+//                R.id.menu_mainSet ->
+//                {
+//                    _vpMain?.currentItem = 6
+//                }
+//                R.id.menu_mainExit ->
+//                {
+//                    alert("你確定要離開?") {
+//                        yesButton { ExitApplication.InitInstance()?.Exit() }
+//                        noButton { }
+//                    }.show()
+//                }
+//            }
+//
+//            true
+//        })
     }
 
-    override fun initView()
+    override fun InitView()
     {
         _mAdapter = FragmentViewPagerAdapter(fragmentManager, _fragmentList)
         _vpMain?.adapter = _mAdapter
@@ -207,74 +208,89 @@ class MainActivity : BaseActivity()
                 {
                     0 ->
                     {
-                        setActivityTitle("登入")
-                        setRightImageAndClickListener(R.drawable.exit, View.OnClickListener {
+                        SetActivityTitle("登入")
+                        SetRightImageAndClickListener(R.drawable.exit, View.OnClickListener {
                             alert("你確定要離開?") {
-                                yesButton { ExitApplication.initInstance()?.exit() }
+                                yesButton { ExitApplication.InitInstance()?.Exit() }
                                 noButton { }
                             }.show()
                         })
-                        removeCallOnTime()
+                        RemoveCallOnTime()
                     }
                     1 ->
                     {
-                        setActivityTitle("主頁")
-                        setRightImageAndClickListener(R.drawable.login, View.OnClickListener {
+                        SetActivityTitle("主頁")
+                        SetRightImageAndClickListener(R.drawable.login, View.OnClickListener {
                             _vpMain?.currentItem = 0
                         })
-                        _recycleThread()
-                        removeCallOnTime()
+                        RecycleThread()
+                        RemoveCallOnTime()
                     }
                     2 ->
                     {
-                        setActivityTitle("Wi-Fi遙控")
-                        setRightImageAndClickListener(R.drawable.main, View.OnClickListener {
+                        SetActivityTitle("Wi-Fi遙控")
+                        SetRightImageAndClickListener(R.drawable.main, View.OnClickListener {
                             _vpMain?.currentItem = 1
                         })
-                        val toggleFragment = _mAdapter!!.getFragment(2) as ToggleFragment
-                        toggleFragment.setSensorQuantity(_sharePref!!.getSensorQuantity())
-                        toggleFragment.setToggleRecycler()
-                        _recycleThread()
-                        removeCallOnTime()
+                        val toggleFragment = _mAdapter!!.GetFragment(2) as ToggleFragment
+                        toggleFragment.SetSensorQuantity(_sharePref!!.GetSensorQuantity())
+                        toggleFragment.SetToggleRecycler()
+                        RecycleThread()
+                        RemoveCallOnTime()
                     }
                     3 ->
                     {
-                        val onTimeFragment = _mAdapter!!.getFragment(3) as OnTimeFragment
-                        setActivityTitle("即時監控")
-                        setRightImageAndClickListener(R.drawable.refresh, View.OnClickListener {
-                            removeCallOnTime()
-                            loadOnTimeData(onTimeFragment)
+                        val onTimeFragment = _mAdapter!!.GetFragment(3) as OnTimeFragment
+                        SetActivityTitle("即時監控")
+                        SetRightImageAndClickListener(R.drawable.refresh, View.OnClickListener {
+                            RemoveCallOnTime()
+                            LoadOnTimeData(onTimeFragment)
                         })
-                        loadOnTimeData(onTimeFragment)
-                        _recycleThread()
+                        LoadOnTimeData(onTimeFragment)
+                        RecycleThread()
                     }
                     4 ->
                     {
-                        val historyFragment = _mAdapter!!.getFragment(4) as HistoryDataFragment
-                        setActivityTitle("歷史數據")
-                        setRightImageAndClickListener(R.drawable.refresh, View.OnClickListener {
-                            loadHistoryData(historyFragment, this@MainActivity, historyFragment.getCurrentId1(), historyFragment.getCurrentId2())
+                        val historyFragment = _mAdapter!!.GetFragment(4) as HistoryDataFragment
+
+                        SetActivityTitle("歷史數據")
+                        SetRightImageAndClickListener(R.drawable.refresh, View.OnClickListener {
+                            LoadHistoryData(historyFragment, this@MainActivity, historyFragment.GetCurrentId1(), historyFragment.GetCurrentId2())
                         })
-                        loadHistoryData(historyFragment, this@MainActivity, "1", "100")
-                        removeCallOnTime()
+
+                        SetMenuClickListener{ item ->
+
+                            when(item.itemId)
+                            {
+                                R.id.menu_backup ->
+                                {
+                                    toast("FUCK YOU")
+                                }
+                            }
+
+                            true
+                        }
+
+                        LoadHistoryData(historyFragment, this@MainActivity, "1", "100")
+                        RemoveCallOnTime()
                     }
                     5 ->
                     {
-                        setActivityTitle("折線圖")
-                        setRightImageAndClickListener(R.drawable.main, View.OnClickListener {
+                        SetActivityTitle("折線圖")
+                        SetRightImageAndClickListener(R.drawable.main, View.OnClickListener {
                             _vpMain?.currentItem = 1
                         })
-                        _recycleThread()
-                        removeCallOnTime()
+                        RecycleThread()
+                        RemoveCallOnTime()
                     }
                     6 ->
                     {
-                        setActivityTitle("設定")
-                        setRightImageAndClickListener(R.drawable.main, View.OnClickListener {
+                        SetActivityTitle("設定")
+                        SetRightImageAndClickListener(R.drawable.main, View.OnClickListener {
                             _vpMain?.currentItem = 1
                         })
-                        _recycleThread()
-                        removeCallOnTime()
+                        RecycleThread()
+                        RemoveCallOnTime()
                     }
                 }
             }
@@ -290,9 +306,9 @@ class MainActivity : BaseActivity()
     {
         Log.e("MainActivity", "onBackPressed")
 
-        removeCallOnTime()
+        RemoveCallOnTime()
 
-        val activeFragment = _getActiveFragment()
+        val activeFragment = GetActiveFragment()
         if (activeFragment.isNotEmpty())
         {
             activeFragment.asSequence().filter { it is FragmentBackPressedListener }.forEach { (it as FragmentBackPressedListener).OnFragmentBackPressed() }
@@ -301,11 +317,11 @@ class MainActivity : BaseActivity()
         {
             if (_doubleBackToExit == true && _doubleBackToExit != null)
             {
-                ExitApplication.initInstance()?.exit()
+                ExitApplication.InitInstance()?.Exit()
                 return
             }
             this._doubleBackToExit = true
-            toast("Press Back again to exit")
+            toast("Press Back again to Exit")
 
             Handler().postDelayed({
                 _doubleBackToExit = false
@@ -317,40 +333,22 @@ class MainActivity : BaseActivity()
     {
         Log.e("MainActivity", "onDestroy")
 
-        _recycleThread()
+        RecycleThread()
 
         super.onDestroy()
     }
 
-    private fun _getActiveFragment(): ArrayList<Fragment?>
+    fun LoadHistoryData(historyFragment: HistoryDataFragment, context: Context, id: String, id2: String)
     {
-        val ret = ArrayList<Fragment?>()
-        val weak_ret = _activeFragmentList.asSequence().filter { it.get()!!.isVisible and it.get()!!.userVisibleHint }
-        weak_ret.forEach { ret.add(it.get()) }
-        return ret
-    }
-
-    private fun _recycleThread()
-    {
-        if (_threadHandler != null && _httpThread != null)
-        {
-            _threadHandler?.removeCallbacksAndMessages(null)
-            _httpThread?.quitSafely()
-            _httpThread?.interrupt()
-        }
-    }
-
-    fun loadHistoryData(historyFragment: HistoryDataFragment, context: Context, id: String, id2: String)
-    {
-        val progressDialog = ProgressDialog.dialogProgress(context, "連接中…", View.VISIBLE)
+        val progressDialog = ProgressDialog.DialogProgress(context, "連接中…", View.VISIBLE)
         progressDialog.show()
         progressDialog.setCancelable(false)
 
-        val sharePref = MySharedPreferences.initInstance(context)
+        val sharePref = MySharedPreferences.InitInstance(context)
 
-        val serverIP = sharePref!!.getServerIP()
-        val user = sharePref.getUser()
-        val pass = sharePref.getPass()
+        val serverIP = sharePref!!.GetServerIP()
+        val user = sharePref.GetUsername()
+        val pass = sharePref.GetPassword()
 
         _httpThread = HandlerThread("history_data_download")
         _httpThread!!.start()
@@ -359,35 +357,35 @@ class MainActivity : BaseActivity()
             try
             {
                 val phpAddress = "http://$serverIP/load_history.php?&server=$serverIP&user=$user&pass=$pass&id=$id&id2=$id2"
-                val data = HttpRequest.executeQuery("society", phpAddress)
+                val data = HttpRequest.DownloadFromMySQL("society", phpAddress)
 
-                val sensorQuantity = sharePref.getSensorQuantity()
-                val sensorDataAnalyser = SensorDataAnalyser.initInstance()
+                val sensorQuantity = sharePref.GetSensorQuantity()
+                val sensorDataAnalyser = SensorDataAnalyser.InitInstance()
                 sensorDataAnalyser!!.setSensorQuantity(sensorQuantity)
 
                 sensorDataAnalyser.setSharePref(sharePref)
 
-                historyFragment.setCurrentId(id, id2)
+                historyFragment.SetCurrentId(id, id2)
 
                 val dataList = sensorDataAnalyser.getSensorData(JSONArray(data)) //Json Exception catch by this line
                 val dateLength = sensorDataAnalyser.getJsonArrayLength(JSONArray(data))
 
-                historyFragment.setSensorQuantity(sensorQuantity)
+                historyFragment.SetSensorQuantity(sensorQuantity)
 
                 if (dataList.isNotEmpty())
-                    historyFragment.setSensorDataList(dataList)
+                    historyFragment.SetSensorDataList(dataList)
                 if (dateLength != 0)
-                    historyFragment.setJsonArrayLength(dateLength)
+                    historyFragment.SetJsonArrayLength(dateLength)
 
                 runOnUiThread {
-                    DataWriter.writeData(context, sharePref.getFileSavedName(), data)
-                    historyFragment.renewRecyclerView()
-                    historyFragment.setSensorTitle()
+                    DataWriter.WriteData(context, sharePref.GetFileSavedName(), data)
+                    historyFragment.RenewRecyclerView()
+                    historyFragment.SetSensorTitle()
                 }
 
                 progressDialog.dismiss()
 
-                historyFragment.setLoadSuccess(true)
+                historyFragment.SetLoadSuccess(true)
             }
             catch (e: Exception)
             {
@@ -395,40 +393,58 @@ class MainActivity : BaseActivity()
 
                 progressDialog.dismiss()
 
-                if (historyFragment.getLoadSuccess()) // if last time is success
+                if (historyFragment.GetLoadSuccess()) // if last time is success
                 {
-                    historyFragment.setLoadSuccess(false) // this time is not success
-                    loadHistoryData(historyFragment, context, (id.toInt() - 100).toString(), (id2.toInt() - 100).toString())
+                    historyFragment.SetLoadSuccess(false) // this time is not success
+                    LoadHistoryData(historyFragment, context, (id.toInt() - 100).toString(), (id2.toInt() - 100).toString())
                 }
                 else
                 {
                     runOnUiThread {
-                        historyFragment.setCurrentId("1", "100")
-                        historyFragment.setSensorDataList(ArrayList()) // empty list
-                        historyFragment.setJsonArrayLength(0)
-                        historyFragment.renewRecyclerView()
+                        historyFragment.SetCurrentId("1", "100")
+                        historyFragment.SetSensorDataList(ArrayList()) // empty list
+                        historyFragment.SetJsonArrayLength(0)
+                        historyFragment.RenewRecyclerView()
                     }
                 }
             }
         }
     }
 
-    fun loadOnTimeData(onTimeFragment: OnTimeFragment)
+    fun LoadOnTimeData(onTimeFragment: OnTimeFragment)
     {
         _onTimeHandler = Handler()
         _onTimeRunnable = Runnable {
-            onTimeFragment.setSensorQuantity(_sharePref!!.getSensorQuantity())
-            onTimeFragment.tryLoadLastData(_sharePref!!.getUser(), _sharePref!!.getPass())
+            onTimeFragment.SetSensorQuantity(_sharePref!!.GetSensorQuantity())
+            onTimeFragment.TryLoadLastData(_sharePref!!.GetUsername(), _sharePref!!.GetPassword())
             _onTimeHandler!!.postDelayed(_onTimeRunnable, 30000)
         }
-        _onTimeHandler!!.postDelayed(_onTimeRunnable, 500)
+        _onTimeHandler!!.postDelayed(_onTimeRunnable, 200)
     }
 
-    fun removeCallOnTime()
+    fun RemoveCallOnTime()
     {
         if (_onTimeHandler != null && _onTimeRunnable != null)
         {
             _onTimeHandler!!.removeCallbacks(_onTimeRunnable)
+        }
+    }
+
+    private fun GetActiveFragment(): ArrayList<Fragment?>
+    {
+        val ret = ArrayList<Fragment?>()
+        val weak_ret = _activeFragmentList.asSequence().filter { it.get()!!.isVisible and it.get()!!.userVisibleHint }
+        weak_ret.forEach { ret.add(it.get()) }
+        return ret
+    }
+
+    private fun RecycleThread()
+    {
+        if (_threadHandler != null && _httpThread != null)
+        {
+            _threadHandler?.removeCallbacksAndMessages(null)
+            _httpThread?.quitSafely()
+            _httpThread?.interrupt()
         }
     }
 }

@@ -9,7 +9,7 @@ class MySharedPreferences constructor(context: Context)
     companion object
     {
         @Volatile private var instance: MySharedPreferences? = null
-        fun initInstance(context: Context): MySharedPreferences?
+        fun InitInstance(context: Context): MySharedPreferences?
         {
             if (instance == null)
             {
@@ -26,6 +26,8 @@ class MySharedPreferences constructor(context: Context)
 
     // Init ShardPreferences when activity onCreate or method called(like call dialog in DialogVolley)
     private var _sharedPreferences: SharedPreferences? = null
+    // init SharedPreferences Change _listener
+    private var _listener: SharedPreferences.OnSharedPreferenceChangeListener? = null
 
     init
     {
@@ -33,81 +35,83 @@ class MySharedPreferences constructor(context: Context)
         _sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
     }
 
-    fun getServerIP(): String
+    fun GetServerIP(): String
     {
-        return _sharedPreferences!!.getString("getServerIP", "192.168.43.212")// Get getServerIP
+        return _sharedPreferences!!.getString("GetServerIP", "192.168.43.212")// Get GetServerIP
     }
 
-    fun getPort(): String
+    fun GetPort(): String
     {
-        return _sharedPreferences!!.getString("getPort", "80")// Get esp8266's port
+        return _sharedPreferences!!.getString("GetPort", "80")// Get esp8266's port
     }
 
-    fun getIPAddress(): String
+    fun GetIPAddress(): String
     {
-        return _sharedPreferences!!.getString("getIPAddress", "192.168.43.211")// Get  esp8266's ip
+        return _sharedPreferences!!.getString("GetIPAddress", "192.168.43.211")// Get  esp8266's ip
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////-Sensor Setting-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    fun getCheck(position: Int): Boolean
+
+    fun GetCheck(position: Int): Boolean
     {
-        return _sharedPreferences!!.getBoolean("getCheck" + position.toString(), false)
+        return _sharedPreferences!!.getBoolean("GetCheck" + position.toString(), false)
     }
 
-    fun getSensorQuantity(): Int
+    fun GetSensorQuantity(): Int
     {
-        return _sharedPreferences!!.getInt("getSensorQuantity", 5)
+        return _sharedPreferences!!.getInt("GetSensorQuantity", 5)
     }
 
-    fun getSensorName(position: Int): String
+    fun GetSensorName(position: Int): String
     {
         return _sharedPreferences!!.getString("getSensor" + position.toString() + "Name", "def" + position.toString())
     }
 
-    fun getSensorCondition(position: Int): String
+    fun GetSensorCondition(position: Int): String
     {
         return _sharedPreferences!!.getString("getSensor" + position.toString() + "Condition", "0")// Get warning condition for moisture
     }
 
-    fun getSensorVisibility(position: Int): Int
+    fun GetSensorVisibility(position: Int): Int
     {
         return _sharedPreferences!!.getInt("getSensor" + position.toString() + "Visibility", View.GONE)
     }
 
-    fun getSensorPin(position: Int): String
+    fun GetSensorPin(position: Int): String
     {
         return _sharedPreferences!!.getString("getSensor" + position.toString() + "Pin", position.toString())
     }
 
-    fun getPinState(position: Int): String
+    fun GetPinState(position: Int): String
     {
         return _sharedPreferences!!.getString("getPin" + position.toString() + "State", "OFF")
     }
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    fun getFileSavedName(): String
+    fun GetFileSavedName(): String
     {
-        return _sharedPreferences!!.getString("getFileSavedName", "default")
+        return _sharedPreferences!!.getString("GetFileSavedName", "default")
     }
 
-    fun getIsAutoToggle(): Boolean
+    fun GetIsAutoToggle(): Boolean
     {
-        return _sharedPreferences!!.getBoolean("getIsAutoToggle", false)
+        return _sharedPreferences!!.getBoolean("GetIsAutoToggle", false)
     }
 
-    fun getUser(): String
+    fun GetUsername(): String
     {
-        return _sharedPreferences!!.getString("getUser", "noUser")
+        return _sharedPreferences!!.getString("GetUsername", "noUser")
     }
 
-    fun getPass(): String
+    fun GetPassword(): String
     {
-        return _sharedPreferences!!.getString("getPass", "noPass")
+        return _sharedPreferences!!.getString("GetPassword", "noPass")
     }
 
-    fun getIsRememberPass(): Boolean
+    fun GetIsRememberPassword(): Boolean
     {
-        return _sharedPreferences!!.getBoolean("getIsRememberPass", false)
+        return _sharedPreferences!!.getBoolean("GetIsRememberPassword", false)
     }
 
     fun PutString(Index: String, Data: String?)
@@ -125,48 +129,45 @@ class MySharedPreferences constructor(context: Context)
         _sharedPreferences!!.edit().putBoolean(Index, Data).apply()// method for putBoolean
     }
 
-    // init SharedPreferences Change listener
-    private var listener: SharedPreferences.OnSharedPreferenceChangeListener? = null
-
-    fun getInitListenerSetting()
+    fun GetInitListenerSetting()
     {
-        listener = sensorSettingListener()
+        _listener = SensorSettingListener()
     }
 
-    private fun sensorSettingListener(): SharedPreferences.OnSharedPreferenceChangeListener
+    fun GetInitListenerPinList()
     {
-        return SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
-            when (key)
-            {
-
-            }
-        }
-    }
-
-    fun getInitListenerPinList()
-    {
-        listener = pinListListener()
-    }
-
-    private fun pinListListener(): SharedPreferences.OnSharedPreferenceChangeListener
-    {
-        return SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
-            when (key)
-            {
-
-            }
-        }
+        _listener = PinListListener()
     }
 
     // method for register SharedPreferences Change Listener
-    fun registerPreferenceChangeListener()
+    fun RegisterPreferenceChangeListener()
     {
-        _sharedPreferences!!.registerOnSharedPreferenceChangeListener(listener)
+        _sharedPreferences!!.registerOnSharedPreferenceChangeListener(_listener)
     }
 
     // method for unregister SharedPreferences Change Listener
-    fun unregisterPreferenceChangeListener()
+    fun UnregisterPreferenceChangeListener()
     {
-        _sharedPreferences!!.unregisterOnSharedPreferenceChangeListener(listener)
+        _sharedPreferences!!.unregisterOnSharedPreferenceChangeListener(_listener)
+    }
+
+    private fun SensorSettingListener(): SharedPreferences.OnSharedPreferenceChangeListener
+    {
+        return SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
+            when (key)
+            {
+
+            }
+        }
+    }
+
+    private fun PinListListener(): SharedPreferences.OnSharedPreferenceChangeListener
+    {
+        return SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
+            when (key)
+            {
+
+            }
+        }
     }
 }

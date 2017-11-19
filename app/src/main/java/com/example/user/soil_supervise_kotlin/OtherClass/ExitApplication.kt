@@ -5,28 +5,10 @@ import java.util.LinkedList
 
 class ExitApplication
 {
-    private val _activityList = LinkedList<Activity>()
-
-    // add open activities in list_sensor_data
-    fun addActivity(activity: Activity)
-    {
-        _activityList.add(activity)
-    }
-
-    // use "for" to close all activities
-    fun exit()
-    {
-        for (activity in _activityList)
-        {
-            activity.finish()
-        }
-        System.exit(0)
-    }
-
     companion object
     {
         @Volatile private var instance: ExitApplication? = null
-        fun initInstance(): ExitApplication?
+        fun InitInstance(): ExitApplication?
         {
             if (instance == null)
             {
@@ -39,5 +21,23 @@ class ExitApplication
             }
             return instance
         }
+    }
+
+    private val _activityList = LinkedList<Activity>()
+
+    // add open activities in list_sensor_data
+    fun AddActivity(activity: Activity)
+    {
+        _activityList.add(activity)
+    }
+
+    // use "for" to close all activities
+    fun Exit()
+    {
+        for (activity in _activityList)
+        {
+            activity.finish()
+        }
+        System.exit(0)
     }
 }

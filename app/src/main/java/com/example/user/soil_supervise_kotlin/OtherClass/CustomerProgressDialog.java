@@ -14,12 +14,6 @@ public class CustomerProgressDialog extends AlertDialog
     private String _title;
     private DialogBackPressedListener _Listener;
 
-    public CustomerProgressDialog(Context context, String title)
-    {
-        super(context);
-        _title = title;
-    }
-
     public interface DialogBackPressedListener
     {
         void onBackPressedInDialog();
@@ -36,14 +30,20 @@ public class CustomerProgressDialog extends AlertDialog
         tx_connecting.setText(_title);
     }
 
-    public void setOnBackPressedListener(DialogBackPressedListener listener)
-    {
-        _Listener = listener;
-    }
-
     @Override
     public void onBackPressed()
     {
         _Listener.onBackPressedInDialog();
+    }
+
+    public CustomerProgressDialog(Context context, String title)
+    {
+        super(context);
+        _title = title;
+    }
+
+    public void setOnBackPressedListener(DialogBackPressedListener listener)
+    {
+        _Listener = listener;
     }
 }

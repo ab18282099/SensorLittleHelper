@@ -34,7 +34,7 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener
 {
     companion object
     {
-        fun newInstance(): ChartFragment
+        fun NewInstance(): ChartFragment
         {
             val fragment = ChartFragment()
             val args = Bundle()
@@ -65,7 +65,7 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View
     {
         val view = inflater!!.inflate(R.layout.fragment_chart, container, false)
-        _sharePref = MySharedPreferences.initInstance(activity)
+        _sharePref = MySharedPreferences.InitInstance(activity)
         Log.e("ChartFragment", "onCreateView")
         return view
     }
@@ -83,7 +83,7 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener
 
         btn_chart_dialog.text = "選擇感測器"
         btn_chart_dialog.setOnClickListener {
-            val setChartDialog = _setChartDialog(activity)
+            val setChartDialog = SetChartDialog(activity)
             setChartDialog.show()
             setChartDialog.setCanceledOnTouchOutside(true)
         }
@@ -121,12 +121,6 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener
         Log.e("ChartFragment", "onStop")
     }
 
-    override fun OnFragmentBackPressed()
-    {
-        val vpMain = activity.findViewById<ViewPager>(R.id._vpMain) as ViewPager
-        vpMain.currentItem = 1
-    }
-
     override fun onDestroyView()
     {
         super.onDestroyView()
@@ -158,7 +152,13 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener
         Log.e("ChartFragment", isVisibleToUser.toString())
     }
 
-    private fun _setChartDialog(context: Context): AlertDialog
+    override fun OnFragmentBackPressed()
+    {
+        val vpMain = activity.findViewById<ViewPager>(R.id._vpMain) as ViewPager
+        vpMain.currentItem = 1
+    }
+
+    private fun SetChartDialog(context: Context): AlertDialog
     {
         val nullParent: ViewGroup? = null
         val factory = LayoutInflater.from(context)
@@ -171,11 +171,11 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener
                 .create()
 
         var chartId = 0
-        val sensorQuantity = _sharePref!!.getSensorQuantity()
+        val sensorQuantity = _sharePref!!.GetSensorQuantity()
         val sensorTitleList = arrayOfNulls<String>(sensorQuantity)
         for (i in 0 until sensorQuantity)
         {
-            sensorTitleList[i] = _sharePref!!.getSensorName(i)
+            sensorTitleList[i] = _sharePref!!.GetSensorName(i)
         }
 
         val sensorListAdapter = ArrayAdapter(context, android.R.layout.simple_spinner_dropdown_item, sensorTitleList)
@@ -195,24 +195,24 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener
 
         btn_set_chart.setOnClickListener {
             dialog.dismiss()
-            _setChartView(chartId)
+            SetChartView(chartId)
         }
 
         // DO NOT USE getApplicationContext!!!
         return dialog
     }
 
-    private fun _setChartView(chartID: Int)
+    private fun SetChartView(chartID: Int)
     {
-        val progressDialog = ProgressDialog.dialogProgress(activity, "連接中…", View.VISIBLE)
+        val progressDialog = ProgressDialog.DialogProgress(activity, "連接中…", View.VISIBLE)
         progressDialog.show()
         progressDialog.setCancelable(false)
 
-        val serverIP = _sharePref!!.getServerIP()
-        val user = _sharePref!!.getUser()
-        val pass = _sharePref!!.getPass()
+        val serverIP = _sharePref!!.GetServerIP()
+        val user = _sharePref!!.GetUsername()
+        val pass = _sharePref!!.GetPassword()
 
-        tx_chartTitle.text = _sharePref!!.getSensorName(chartID)
+        tx_chartTitle.text = _sharePref!!.GetSensorName(chartID)
 
         _httpThread = HandlerThread("history_data_download")
         _httpThread!!.start()
@@ -221,11 +221,11 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener
             try
             {
                 val phpAddress = "http://$serverIP/android_mysql.php?&server=$serverIP&user=$user&pass=$pass"
-                val data = HttpRequest.executeQuery("society", phpAddress)
+                val data = HttpRequest.DownloadFromMySQL("society", phpAddress)
                 val jsonString: String?
                 jsonString = data
 
-                _chartDataRenew(jsonString, chartID)
+                ChartDataRenew(jsonString, chartID)
                 progressDialog.dismiss()
             }
             catch (e: Exception)
@@ -241,7 +241,7 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener
         }
     }
 
-    private fun _chartDataRenew(jsonString: String?, chartID: Int)
+    private fun ChartDataRenew(jsonString: String?, chartID: Int)
     {
         val title: String
         val interval: Int
@@ -288,11 +288,11 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener
 
             val yData = ConvertUtils.convert(sensorData, java.lang.Double.TYPE) as DoubleArray
             y.add(yData)
-            title = _sharePref!!.getSensorName(chartID)
+            title = _sharePref!!.GetSensorName(chartID)
 
-            val dataSet = _buildDataSet(title, x, y, interval)
-            val renderer = _buildRenderer(Color.BLUE, PointStyle.CIRCLE, true)
-            _initChartSetting(renderer, "數據折線圖", "TIME", "%", firstTime, lastTime, (-50).toDouble(), (100).toDouble(), Color.BLACK)
+            val dataSet = BuildDataSet(title, x, y, interval)
+            val renderer = BuildRenderer(Color.BLUE, PointStyle.CIRCLE, true)
+            InitChartSetting(renderer, "數據折線圖", "TIME", "%", firstTime, lastTime, (-50).toDouble(), (100).toDouble(), Color.BLACK)
 
             val seriesLength = renderer.seriesRendererCount
 
@@ -320,8 +320,8 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener
         }
     }
 
-    private fun _buildDataSet(title: String, xValue: ArrayList<kotlin.Array<Date?>>,
-                              yVale: ArrayList<DoubleArray>, interval: Int): XYMultipleSeriesDataset
+    private fun BuildDataSet(title: String, xValue: ArrayList<kotlin.Array<Date?>>,
+                             yVale: ArrayList<DoubleArray>, interval: Int): XYMultipleSeriesDataset
     {
         val dataSet = XYMultipleSeriesDataset()
 
@@ -338,7 +338,7 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener
         return dataSet
     }
 
-    private fun _buildRenderer(color: Int, style: PointStyle, fill: Boolean): XYMultipleSeriesRenderer
+    private fun BuildRenderer(color: Int, style: PointStyle, fill: Boolean): XYMultipleSeriesRenderer
     {
         val renderer = XYMultipleSeriesRenderer()
 
@@ -351,9 +351,9 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener
         return renderer
     }
 
-    private fun _initChartSetting(renderer: XYMultipleSeriesRenderer, title: String, xTitle: String,
-                                  yTitle: String, xMin: Double, xMax: Double,
-                                  yMin: Double, yMax: Double, axisColor: Int)
+    private fun InitChartSetting(renderer: XYMultipleSeriesRenderer, title: String, xTitle: String,
+                                 yTitle: String, xMin: Double, xMax: Double,
+                                 yMin: Double, yMax: Double, axisColor: Int)
     {
         renderer.chartTitle = title // 折線圖名稱
         renderer.chartTitleTextSize = (45).toFloat() // 折線圖名稱字形大小

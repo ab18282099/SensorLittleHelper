@@ -25,7 +25,7 @@ class LoginFragment : BaseFragment(), FragmentBackPressedListener
 {
     companion object
     {
-        fun newInstance(): LoginFragment
+        fun NewInstance(): LoginFragment
         {
             val fragment = LoginFragment()
             val args = Bundle()
@@ -68,32 +68,32 @@ class LoginFragment : BaseFragment(), FragmentBackPressedListener
         super.onViewCreated(view, savedInstanceState)
         Log.e("LoginFragment", "onViewCreated")
 
-        _sharePref = MySharedPreferences.initInstance(activity)
+        _sharePref = MySharedPreferences.InitInstance(activity)
 
         edit_user.text = SpannableStringBuilder("")
 
-        if (_sharePref!!.getIsRememberPass())
+        if (_sharePref!!.GetIsRememberPassword())
         {
-            edit_pass.text = SpannableStringBuilder(_sharePref!!.getPass())
+            edit_pass.text = SpannableStringBuilder(_sharePref!!.GetPassword())
         }
         else edit_pass.text = SpannableStringBuilder("")
 
         rememberPass.text = "記住密碼"
-        rememberPass.isChecked = _sharePref!!.getIsRememberPass()
+        rememberPass.isChecked = _sharePref!!.GetIsRememberPassword()
         rememberPass.setOnCheckedChangeListener { _, b ->
             if (b)
             {
-                _sharePref!!.PutBoolean("getIsRememberPass", true)
+                _sharePref!!.PutBoolean("GetIsRememberPassword", true)
             }
             else
             {
-                _sharePref!!.PutBoolean("getIsRememberPass", false)
+                _sharePref!!.PutBoolean("GetIsRememberPassword", false)
             }
         }
 
         btn_login.text = "登入"
         btn_login.setOnClickListener {
-            _tryConnectDataBase(edit_user.text.toString(), edit_pass.text.toString())
+            TryConnectDataBase(edit_user.text.toString(), edit_pass.text.toString())
         }
     }
 
@@ -149,31 +149,31 @@ class LoginFragment : BaseFragment(), FragmentBackPressedListener
     {
         if (_doubleBackToExit == true && _doubleBackToExit != null)
         {
-            ExitApplication.initInstance()?.exit()
+            ExitApplication.InitInstance()?.Exit()
             return
         }
 
         this._doubleBackToExit = true
-        toast("Press Back again to exit")
+        toast("Press Back again to Exit")
 
         Handler().postDelayed({
             _doubleBackToExit = false
         }, 1000)
     }
 
-    private fun _tryConnectDataBase(user: String, pass: String)
+    private fun TryConnectDataBase(user: String, pass: String)
     {
-        Log.e("LoginFragment", "_tryConnectDataBase")
+        Log.e("LoginFragment", "TryConnectDataBase")
 
         val queue: RequestQueue = Volley.newRequestQueue(context)
-        val progressDialog = ProgressDialog.dialogProgress(activity, "連接中…", View.VISIBLE)
+        val progressDialog = ProgressDialog.DialogProgress(activity, "連接中…", View.VISIBLE)
 
         if (!progressDialog.isShowing)
         {
             progressDialog.show()
             progressDialog.setCancelable(false)
         }
-        val ServerIP = _sharePref!!.getServerIP()
+        val ServerIP = _sharePref!!.GetServerIP()
         val phpAddress = "http://$ServerIP/conn_json.php?&server=$ServerIP&user=$user&pass=$pass"
         val connectRequest = JsonObjectRequest(phpAddress, null, { jsonObject ->
             try
@@ -186,8 +186,8 @@ class LoginFragment : BaseFragment(), FragmentBackPressedListener
                         progressDialog.dismiss()
                     }
                     toast("已連接資料庫")
-                    _sharePref!!.PutString("getUser", edit_user.text.toString())
-                    _sharePref!!.PutString("getPass", edit_pass.text.toString())
+                    _sharePref!!.PutString("GetUsername", edit_user.text.toString())
+                    _sharePref!!.PutString("GetPassword", edit_pass.text.toString())
 
                     val vpMain = activity.findViewById<ViewPager>(R.id._vpMain) as ViewPager
                     vpMain.currentItem = 1
@@ -199,15 +199,15 @@ class LoginFragment : BaseFragment(), FragmentBackPressedListener
                         progressDialog.dismiss()
                     }
                     toast("連接失敗")
-                    _sharePref!!.PutString("getUser", edit_user.text.toString())
-                    _sharePref!!.PutString("getPass", edit_pass.text.toString())
+                    _sharePref!!.PutString("GetUsername", edit_user.text.toString())
+                    _sharePref!!.PutString("GetPassword", edit_pass.text.toString())
                 }
             }
             catch (e: JSONException)
             {
                 Log.e("connJSON", e.toString())
-                _sharePref!!.PutString("getUser", edit_user.text.toString())
-                _sharePref!!.PutString("getPass", edit_pass.text.toString())
+                _sharePref!!.PutString("GetUsername", edit_user.text.toString())
+                _sharePref!!.PutString("GetPassword", edit_pass.text.toString())
             }
         }, { volleyError ->
             if (progressDialog.isShowing)
@@ -216,8 +216,8 @@ class LoginFragment : BaseFragment(), FragmentBackPressedListener
             }
             VolleyLog.e("ERROR", volleyError.toString())
             toast("CONNECT ERROR")
-            _sharePref!!.PutString("getUser", edit_user.text.toString())
-            _sharePref!!.PutString("getPass", edit_pass.text.toString())
+            _sharePref!!.PutString("GetUsername", edit_user.text.toString())
+            _sharePref!!.PutString("GetPassword", edit_pass.text.toString())
         })
         val Timeout = 9000
         val policy = DefaultRetryPolicy(Timeout,

@@ -153,11 +153,9 @@ class Foreground : Application.ActivityLifecycleCallbacks
 
     interface Listener
     {
-
         fun onBecameForeground()
 
         fun onBecameBackground()
-
     }
 
     companion object

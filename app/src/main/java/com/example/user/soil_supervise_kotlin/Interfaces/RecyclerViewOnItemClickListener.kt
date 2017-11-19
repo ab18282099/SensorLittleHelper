@@ -4,5 +4,5 @@ import android.view.View
 
 interface RecyclerViewOnItemClickListener
 {
-    fun onItemClick(view: View?, position: Int)
+    fun OnRecyclerViewItemClick(view: View?, position: Int)
 }

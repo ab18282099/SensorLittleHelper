@@ -54,13 +54,13 @@ abstract class BaseActivity : AppCompatActivity()
                     LinearLayout.LayoutParams.MATCH_PARENT))
 
             //do not change sequence
-            findView()
-            initView()
+            FindView()
+            InitView()
 
             //do not change sequence
-            _beforeSetActionBar()
-            initActionBar()
-            _afterSetActionBar()
+            BeforeSetActionBar()
+            InitActionBar()
+            AfterSetActionBar()
         }
         Log.e("baseActivity", "setContentView")
     }
@@ -101,98 +101,15 @@ abstract class BaseActivity : AppCompatActivity()
         Log.e("MainActivity", "onRestart")
     }
 
-    private fun _beforeSetActionBar()
-    {
-        _mToolbar = findViewById<Toolbar>(R.id.toolbar) as Toolbar
-        _mToolbar!!.setNavigationIcon(R.mipmap.btn_back)
-        _mToolbar!!.setTitleTextColor(Color.WHITE)
-        _mToolbar!!.title = ""
-        _mToolbar!!.isEnabled = true
-    }
-
-    abstract fun initActionBar()
-
-    private fun _afterSetActionBar()
-    {
-        setSupportActionBar(_mToolbar)
-        if (supportActionBar != null)
-        {
-            supportActionBar!!.setDisplayShowTitleEnabled(false)
-        }
-        _mToolbar!!.setNavigationOnClickListener(_onNavigationClickListener)
-        _mToolbar!!.setOnMenuItemClickListener(_onMenuItemClickListener)
-    }
-
-    abstract fun findView()
-
-    abstract fun initView()
-
-    fun setMenuID(@MenuRes menuRes: Int)
-    {
-        this._menuRes = menuRes
-    }
-
-    fun setMenu(@MenuRes menuRes: Int, onMenuItemClickListener: (MenuItem) -> Boolean)
-    {
-        this._menuRes = menuRes
-        setMenuClickListener(onMenuItemClickListener)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean
-    {
-        if (_menuRes != _invalidMenu)
-        {
-            menuInflater.inflate(_menuRes, menu)
-        }
-        return true
-    }
-
-    fun setLeftImg(@DrawableRes imgId: Int)
-    {
-        _mToolbar!!.setNavigationIcon(imgId)
-    }
-
-    fun setActivityTitle(text: String)
-    {
-        _toolBarTitle!!.text = text
-    }
-
-    fun setActivityTitle(@StringRes textId: Int)
-    {
-        _toolBarTitle!!.setText(textId)
-    }
-
-    fun setRightText(text: String)
-    {
-        //amRightTv!!.text = text
-    }
-
-    fun setRightTextAndClickListener(text: String, listener: View.OnClickListener)
-    {
-//        amRightTv!!.text = text
-//        amRightTv!!.setOnClickListener(listener)
-    }
-
-    fun setRightImageAndClickListener(@DrawableRes imgId: Int, listener: View.OnClickListener)
-    {
-        _toolbarImage!!.setImageDrawable(ContextCompat.getDrawable(this, imgId))
-        _toolbarImage!!.setOnClickListener(listener)
-    }
-
-    fun setRightImg(@DrawableRes imgId: Int)
-    {
-//        amRightTv!!.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, imgId, 0)
-    }
-
-    fun setMenuClickListener(onMenuItemClickListener: (MenuItem) -> Boolean)
-    {
-        this._onMenuItemClickListener = onMenuItemClickListener
-    }
-
-    fun setOnNavigationClickListener(onNavigationClickListener: View.OnClickListener)
-    {
-        this._onNavigationClickListener = onNavigationClickListener
-    }
+//    override fun onCreateOptionsMenu(menu: Menu?): Boolean
+//    {
+//        if (_menuRes != _invalidMenu)
+//        {
+//            menuInflater.inflate(_menuRes, menu)
+//        }
+//
+//        return true
+//    }
 
     override fun onBackPressed()
     {
@@ -204,4 +121,95 @@ abstract class BaseActivity : AppCompatActivity()
         super.onDestroy()
         Log.e("baseActivity", "onDestroy")
     }
+
+    fun SetMenuID(@MenuRes menuRes: Int)
+    {
+        this._menuRes = menuRes
+    }
+
+    fun SetMenuClickListener(onMenuItemClickListener: (MenuItem) -> Boolean)
+    {
+//        this._onMenuItemClickListener =
+        _mToolbar!!.setOnMenuItemClickListener(onMenuItemClickListener)
+    }
+
+    fun SetMenuInstance(@MenuRes menuRes: Int, onMenuItemClickListener: (MenuItem) -> Boolean)
+    {
+        _mToolbar!!.inflateMenu(menuRes)
+        _mToolbar!!.setOnMenuItemClickListener(onMenuItemClickListener)
+    }
+
+    fun SetMenu(@MenuRes menuRes: Int, onMenuItemClickListener: (MenuItem) -> Boolean)
+    {
+        this._menuRes = menuRes
+        this._onMenuItemClickListener = onMenuItemClickListener
+    }
+
+    fun SetLeftImg(@DrawableRes imgId: Int)
+    {
+        _mToolbar!!.setNavigationIcon(imgId)
+    }
+
+    fun SetActivityTitle(text: String)
+    {
+        _toolBarTitle!!.text = text
+    }
+
+    fun SetActivityTitle(@StringRes textId: Int)
+    {
+        _toolBarTitle!!.setText(textId)
+    }
+
+    fun SetRightText(text: String)
+    {
+        //amRightTv!!.text = text
+    }
+
+    fun SetRightTextAndClickListener(text: String, listener: View.OnClickListener)
+    {
+//        amRightTv!!.text = text
+//        amRightTv!!.setOnClickListener(listener)
+    }
+
+    fun SetRightImageAndClickListener(@DrawableRes imgId: Int, listener: View.OnClickListener)
+    {
+        _toolbarImage!!.setImageDrawable(ContextCompat.getDrawable(this, imgId))
+        _toolbarImage!!.setOnClickListener(listener)
+    }
+
+    fun SetRightImg(@DrawableRes imgId: Int)
+    {
+//        amRightTv!!.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, imgId, 0)
+    }
+
+    fun SetOnNavigationClickListener(onNavigationClickListener: View.OnClickListener)
+    {
+        this._onNavigationClickListener = onNavigationClickListener
+    }
+
+    private fun BeforeSetActionBar()
+    {
+        _mToolbar = findViewById<Toolbar>(R.id.toolbar) as Toolbar
+        _mToolbar!!.setNavigationIcon(R.mipmap.btn_back)
+        _mToolbar!!.setTitleTextColor(Color.WHITE)
+        _mToolbar!!.title = ""
+        _mToolbar!!.isEnabled = true
+    }
+
+    private fun AfterSetActionBar()
+    {
+        setSupportActionBar(_mToolbar)
+        if (supportActionBar != null)
+        {
+            supportActionBar!!.setDisplayShowTitleEnabled(false)
+        }
+        _mToolbar!!.setNavigationOnClickListener(_onNavigationClickListener)
+//        _mToolbar!!.setOnMenuItemClickListener(_onMenuItemClickListener)
+    }
+
+    abstract fun InitActionBar()
+
+    abstract fun FindView()
+
+    abstract fun InitView()
 }

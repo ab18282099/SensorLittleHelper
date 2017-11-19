@@ -21,7 +21,7 @@ class HttpRequest
 {
     companion object
     {
-        fun sendRequest(parameterValue: String, ipAddress: String, portNumber: String, parameterName: String): String?
+        fun SendToggleRequest(parameterValue: String, ipAddress: String, portNumber: String, parameterName: String): String?
         {
             var serverResponse: String?
 
@@ -85,7 +85,7 @@ class HttpRequest
             return serverResponse
         }
 
-        fun executeQuery(query: String, phpAddress : String?): String?
+        fun DownloadFromMySQL(query: String, phpAddress : String?): String?
         {
             var result: String?
             val post = HttpPost(phpAddress)

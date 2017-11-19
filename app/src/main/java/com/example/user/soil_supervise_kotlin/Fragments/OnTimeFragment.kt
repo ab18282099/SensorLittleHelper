@@ -35,7 +35,7 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
 {
     companion object
     {
-        fun newInstance(): OnTimeFragment
+        fun NewInstance(): OnTimeFragment
         {
             val fragment = OnTimeFragment()
             val args = Bundle()
@@ -59,108 +59,6 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
     private var _initRecyclerAdapter: InitRecyclerAdapter? = null
 
     private var _sharePref: MySharedPreferences? = null
-
-    override fun onAttach(context: Context?)
-    {
-        super.onAttach(context)
-        Log.e("OnTimeFragment", "onAttach")
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?)
-    {
-        super.onCreate(savedInstanceState)
-        Log.e("OnTimeFragment", "onCreate")
-    }
-
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View
-    {
-        val view = inflater!!.inflate(R.layout.fragment_on_time, container, false)
-
-        _sharePref = MySharedPreferences.initInstance(activity)
-
-        _recyclerOnTime = view.findViewById<RecyclerView>(R.id.recycler_on_time) as RecyclerView
-
-        val layoutManger = LinearLayoutManager(this.context)
-        layoutManger.orientation = LinearLayoutManager.VERTICAL
-        _recyclerOnTime?.layoutManager = layoutManger
-
-        _initRecyclerAdapter = InitRecyclerAdapter()
-        _recyclerOnTime?.adapter = _initRecyclerAdapter
-
-        Log.e("OnTimeFragment", "onCreateView")
-        return view
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?)
-    {
-        super.onActivityCreated(savedInstanceState)
-        Log.e("OnTimeFragment", "onActivityCreated")
-    }
-
-    override fun onViewCreated(view: View?, savedInstanceState: Bundle?)
-    {
-        super.onViewCreated(view, savedInstanceState)
-        Log.e("OnTimeFragment", "onViewCreated")
-
-    }
-
-    override fun onStart()
-    {
-        super.onStart()
-        Log.e("OnTimeFragment", "onStart")
-    }
-
-    override fun onResume()
-    {
-        super.onResume()
-        Log.e("OnTimeFragment", "onResume")
-    }
-
-    override fun onPause()
-    {
-        super.onPause()
-        Log.e("OnTimeFragment", "onPause")
-    }
-
-    override fun onStop()
-    {
-        super.onStop()
-        Log.e("OnTimeFragment", "onStop")
-    }
-
-    override fun OnFragmentBackPressed()
-    {
-        _recycleThread()
-
-        val vpMain = activity.findViewById<ViewPager>(R.id._vpMain) as ViewPager
-        vpMain.currentItem = 1
-    }
-
-    override fun onDestroyView()
-    {
-        super.onDestroyView()
-        Log.e("OnTimeFragment", "onDestroyView")
-
-        _recycleThread()
-    }
-
-    override fun onDestroy()
-    {
-        super.onDestroy()
-        Log.e("OnTimeFragment", "onDestroy")
-    }
-
-    override fun onDetach()
-    {
-        super.onDetach()
-        Log.e("OnTimeFragment", "onDetach")
-    }
-
-    override fun setUserVisibleHint(isVisibleToUser: Boolean)
-    {
-        super.setUserVisibleHint(isVisibleToUser)
-        Log.e("OnTimeFragment", isVisibleToUser.toString())
-    }
 
     inner class OnTimeRecyclerAdapter : RecyclerView.Adapter<OnTimeFragment.OnTimeRecyclerAdapter.ViewHolder>()
     {
@@ -201,22 +99,22 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
                 }
                 else if (position in 1.._sensorQuantity)
                 {
-                    val sensorVisibility = _sharePref!!.getSensorVisibility(position - 1)
+                    val sensorVisibility = _sharePref!!.GetSensorVisibility(position - 1)
 
                     if (sensorVisibility == View.VISIBLE)
                     {
                         holder!!.tx_on_time_title!!.visibility = sensorVisibility
                         holder.tx_on_time_text!!.visibility = sensorVisibility
 
-                        holder.tx_on_time_title!!.text = _sharePref!!.getSensorName(position - 1)
+                        holder.tx_on_time_title!!.text = _sharePref!!.GetSensorName(position - 1)
 
-                        val warnCondition = _sharePref!!.getSensorCondition(position - 1).toFloat()
+                        val warnCondition = _sharePref!!.GetSensorCondition(position - 1).toFloat()
                         val sensorDataFloat: Float
 
                         if (_sensorDataList[position] == "") sensorDataFloat = (-1).toFloat()
                         else sensorDataFloat = _sensorDataList[position]!!.toFloat()
 
-                        if (_isWarning(sensorDataFloat, warnCondition))
+                        if (IsWarning(sensorDataFloat, warnCondition))
                         {
                             holder.tx_on_time_text!!.text = getString(R.string.warn, _sensorDataList[position], String.format("%.2f", warnCondition))
                             holder.tx_on_time_text!!.setTextColor(Color.RED)
@@ -319,31 +217,133 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
         }
     }
 
-    fun setSensorQuantity(quantity: Int)
+    override fun onAttach(context: Context?)
+    {
+        super.onAttach(context)
+        Log.e("OnTimeFragment", "onAttach")
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?)
+    {
+        super.onCreate(savedInstanceState)
+        Log.e("OnTimeFragment", "onCreate")
+    }
+
+    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View
+    {
+        val view = inflater!!.inflate(R.layout.fragment_on_time, container, false)
+
+        _sharePref = MySharedPreferences.InitInstance(activity)
+
+        _recyclerOnTime = view.findViewById<RecyclerView>(R.id.recycler_on_time) as RecyclerView
+
+        val layoutManger = LinearLayoutManager(this.context)
+        layoutManger.orientation = LinearLayoutManager.VERTICAL
+        _recyclerOnTime?.layoutManager = layoutManger
+
+        _initRecyclerAdapter = InitRecyclerAdapter()
+        _recyclerOnTime?.adapter = _initRecyclerAdapter
+
+        Log.e("OnTimeFragment", "onCreateView")
+        return view
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?)
+    {
+        super.onActivityCreated(savedInstanceState)
+        Log.e("OnTimeFragment", "onActivityCreated")
+    }
+
+    override fun onViewCreated(view: View?, savedInstanceState: Bundle?)
+    {
+        super.onViewCreated(view, savedInstanceState)
+        Log.e("OnTimeFragment", "onViewCreated")
+
+    }
+
+    override fun onStart()
+    {
+        super.onStart()
+        Log.e("OnTimeFragment", "onStart")
+    }
+
+    override fun onResume()
+    {
+        super.onResume()
+        Log.e("OnTimeFragment", "onResume")
+    }
+
+    override fun onPause()
+    {
+        super.onPause()
+        Log.e("OnTimeFragment", "onPause")
+    }
+
+    override fun onStop()
+    {
+        super.onStop()
+        Log.e("OnTimeFragment", "onStop")
+    }
+
+    override fun onDestroyView()
+    {
+        super.onDestroyView()
+        Log.e("OnTimeFragment", "onDestroyView")
+
+        RecycleThread()
+    }
+
+    override fun onDestroy()
+    {
+        super.onDestroy()
+        Log.e("OnTimeFragment", "onDestroy")
+    }
+
+    override fun onDetach()
+    {
+        super.onDetach()
+        Log.e("OnTimeFragment", "onDetach")
+    }
+
+    override fun setUserVisibleHint(isVisibleToUser: Boolean)
+    {
+        super.setUserVisibleHint(isVisibleToUser)
+        Log.e("OnTimeFragment", isVisibleToUser.toString())
+    }
+
+    override fun OnFragmentBackPressed()
+    {
+        RecycleThread()
+
+        val vpMain = activity.findViewById<ViewPager>(R.id._vpMain) as ViewPager
+        vpMain.currentItem = 1
+    }
+
+    fun SetSensorQuantity(quantity: Int)
     {
         _sensorQuantity = quantity
     }
 
-    fun tryLoadLastData(user: String, pass: String)
+    fun TryLoadLastData(user: String, pass: String)
     {
-        Log.e("OnTimeFragment", "tryLoadLastData")
+        Log.e("OnTimeFragment", "TryLoadLastData")
 
         _sensorDataList.clear()
 
         val queue: RequestQueue = Volley.newRequestQueue(context)
-        val progressDialog = ProgressDialog.dialogProgress(activity, "連接中…", View.VISIBLE)
+        val progressDialog = ProgressDialog.DialogProgress(activity, "連接中…", View.VISIBLE)
 
         if (!progressDialog.isShowing)
         {
             progressDialog.show()
             progressDialog.setCancelable(false)
         }
-        val ServerIP = _sharePref!!.getServerIP()
+        val ServerIP = _sharePref!!.GetServerIP()
         val phpAddress = "http://$ServerIP/android_mysql_last.php?&server=$ServerIP&user=$user&pass=$pass"
         val connectRequest = JsonObjectRequest(phpAddress, null, { jsonObject ->
             try
             {
-                val sensorQuantity = _sharePref!!.getSensorQuantity()
+                val sensorQuantity = _sharePref!!.GetSensorQuantity()
                 val sensorData = arrayOfNulls<String>(sensorQuantity + 2)
 
                 for (i in 0 until sensorQuantity + 2)
@@ -371,7 +371,7 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
                 }
 
                 toast("連接成功")
-                _warningFunction(_sensorDataList)
+                WarningFunction(_sensorDataList)
             }
             catch (e: Exception)
             {
@@ -390,7 +390,7 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
             VolleyLog.e("ERROR", volleyError.toString())
             toast("CONNECT ERROR")
         })
-        val Timeout = 9000
+        val Timeout = 5000
         val policy = DefaultRetryPolicy(Timeout,
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT)
@@ -398,7 +398,7 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
         queue.add(connectRequest)
     }
 
-    private fun _warningFunction(sensorDataList: ArrayList<String?>)
+    private fun WarningFunction(sensorDataList: ArrayList<String?>)
     {
         val toggleSensorList = ArrayList<String>()
         val toggleSensorPinList = ArrayList<String>()
@@ -407,25 +407,25 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
 
         for (i in 1.._sensorQuantity)
         {
-            val warnCondition = _sharePref!!.getSensorCondition(i - 1).toFloat()
+            val warnCondition = _sharePref!!.GetSensorCondition(i - 1).toFloat()
             val sensorDataFloat = if (sensorDataList[i] == "") (-1).toFloat() else sensorDataList[i]!!.toFloat()
 
-            if (_sharePref!!.getSensorVisibility(i - 1) == View.VISIBLE)
+            if (_sharePref!!.GetSensorVisibility(i - 1) == View.VISIBLE)
             {
-                if (_isWarning(sensorDataFloat, warnCondition))
+                if (IsWarning(sensorDataFloat, warnCondition))
                 {
-                    if (_sharePref!!.getPinState(i - 1) == "OFF")
+                    if (_sharePref!!.GetPinState(i - 1) == "OFF")
                     {
-                        toggleSensorList.add(_sharePref!!.getSensorName(i - 1))
-                        toggleSensorPinList.add(_sharePref!!.getSensorPin(i - 1))
+                        toggleSensorList.add(_sharePref!!.GetSensorName(i - 1))
+                        toggleSensorPinList.add(_sharePref!!.GetSensorPin(i - 1))
                     }
                 }
                 else
                 {
-                    if (_sharePref!!.getPinState(i - 1) == "ON")
+                    if (_sharePref!!.GetPinState(i - 1) == "ON")
                     {
-                        toggleSensorList.add(_sharePref!!.getSensorName(i - 1))
-                        toggleSensorPinList.add(_sharePref!!.getSensorPin(i - 1))
+                        toggleSensorList.add(_sharePref!!.GetSensorName(i - 1))
+                        toggleSensorPinList.add(_sharePref!!.GetSensorPin(i - 1))
                     }
                 }
             }
@@ -436,11 +436,11 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
             toggleText = toggleSensorList.joinToString(separator = ", ")
             togglePin = toggleSensorPinList.joinToString(separator = ",")
 
-            when(_sharePref!!.getIsAutoToggle())
+            when(_sharePref!!.GetIsAutoToggle())
             {
                 true ->
                 {
-                    val autoDialog = _autoToggle(togglePin, "發現狀態改變！")
+                    val autoDialog = AutoToggle(togglePin, "發現狀態改變！")
                     autoDialog.show()
                     autoDialog.setCancelable(false)
                 }
@@ -459,7 +459,7 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
         }
     }
 
-    private fun _isWarning(sensorData: Float?, warnConditional: Float?): Boolean
+    private fun IsWarning(sensorData: Float?, warnConditional: Float?): Boolean
     {
         val invalidFloat = (-1).toFloat()
 
@@ -471,7 +471,7 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
         return false
     }
 
-    private fun _autoToggle(togglePin: String, message: String): AlertDialog
+    private fun AutoToggle(togglePin: String, message: String): AlertDialog
     {
         val nullParent: ViewGroup? = null
         val convertView = LayoutInflater.from(activity).inflate(R.layout.dialog_count_down, nullParent)
@@ -489,9 +489,9 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
                 _count = 5
                 _countHandler!!.removeCallbacks(_countRunnable)
 
-                val ipAddress = _sharePref!!.getIPAddress()
-                val port = _sharePref!!.getPort()
-                _httpThread(ipAddress, port, togglePin)
+                val ipAddress = _sharePref!!.GetIPAddress()
+                val port = _sharePref!!.GetPort()
+                HttpThread(ipAddress, port, togglePin)
             }
             else
             {
@@ -507,15 +507,15 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
             dialog.dismiss()
             _count = 5
             _countHandler!!.removeCallbacks(_countRunnable)
-            _recycleThread()
+            RecycleThread()
         }
 
         return dialog
     }
 
-    private fun _httpThread(ipAddress: String, port: String, parameterValue: String)
+    private fun HttpThread(ipAddress: String, port: String, parameterValue: String)
     {
-        _progressDialog = ProgressDialog.dialogProgress(activity, "連接中…", View.VISIBLE)
+        _progressDialog = ProgressDialog.DialogProgress(activity, "連接中…", View.VISIBLE)
         _progressDialog!!.show()
         _progressDialog!!.setCancelable(false)
 
@@ -528,7 +528,7 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
                 var requestReply: String? = ""
                 try
                 {
-                    requestReply = HttpRequest.sendRequest(parameterValue, ipAddress, port, "pin")
+                    requestReply = HttpRequest.SendToggleRequest(parameterValue, ipAddress, port, "pin")
                 }
                 catch (e: Exception)
                 {
@@ -537,19 +537,19 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
 
                 if (requestReply != null && requestReply.isNotEmpty())
                 {
-                    _postExecute(requestReply)
+                    PostExecute(requestReply)
                 }
             }
         }
     }
 
-    private fun _postExecute(requestReply: String)
+    private fun PostExecute(requestReply: String)
     {
         if (_progressDialog!!.isShowing) _progressDialog!!.dismiss()
 
         if (requestReply == "THIS PIN NOT IN SERVICE")
         {
-            val resultDialog = ProgressDialog.dialogProgress(activity, requestReply, View.GONE)
+            val resultDialog = ProgressDialog.DialogProgress(activity, requestReply, View.GONE)
             resultDialog.show()
         }
         else
@@ -559,23 +559,23 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
                 val jsonResult = JSONObject(requestReply)
                 for (i in 0 until _sensorQuantity)
                 {
-                    _sharePref!!.PutString("getPin" + i.toString() + "State", jsonResult.getString("PIN" + _sharePref!!.getSensorPin(i)))
+                    _sharePref!!.PutString("getPin" + i.toString() + "State", jsonResult.getString("PIN" + _sharePref!!.GetSensorPin(i)))
                 }
 
-                val resultDialog = ProgressDialog.dialogProgress(activity, "完成", View.GONE)
+                val resultDialog = ProgressDialog.DialogProgress(activity, "完成", View.GONE)
                 resultDialog.show()
             }
             catch (e: Exception)
             {
                 Log.e("RESULT NOT JSON", e.toString())
 
-                val resultDialog = ProgressDialog.dialogProgress(activity, requestReply, View.GONE)
+                val resultDialog = ProgressDialog.DialogProgress(activity, requestReply, View.GONE)
                 resultDialog.show()
             }
         }
     }
 
-    private fun _recycleThread()
+    private fun RecycleThread()
     {
         if (_threadHandler != null && _httpThread != null)
         {
