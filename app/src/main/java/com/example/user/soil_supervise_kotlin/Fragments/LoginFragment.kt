@@ -80,7 +80,7 @@ class LoginFragment : BaseFragment(), FragmentBackPressedListener
 
         rememberPass.text = "記住密碼"
         rememberPass.isChecked = _sharePref!!.getIsRememberPass()
-        rememberPass.setOnCheckedChangeListener { compoundButton, b ->
+        rememberPass.setOnCheckedChangeListener { _, b ->
             if (b)
             {
                 _sharePref!!.PutBoolean("getIsRememberPass", true)
