@@ -159,7 +159,6 @@ class MainActivity : BaseActivity()
 
             override fun onPageSelected(position: Int)
             {
-
                 when (position)
                 {
                     0 ->

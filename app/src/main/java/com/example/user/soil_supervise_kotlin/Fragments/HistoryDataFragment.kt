@@ -299,6 +299,7 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
     override fun onDestroy()
     {
         super.onDestroy()
+        RecycleThread()
         Log.e("HistoryDataFragment", "onDestroy")
     }
 
@@ -449,6 +450,16 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
         }
 
         CheckButton()
+    }
+
+    fun RecycleThread()
+    {
+        if (_threadHandler != null && _httpThread != null)
+        {
+            _threadHandler?.removeCallbacksAndMessages(null)
+            _httpThread?.quitSafely()
+            _httpThread?.interrupt()
+        }
     }
 
     private fun SetDeletedDialog(context: Context): AlertDialog
