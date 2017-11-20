@@ -4,9 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.support.v4.view.ViewPager
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.GridView
 import android.widget.SimpleAdapter
 import com.example.user.soil_supervise_kotlin.OtherClass.ExitApplication
@@ -17,10 +15,11 @@ import org.jetbrains.anko.yesButton
 import java.util.ArrayList
 import java.util.HashMap
 import com.example.user.soil_supervise_kotlin.Interfaces.FragmentBackPressedListener
+import com.example.user.soil_supervise_kotlin.Interfaces.FragmentMenuItemClickListener
 import com.example.user.soil_supervise_kotlin.OtherClass.MySharedPreferences
 
 
-class MainFragment : BaseFragment(), FragmentBackPressedListener
+class MainFragment : BaseFragment(), FragmentBackPressedListener, FragmentMenuItemClickListener
 {
     companion object
     {
@@ -48,6 +47,7 @@ class MainFragment : BaseFragment(), FragmentBackPressedListener
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
         Log.e("MainFragment", "onCreate")
     }
 
@@ -151,6 +151,62 @@ class MainFragment : BaseFragment(), FragmentBackPressedListener
     {
         super.setUserVisibleHint(isVisibleToUser)
         Log.e("MainFragment", isVisibleToUser.toString())
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?)
+    {
+        inflater!!.inflate(R.menu.menu_main, menu)
+
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun FragmentMenuItemClickListenerObject(): (MenuItem) -> Boolean
+    {
+        val vpMain = activity.findViewById<ViewPager>(R.id._vpMain) as ViewPager
+
+        return { item ->
+
+            when (item.itemId)
+            {
+                R.id.menu_login ->
+                {
+                    vpMain.currentItem = 0
+                }
+                R.id.menu_main ->
+                {
+                    vpMain.currentItem = 1
+                }
+                R.id.menu_wifield ->
+                {
+                    vpMain.currentItem = 2
+                }
+                R.id.menu_current ->
+                {
+                    vpMain.currentItem = 3
+                }
+                R.id.menu_history ->
+                {
+                    vpMain.currentItem = 4
+                }
+                R.id.menu_chart ->
+                {
+                    vpMain.currentItem = 5
+                }
+                R.id.menu_mainSet ->
+                {
+                    vpMain.currentItem = 6
+                }
+                R.id.menu_mainExit ->
+                {
+                    alert("你確定要離開?") {
+                        yesButton { ExitApplication.InitInstance()?.Exit() }
+                        noButton { }
+                    }.show()
+                }
+            }
+
+            true
+        }
     }
 
     override fun OnFragmentBackPressed()

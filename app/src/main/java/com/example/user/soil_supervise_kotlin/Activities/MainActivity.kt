@@ -135,50 +135,6 @@ class MainActivity : BaseActivity()
         SetOnNavigationClickListener(View.OnClickListener {
 
         })
-
-//        SetMenu(R.menu.menu_main, { item ->
-//
-//            when (item.itemId)
-//            {
-//                R.id.menu_login ->
-//                {
-//                    _vpMain?.currentItem = 0
-//                }
-//                R.id.menu_main ->
-//                {
-//                    _vpMain?.currentItem = 1
-//                }
-//                R.id.menu_wifield ->
-//                {
-//                    _vpMain?.currentItem = 2
-//                }
-//                R.id.menu_current ->
-//                {
-//                    _vpMain?.currentItem = 3
-//                }
-//                R.id.menu_history ->
-//                {
-//                    _vpMain?.currentItem = 4
-//                }
-//                R.id.menu_chart ->
-//                {
-//                    _vpMain?.currentItem = 5
-//                }
-//                R.id.menu_mainSet ->
-//                {
-//                    _vpMain?.currentItem = 6
-//                }
-//                R.id.menu_mainExit ->
-//                {
-//                    alert("你確定要離開?") {
-//                        yesButton { ExitApplication.InitInstance()?.Exit() }
-//                        noButton { }
-//                    }.show()
-//                }
-//            }
-//
-//            true
-//        })
     }
 
     override fun InitView()
@@ -219,10 +175,12 @@ class MainActivity : BaseActivity()
                     }
                     1 ->
                     {
+                        val MainFragmentMenuItemClickListener = _mAdapter!!.GetFragment(1) as FragmentMenuItemClickListener
                         SetActivityTitle("主頁")
                         SetRightImageAndClickListener(R.drawable.login, View.OnClickListener {
                             _vpMain?.currentItem = 0
                         })
+                        SetMenuClickListener(MainFragmentMenuItemClickListener)
                         RecycleThread()
                         RemoveCallOnTime()
                     }
