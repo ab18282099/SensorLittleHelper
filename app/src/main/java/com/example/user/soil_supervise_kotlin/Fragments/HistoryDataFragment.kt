@@ -5,6 +5,8 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.os.Bundle
+import android.os.Handler
+import android.os.HandlerThread
 import android.support.v4.content.ContextCompat
 import android.support.v4.view.ViewPager
 import android.support.v7.widget.LinearLayoutManager
@@ -22,6 +24,8 @@ import com.android.volley.toolbox.Volley
 import com.example.user.soil_supervise_kotlin.Activities.MainActivity
 import com.example.user.soil_supervise_kotlin.Interfaces.FragmentBackPressedListener
 import com.example.user.soil_supervise_kotlin.Interfaces.FragmentMenuItemClickListener
+import com.example.user.soil_supervise_kotlin.OtherClass.DataWriter
+import com.example.user.soil_supervise_kotlin.OtherClass.HttpRequest
 import com.example.user.soil_supervise_kotlin.OtherClass.ProgressDialog
 import com.example.user.soil_supervise_kotlin.OtherClass.MySharedPreferences
 import com.example.user.soil_supervise_kotlin.R
@@ -57,6 +61,9 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
     private var _currentId2 = ""
 
     private var _isSuccessLoad = false
+
+    private var _httpThread : HandlerThread? = null
+    private var _threadHandler : Handler? = null
 
     inner class HistoryDataRecyclerAdapter : RecyclerView.Adapter<HistoryDataFragment.HistoryDataRecyclerAdapter.ViewHolder>()
     {
@@ -326,7 +333,7 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
             {
                 R.id.menu_backup ->
                 {
-                    toast("FUCK YOU")
+                    BackUpHistoryData()
                 }
             }
 
@@ -608,5 +615,34 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT)
         connectRequest.retryPolicy = policy
         queue.add(connectRequest)
+    }
+
+    private fun BackUpHistoryData()
+    {
+        val username = _sharePref!!.GetUsername()
+        val password = _sharePref!!.GetPassword()
+        val serverIp = _sharePref!!.GetServerIP()
+        val progressDialog = ProgressDialog.DialogProgress(activity, "下載中", View.VISIBLE)
+        progressDialog.setCancelable(false)
+        progressDialog.show()
+
+        _httpThread = HandlerThread("history_data_backup")
+        _httpThread!!.start()
+        _threadHandler = Handler(_httpThread!!.looper)
+        _threadHandler!!.post {
+            try
+            {
+                val phpAddress = "http://$serverIp/android_mysql.php?&server=$serverIp&user=$username&pass=$password"
+                val data = HttpRequest.DownloadFromMySQL("society", phpAddress)
+                DataWriter.WriteData(activity, _sharePref!!.GetFileSavedName(), data)
+                runOnUiThread { toast("備份完成") }
+                progressDialog.dismiss()
+            }
+            catch (e : Exception)
+            {
+                runOnUiThread { toast(e.toString()) }
+                progressDialog.dismiss()
+            }
+        }
     }
 }

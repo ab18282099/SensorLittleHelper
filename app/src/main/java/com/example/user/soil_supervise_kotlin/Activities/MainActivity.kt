@@ -326,7 +326,6 @@ class MainActivity : BaseActivity()
                     historyFragment.SetJsonArrayLength(dateLength)
 
                 runOnUiThread {
-                    DataWriter.WriteData(context, sharePref.GetFileSavedName(), data)
                     historyFragment.RenewRecyclerView()
                     historyFragment.SetSensorTitle()
                 }

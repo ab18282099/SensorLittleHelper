@@ -40,12 +40,10 @@ class DataWriter
                         val bufferWriter = BufferedWriter(mFileWriter)
 
                         bufferWriter.write(strWrite)
-                        bufferWriter.newLine()
+//                        bufferWriter.newLine()
 
                         bufferWriter.close()
                         mFileWriter.close()
-
-                        //Toast.makeText(context, "已儲存至/storage/emulated/0/DATA/$fileName.txt", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
