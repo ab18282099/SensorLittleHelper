@@ -107,21 +107,6 @@ class MainActivity : BaseActivity()
         Log.e("MainActivity", "onRestart")
     }
 
-    //After onCreate(in baseActivity) add Fragment
-    override fun FindView()
-    {
-        val fragmentsTitleList = arrayOf("登入", "主頁", "Wi-Fi遙控", "即時監控", "歷史數據", "折線圖", "設定")
-        _fragmentTitleList.addAll(fragmentsTitleList)
-
-        val image = arrayOf(R.drawable.login, R.drawable.main, R.drawable.wifi, R.drawable.current, R.drawable.historydata, R.drawable.chart, R.drawable.setting)
-        _fragmentImgList.addAll(image)
-
-        val fragmentsInViewPager = arrayOf(_fragmentLogin, _fragmentMain, _fragmentToggle, _fragmentOnTime, _fragmentHistory, _fragmentChart, _fragmentSetting)
-        _fragmentList.addAll(fragmentsInViewPager)
-
-        _vpMain = findViewById<ViewPager>(R.id._vpMain) as ViewPager
-    }
-
     override fun InitActionBar()
     {
         val drawerLayout = findViewById<DrawerLayout>(R.id.drawerLayout) as DrawerLayout
@@ -171,6 +156,21 @@ class MainActivity : BaseActivity()
             }
 
         })
+    }
+
+    //After onCreate(in baseActivity) add Fragment
+    override fun FindView()
+    {
+        val fragmentsTitleList = arrayOf("登入", "主頁", "Wi-Fi遙控", "即時監控", "歷史數據", "折線圖", "設定")
+        _fragmentTitleList.addAll(fragmentsTitleList)
+
+        val image = arrayOf(R.drawable.login, R.drawable.main, R.drawable.wifi, R.drawable.current, R.drawable.historydata, R.drawable.chart, R.drawable.setting)
+        _fragmentImgList.addAll(image)
+
+        val fragmentsInViewPager = arrayOf(_fragmentLogin, _fragmentMain, _fragmentToggle, _fragmentOnTime, _fragmentHistory, _fragmentChart, _fragmentSetting)
+        _fragmentList.addAll(fragmentsInViewPager)
+
+        _vpMain = findViewById<ViewPager>(R.id._vpMain) as ViewPager
     }
 
     override fun InitView()
