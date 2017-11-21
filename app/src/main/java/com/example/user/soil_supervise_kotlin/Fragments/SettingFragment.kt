@@ -31,7 +31,6 @@ import org.json.JSONException
 
 class SettingFragment : BaseFragment(), FragmentBackPressedListener
 {
-
     companion object
     {
         fun NewInstance(): SettingFragment
@@ -49,7 +48,7 @@ class SettingFragment : BaseFragment(), FragmentBackPressedListener
     private var _mAdapter = SettingRecyclerViewAdapter()
     private var _sharePref: MySharedPreferences? = null
 
-    inner class SettingRecyclerViewAdapter : RecyclerView.Adapter<SettingRecyclerViewAdapter.ViewHolder>()
+    private inner class SettingRecyclerViewAdapter : RecyclerView.Adapter<SettingRecyclerViewAdapter.ViewHolder>()
     {
 
         inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
@@ -140,7 +139,7 @@ class SettingFragment : BaseFragment(), FragmentBackPressedListener
         }
     }
 
-    inner class DialogRecyclerViewAdapter : RecyclerView.Adapter<DialogRecyclerViewAdapter.ViewHolder>()
+    private inner class DialogRecyclerViewAdapter : RecyclerView.Adapter<DialogRecyclerViewAdapter.ViewHolder>()
     {
 
         inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
@@ -243,7 +242,7 @@ class SettingFragment : BaseFragment(), FragmentBackPressedListener
         }
     }
 
-    inner class SimpleDividerItemDecoration constructor(context: Context) : RecyclerView.ItemDecoration()
+    private inner class SimpleDividerItemDecoration constructor(context: Context) : RecyclerView.ItemDecoration()
     {
         private val mDivider = ContextCompat.getDrawable(context, R.drawable.divider_line)
 

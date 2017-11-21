@@ -81,7 +81,8 @@ class MainFragment : BaseFragment(), FragmentBackPressedListener, FragmentMenuIt
             item.put("text", _imgTextList[i])
             items.add(item)
         }
-        val adapter = SimpleAdapter(activity, items, R.layout.grid_main_item, arrayOf("_images", "text"), intArrayOf(R.id._images, R.id.image_text))
+        val adapter = SimpleAdapter(activity, items, R.layout.grid_main_item,
+                arrayOf("_images", "text"), intArrayOf(R.id._images, R.id.image_text))
         _gridMain!!.numColumns = 2
         _gridMain!!.adapter = adapter
         _gridMain!!.setOnItemClickListener { adapterView, viewGrid, i, l ->

@@ -60,9 +60,8 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
 
     private var _sharePref: MySharedPreferences? = null
 
-    inner class OnTimeRecyclerAdapter : RecyclerView.Adapter<OnTimeFragment.OnTimeRecyclerAdapter.ViewHolder>()
+    private inner class OnTimeRecyclerAdapter : RecyclerView.Adapter<OnTimeFragment.OnTimeRecyclerAdapter.ViewHolder>()
     {
-
         inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
         {
             var tx_on_time_title: TextView? = null
@@ -160,7 +159,7 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
         }
     }
 
-    inner class InitRecyclerAdapter : RecyclerView.Adapter<OnTimeFragment.InitRecyclerAdapter.ViewHolder>()
+    private inner class InitRecyclerAdapter : RecyclerView.Adapter<OnTimeFragment.InitRecyclerAdapter.ViewHolder>()
     {
         inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
         {
@@ -192,7 +191,7 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
         }
     }
 
-    inner class SimpleDividerItemDecoration constructor(context: Context) : RecyclerView.ItemDecoration()
+    private inner class SimpleDividerItemDecoration constructor(context: Context) : RecyclerView.ItemDecoration()
     {
         private val _mDivider = ContextCompat.getDrawable(context, R.drawable.divider_line)
 

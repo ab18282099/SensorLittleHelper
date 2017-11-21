@@ -65,7 +65,7 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
     private var _httpThread : HandlerThread? = null
     private var _threadHandler : Handler? = null
 
-    inner class HistoryDataRecyclerAdapter : RecyclerView.Adapter<HistoryDataFragment.HistoryDataRecyclerAdapter.ViewHolder>()
+    private inner class HistoryDataRecyclerAdapter : RecyclerView.Adapter<HistoryDataFragment.HistoryDataRecyclerAdapter.ViewHolder>()
     {
         inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
         {
@@ -176,7 +176,7 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
         }
     }
 
-    inner class SimpleDividerItemDecoration constructor(context: Context) : RecyclerView.ItemDecoration()
+    private inner class SimpleDividerItemDecoration constructor(context: Context) : RecyclerView.ItemDecoration()
     {
         private val _mDivider = ContextCompat.getDrawable(context, R.drawable.divider_line)
 

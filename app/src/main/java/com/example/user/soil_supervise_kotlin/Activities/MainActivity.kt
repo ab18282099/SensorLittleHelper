@@ -6,9 +6,14 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
 import android.support.v4.view.ViewPager
+import android.support.v4.widget.DrawerLayout
+import android.support.v7.app.ActionBarDrawerToggle
+import android.support.v7.widget.Toolbar
 import android.util.Log
+import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
+import android.widget.SimpleAdapter
 import com.example.user.soil_supervise_kotlin.Fragments.*
 import com.example.user.soil_supervise_kotlin.Interfaces.FragmentBackPressedListener
 import com.example.user.soil_supervise_kotlin.Interfaces.FragmentMenuItemClickListener
@@ -17,12 +22,10 @@ import com.example.user.soil_supervise_kotlin.R
 import kotlinx.android.synthetic.main.activity_main.*
 import net.lucode.hackware.magicindicator.ViewPagerHelper
 import net.lucode.hackware.magicindicator.buildins.commonnavigator.CommonNavigator
-import org.jetbrains.anko.alert
-import org.jetbrains.anko.noButton
-import org.jetbrains.anko.toast
-import org.jetbrains.anko.yesButton
+import org.jetbrains.anko.*
 import org.json.JSONArray
 import java.lang.ref.WeakReference
+import java.util.HashMap
 
 class MainActivity : BaseActivity()
 {
@@ -121,10 +124,24 @@ class MainActivity : BaseActivity()
 
     override fun InitActionBar()
     {
+        val drawerLayout = findViewById<DrawerLayout>(R.id.drawerLayout) as DrawerLayout
+        val toolbar = findViewById<Toolbar>(R.id.toolbar) as Toolbar
+
+        val drawerMenuTextList = arrayOf("關於")
+        val drawerMenuIconList = arrayOf(R.drawable.about)
+        val items = java.util.ArrayList<Map<String, Any>>()
+        for (i in drawerMenuTextList.indices)
+        {
+            val item = HashMap<String, Any>()
+            item.put("icon", drawerMenuIconList[i])
+            item.put("text", drawerMenuTextList[i])
+            items.add(item)
+        }
+        val drawerMenuAdapter = SimpleAdapter(this, items, R.layout.item_draw_menu,
+                arrayOf("icon", "text"), intArrayOf(R.id.imageDrawMenu, R.id.textDrawMenu))
+
         SetActivityTitle("SOIL SUPERVISE")
-//        SetRightTextAndClickListener("MAIN", View.OnClickListener {
-//            _vpMain?.currentItem = 0
-//        })
+
         SetRightImageAndClickListener(R.drawable.exit, View.OnClickListener {
             alert("你確定要離開?") {
                 yesButton { ExitApplication.InitInstance()?.Exit() }
@@ -132,7 +149,26 @@ class MainActivity : BaseActivity()
             }.show()
         })
 
-        SetOnNavigationClickListener(View.OnClickListener {
+        SetOnNavigationClickListener({ _ ->
+            drawerLayout.openDrawer(Gravity.START)
+        })
+
+        SetDrawerListener(object : ActionBarDrawerToggle(this, drawerLayout,
+                toolbar, R.string.drawer_open, R.string.drawer_close)
+        {
+        })
+
+        SetDrawMenuAdapterAndItemClickListener(drawerMenuAdapter, { adapterView, view, i, l ->
+
+            when(i)
+            {
+                0 ->
+                {
+                    alert("Create by SHENG-WEI LIN,\nOctober 2017") {
+                        yesButton { }
+                    }.show()
+                }
+            }
 
         })
     }

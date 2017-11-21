@@ -21,6 +21,9 @@
     <string name="pin_num">對應PIN腳</string>
     <string name="pin_state">PIN狀態</string>
     <string name="getPinState">取得PIN狀態</string>
-    <string name="countDown">%1$s秒後將開啟PIN : %2$s</string>
+    <string name="countDown">%1$s%2$s秒後將轉態PIN : %3$s</string>
     <string name="cancel">取消</string>
+    <string name="drawer_open">drawer open</string>
+    <string name="drawer_close">drawer close</string>
+    <string name="drawer_menu_about">關於</string>
 </resources>

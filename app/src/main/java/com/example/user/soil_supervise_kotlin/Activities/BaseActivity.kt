@@ -5,27 +5,28 @@ import android.graphics.Color
 import android.os.Bundle
 import android.support.annotation.*
 import android.support.v4.content.ContextCompat
+import android.support.v4.widget.DrawerLayout
+import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import android.util.Log
 import android.view.*
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
+import android.widget.*
 import com.example.user.soil_supervise_kotlin.Interfaces.FragmentMenuItemClickListener
 import com.example.user.soil_supervise_kotlin.R
 
 abstract class BaseActivity : AppCompatActivity()
 {
     val TAG: String = this.javaClass.simpleName
-    private var _contentView: LinearLayout? = null
+    private var _contentView: LinearLayout? = null //layout_center
+    private var _mDrawerLayout: DrawerLayout? = null
+    private var _drawerMenuListView: ListView? = null
     private var _mToolbar: Toolbar? = null
     private var _toolBarTitle: TextView? = null
-    //private var amRightTv : TextView? = null
     private var _toolbarImage: ImageView? = null
-    //
+
     private var _onMenuItemClickListener: ((MenuItem) -> Boolean)? = null
-    private var _onNavigationClickListener: View.OnClickListener? = null
+    private var _onNavigationClickListener: ((View) -> Unit)? = null
     private val _invalidMenu = -1
     private var _menuRes = _invalidMenu
 
@@ -38,16 +39,19 @@ abstract class BaseActivity : AppCompatActivity()
 
     override fun setContentView(@LayoutRes layoutResID: Int)
     {
-        if (_contentView == null && R.layout.activity_base == layoutResID)
+        if (_contentView == null && R.layout.activity_base == layoutResID) // for base activity and drawerLayout
         {
             super.setContentView(R.layout.activity_base)
+
             _contentView = findViewById<LinearLayout>(R.id.layout_center) as LinearLayout
+            _mDrawerLayout = findViewById<DrawerLayout>(R.id.drawerLayout) as DrawerLayout
+            _drawerMenuListView = findViewById<ListView>(R.id.listDrawerMenu) as ListView
             _toolBarTitle = findViewById<TextView>(R.id.toolbar_title) as TextView
-            //amRightTv = findViewById<TextView>(R.id.am_right_tv) as TextView
             _toolbarImage = findViewById<ImageView>(R.id._toolbarImage) as ImageView
+
             _contentView!!.removeAllViews()
         }
-        else if (layoutResID != R.layout.activity_base)
+        else if (layoutResID != R.layout.activity_base) // for other activity
         {
             val nullViewGroup: ViewGroup? = null
             val addView = LayoutInflater.from(this).inflate(layoutResID, nullViewGroup)
@@ -102,16 +106,6 @@ abstract class BaseActivity : AppCompatActivity()
         Log.e("MainActivity", "onRestart")
     }
 
-//    override fun onCreateOptionsMenu(menu: Menu?): Boolean
-//    {
-//        if (_menuRes != _invalidMenu)
-//        {
-//            menuInflater.inflate(_menuRes, menu)
-//        }
-//
-//        return true
-//    }
-
     override fun onBackPressed()
     {
         Log.e("baseActivity", "onBackPressed")
@@ -137,12 +131,6 @@ abstract class BaseActivity : AppCompatActivity()
     fun SetMenuClickListener(onMenuItemClickListener: FragmentMenuItemClickListener)
     {
         _mToolbar!!.setOnMenuItemClickListener(onMenuItemClickListener.FragmentMenuItemClickListenerObject())
-    }
-
-    fun SetMenuInstance(@MenuRes menuRes: Int, onMenuItemClickListener: (MenuItem) -> Boolean)
-    {
-        _mToolbar!!.inflateMenu(menuRes)
-        _mToolbar!!.setOnMenuItemClickListener(onMenuItemClickListener)
     }
 
     fun SetMenu(@MenuRes menuRes: Int, onMenuItemClickListener: (MenuItem) -> Boolean)
@@ -188,27 +176,48 @@ abstract class BaseActivity : AppCompatActivity()
 //        amRightTv!!.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, imgId, 0)
     }
 
-    fun SetOnNavigationClickListener(onNavigationClickListener: View.OnClickListener)
+    fun SetOnNavigationClickListener(onClickListener : (View) -> Unit)
     {
-        this._onNavigationClickListener = onNavigationClickListener
+        this._onNavigationClickListener = onClickListener
+    }
+
+    fun SetDrawerListener(drawerToggle: ActionBarDrawerToggle)
+    {
+        drawerToggle.syncState()
+        _mDrawerLayout!!.addDrawerListener(drawerToggle)
+    }
+
+    fun SetDrawMenuAdapterAndItemClickListener(adapter: SimpleAdapter,
+                                               itemClickListener: (AdapterView<*>?, View?, Int, Long) -> Unit)
+    {
+        _drawerMenuListView!!.adapter = adapter
+        _drawerMenuListView!!.setOnItemClickListener(itemClickListener)
     }
 
     private fun BeforeSetActionBar()
     {
         _mToolbar = findViewById<Toolbar>(R.id.toolbar) as Toolbar
-        _mToolbar!!.setNavigationIcon(R.mipmap.btn_back)
         _mToolbar!!.setTitleTextColor(Color.WHITE)
         _mToolbar!!.title = ""
         _mToolbar!!.isEnabled = true
     }
 
+    //abstract fun InitActionBar()
+
     private fun AfterSetActionBar()
     {
         setSupportActionBar(_mToolbar)
+
         if (supportActionBar != null)
         {
             supportActionBar!!.setDisplayShowTitleEnabled(false)
+
+            //use DrawerLayout
+            supportActionBar!!.setDisplayShowHomeEnabled(true)
+            supportActionBar!!.setHomeButtonEnabled(true)
+            supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         }
+
         _mToolbar!!.setNavigationOnClickListener(_onNavigationClickListener)
 //        _mToolbar!!.setOnMenuItemClickListener(_onMenuItemClickListener)
     }

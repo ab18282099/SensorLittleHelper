@@ -29,7 +29,6 @@ import org.json.JSONObject
 
 class ToggleFragment : BaseFragment(), FragmentBackPressedListener
 {
-
     companion object
     {
         fun NewInstance(): ToggleFragment
@@ -53,9 +52,11 @@ class ToggleFragment : BaseFragment(), FragmentBackPressedListener
 
     private var _progressDialog: AlertDialog? = null
 
-    inner class ToggleRecyclerViewAdapter : RecyclerView.Adapter<ToggleFragment.ToggleRecyclerViewAdapter.ViewHolder>(),
+    private inner class ToggleRecyclerViewAdapter : RecyclerView.Adapter<ToggleFragment.ToggleRecyclerViewAdapter.ViewHolder>(),
             View.OnClickListener
     {
+        private var onItemClickListener: RecyclerViewOnItemClickListener? = null
+
         inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
         {
             var tx_toggle_sensor: TextView? = null
@@ -69,8 +70,6 @@ class ToggleFragment : BaseFragment(), FragmentBackPressedListener
                 tx_toggle_state = itemView.findViewById<TextView>(R.id.tx_toggle_state) as TextView
             }
         }
-
-        private var onItemClickListener: RecyclerViewOnItemClickListener? = null
 
         override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder
         {
@@ -116,7 +115,7 @@ class ToggleFragment : BaseFragment(), FragmentBackPressedListener
             }
         }
 
-        fun setOnItemClickListener(listener: RecyclerViewOnItemClickListener)
+        fun SetOnItemClickListener(listener: RecyclerViewOnItemClickListener)
         {
             onItemClickListener = listener
         }
@@ -129,7 +128,7 @@ class ToggleFragment : BaseFragment(), FragmentBackPressedListener
         }
     }
 
-    inner class InitRecyclerAdapter : RecyclerView.Adapter<ToggleFragment.InitRecyclerAdapter.ViewHolder>()
+    private inner class InitRecyclerAdapter : RecyclerView.Adapter<ToggleFragment.InitRecyclerAdapter.ViewHolder>()
     {
         inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
         {
@@ -161,7 +160,7 @@ class ToggleFragment : BaseFragment(), FragmentBackPressedListener
         }
     }
 
-    inner class SimpleDividerItemDecoration constructor(context: Context) : RecyclerView.ItemDecoration()
+    private inner class SimpleDividerItemDecoration constructor(context: Context) : RecyclerView.ItemDecoration()
     {
         private val mDivider = ContextCompat.getDrawable(context, R.drawable.divider_line)
 
@@ -312,7 +311,7 @@ class ToggleFragment : BaseFragment(), FragmentBackPressedListener
         _recyclerToggle?.layoutManager = layoutManger
 
         _toggleAdapter = ToggleRecyclerViewAdapter()
-        _toggleAdapter?.setOnItemClickListener(object : RecyclerViewOnItemClickListener
+        _toggleAdapter?.SetOnItemClickListener(object : RecyclerViewOnItemClickListener
         {
             override fun OnRecyclerViewItemClick(view: View?, position: Int)
             {
@@ -324,7 +323,7 @@ class ToggleFragment : BaseFragment(), FragmentBackPressedListener
                 {
                     val ipAddress = _sharePref!!.GetIPAddress()
                     val port = _sharePref!!.GetPort()
-                    val parameterValue = _sharePref!!.GetSensorPin(position) // pin 4~13
+                    val parameterValue = _sharePref!!.GetSensorPin(position) // pin 7~12
 
                     HttpThread(ipAddress, port, parameterValue)
                 }
