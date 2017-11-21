@@ -294,7 +294,9 @@ class MainActivity : BaseActivity()
         val activeFragment = GetActiveFragment()
         if (activeFragment.isNotEmpty())
         {
-            activeFragment.asSequence().filter { it is FragmentBackPressedListener }.forEach { (it as FragmentBackPressedListener).OnFragmentBackPressed() }
+            activeFragment.asSequence()
+                    .filter { it is FragmentBackPressedListener }
+                    .forEach { (it as FragmentBackPressedListener).OnFragmentBackPressed() }
         }
         else
         {
