@@ -148,6 +148,7 @@ class SettingFragment : BaseFragment(), FragmentBackPressedListener
             var editName: EditText? = null
             var editCondition: EditText? = null
             var editPin: EditText? = null
+            var editApp: EditText? = null
 
             init
             {
@@ -155,6 +156,7 @@ class SettingFragment : BaseFragment(), FragmentBackPressedListener
                 editName = itemView.findViewById<EditText>(R.id.editName) as EditText
                 editCondition = itemView.findViewById<EditText>(R.id.editCondition) as EditText
                 editPin = itemView.findViewById<EditText>(R.id.editPin) as EditText
+                editApp = itemView.findViewById<EditText>(R.id.editApp) as EditText
             }
         }
 
@@ -234,6 +236,24 @@ class SettingFragment : BaseFragment(), FragmentBackPressedListener
                 }
             })
 
+            holder.editApp?.text = SpannableStringBuilder(_sharePref!!.GetPinApp(holder.adapterPosition))
+            holder.editApp?.addTextChangedListener(object : TextWatcher
+            {
+                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int)
+                {
+
+                }
+
+                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int)
+                {
+
+                }
+
+                override fun afterTextChanged(p0: Editable?)
+                {
+                    _sharePref!!.PutString("getPin" + holder.adapterPosition.toString() + "App", p0?.toString())
+                }
+            })
         }
 
         override fun getItemCount(): Int

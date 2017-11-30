@@ -62,12 +62,14 @@ class ToggleFragment : BaseFragment(), FragmentBackPressedListener
             var tx_toggle_sensor: TextView? = null
             var tx_toggle_pin: TextView? = null
             var tx_toggle_state: TextView? = null
+            var tx_toggle_app: TextView? = null
 
             init
             {
                 tx_toggle_sensor = itemView.findViewById<TextView>(R.id.tx_toggle_sensor) as TextView
                 tx_toggle_pin = itemView.findViewById<TextView>(R.id.tx_toggle_pin) as TextView
                 tx_toggle_state = itemView.findViewById<TextView>(R.id.tx_toggle_state) as TextView
+                tx_toggle_app = itemView.findViewById<TextView>(R.id.tx_toggle_app) as TextView
             }
         }
 
@@ -81,25 +83,24 @@ class ToggleFragment : BaseFragment(), FragmentBackPressedListener
 
         override fun onBindViewHolder(holder: ViewHolder?, position: Int)
         {
+            holder!!.tx_toggle_sensor!!.text = _sharePref!!.GetSensorName(position)
+            holder.tx_toggle_pin!!.text = _sharePref!!.GetSensorPin(position)
+            holder.tx_toggle_state!!.text = _sharePref!!.GetPinState(position)
+            holder.tx_toggle_app!!.text = _sharePref!!.GetPinApp(position)
+
             if (_sharePref!!.GetSensorVisibility(position) == View.GONE)
             {
-                holder!!.tx_toggle_sensor!!.text = _sharePref!!.GetSensorName(position)
-                holder.tx_toggle_pin!!.text = _sharePref!!.GetSensorPin(position)
-                holder.tx_toggle_state!!.text = _sharePref!!.GetPinState(position)
-
                 holder.tx_toggle_sensor!!.setTextColor(Color.LTGRAY)
                 holder.tx_toggle_pin!!.setTextColor(Color.LTGRAY)
                 holder.tx_toggle_state!!.setTextColor(Color.LTGRAY)
+                holder.tx_toggle_app!!.setTextColor(Color.LTGRAY)
             }
             else
             {
-                holder!!.tx_toggle_sensor!!.text = _sharePref!!.GetSensorName(position)
-                holder.tx_toggle_pin!!.text = _sharePref!!.GetSensorPin(position)
-                holder.tx_toggle_state!!.text = _sharePref!!.GetPinState(position)
-
                 holder.tx_toggle_sensor!!.setTextColor(Color.BLACK)
                 holder.tx_toggle_pin!!.setTextColor(Color.BLACK)
                 holder.tx_toggle_state!!.setTextColor(Color.BLACK)
+                holder.tx_toggle_app!!.setTextColor(Color.BLACK)
             }
 
             holder.itemView.tag = position
@@ -232,6 +233,7 @@ class ToggleFragment : BaseFragment(), FragmentBackPressedListener
         tx_name.text = getString(R.string.pin_title)
         tx_pin_num.text = getString(R.string.pin_num)
         tx_pin_state.text = getString(R.string.pin_state)
+        tx_pin_app.text = getString(R.string.pin_app)
 
         btn_pin_state.text = getString(R.string.getPinState)
         btn_pin_state.setOnClickListener {

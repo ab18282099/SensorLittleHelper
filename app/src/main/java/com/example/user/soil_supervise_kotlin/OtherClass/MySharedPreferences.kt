@@ -87,6 +87,11 @@ class MySharedPreferences constructor(context: Context)
         return _sharedPreferences!!.getString("getPin" + position.toString() + "State", "OFF")
     }
 
+    fun GetPinApp(position: Int): String
+    {
+        return _sharedPreferences!!.getString("getPin" + position.toString() + "App", "無")
+    }
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     fun GetFileSavedName(): String
