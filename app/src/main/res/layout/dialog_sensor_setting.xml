@@ -13,8 +13,8 @@
             android:id="@+id/tx_check"
             android:layout_width="50dp"
             android:layout_height="wrap_content"
-            android:text="顯示"
-            android:textSize="20sp" />
+            android:text="使用"
+            android:textSize="20sp"/>
 
         <TextView
             android:id="@+id/tx_sensor_name"
@@ -25,18 +25,26 @@
 
         <TextView
             android:id="@+id/tx_sensor_condition"
-            android:layout_width="100dp"
+            android:layout_width="85dp"
             android:layout_height="wrap_content"
-            android:text="警告條件"
-            android:textSize="20sp" />
+            android:text="警告數值"
+            android:textSize="20sp"/>
 
         <TextView
             android:id="@+id/tx_pin"
-            android:layout_width="70dp"
+            android:layout_width="45dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="PIN"
-            android:textSize="20sp" />
+            android:textSize="20sp"/>
+
+        <TextView
+            android:id="@+id/tx_appliance"
+            android:layout_width="45dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="電器"
+            android:textSize="20sp"/>
 
     </LinearLayout>
 

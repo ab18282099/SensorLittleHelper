@@ -26,7 +26,7 @@
 
         <EditText
             android:id="@+id/editCondition"
-            android:layout_width="100dp"
+            android:layout_width="85dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:ems="10"
@@ -35,11 +35,20 @@
 
         <EditText
             android:id="@+id/editPin"
-            android:layout_width="70dp"
+            android:layout_width="45dp"
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textPersonName"
-            android:text="" />
+            android:text=""/>
+
+        <EditText
+            android:id="@+id/editApp"
+            android:layout_width="45dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:text=""/>
 
     </LinearLayout>
 </LinearLayout>

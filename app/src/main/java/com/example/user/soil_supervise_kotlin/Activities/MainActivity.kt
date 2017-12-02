@@ -406,7 +406,7 @@ class MainActivity : BaseActivity()
         _onTimeHandler!!.postDelayed(_onTimeRunnable, 200)
     }
 
-    fun RemoveCallOnTime()
+    private fun RemoveCallOnTime()
     {
         if (_onTimeHandler != null && _onTimeRunnable != null)
         {

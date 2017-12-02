@@ -26,8 +26,6 @@ class MySharedPreferences constructor(context: Context)
 
     // Init ShardPreferences when activity onCreate or method called(like call dialog in DialogVolley)
     private var _sharedPreferences: SharedPreferences? = null
-    // init SharedPreferences Change _listener
-    private var _listener: SharedPreferences.OnSharedPreferenceChangeListener? = null
 
     init
     {
@@ -132,47 +130,5 @@ class MySharedPreferences constructor(context: Context)
     fun PutBoolean(Index: String, Data: Boolean)
     {
         _sharedPreferences!!.edit().putBoolean(Index, Data).apply()// method for putBoolean
-    }
-
-    fun GetInitListenerSetting()
-    {
-        _listener = SensorSettingListener()
-    }
-
-    fun GetInitListenerPinList()
-    {
-        _listener = PinListListener()
-    }
-
-    // method for register SharedPreferences Change FragmentMenuItemClickListenerObject
-    fun RegisterPreferenceChangeListener()
-    {
-        _sharedPreferences!!.registerOnSharedPreferenceChangeListener(_listener)
-    }
-
-    // method for unregister SharedPreferences Change FragmentMenuItemClickListenerObject
-    fun UnregisterPreferenceChangeListener()
-    {
-        _sharedPreferences!!.unregisterOnSharedPreferenceChangeListener(_listener)
-    }
-
-    private fun SensorSettingListener(): SharedPreferences.OnSharedPreferenceChangeListener
-    {
-        return SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
-            when (key)
-            {
-
-            }
-        }
-    }
-
-    private fun PinListListener(): SharedPreferences.OnSharedPreferenceChangeListener
-    {
-        return SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
-            when (key)
-            {
-
-            }
-        }
     }
 }

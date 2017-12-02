@@ -19,6 +19,7 @@
     <string name="wifi_port">當前遙控Port : %1$s</string>
     <string name="pin_title">感測器名稱</string>
     <string name="pin_num">對應PIN腳</string>
+    <string name="pin_app">對應電器</string>
     <string name="pin_state">PIN狀態</string>
     <string name="getPinState">取得PIN狀態</string>
     <string name="countDown">%1$s%2$s秒後將轉態PIN : %3$s</string>

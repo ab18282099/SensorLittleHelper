@@ -6,26 +6,35 @@
 
     <TextView
         android:id="@+id/tx_toggle_sensor"
-        android:layout_width="100dp"
+        android:layout_width="75dp"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:text=""
-        android:textSize="20sp" />
+        android:textSize="20sp"/>
 
     <TextView
         android:id="@+id/tx_toggle_pin"
-        android:layout_width="100dp"
+        android:layout_width="75dp"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:text=""
-        android:textSize="20sp" />
+        android:textSize="20sp"/>
 
     <TextView
         android:id="@+id/tx_toggle_state"
-        android:layout_width="100dp"
+        android:layout_width="75dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:gravity="center"
         android:text=""
-        android:textSize="20sp" />
+        android:textSize="20sp"/>
+
+    <TextView
+        android:id="@+id/tx_toggle_app"
+        android:layout_width="75dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:text=""
+        android:textSize="20sp"/>
 </LinearLayout>
