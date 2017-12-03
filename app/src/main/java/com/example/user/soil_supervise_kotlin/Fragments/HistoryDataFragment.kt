@@ -22,8 +22,8 @@ import com.example.user.soil_supervise_kotlin.Database.DbAction
 import com.example.user.soil_supervise_kotlin.Database.IDbResponse
 import com.example.user.soil_supervise_kotlin.DbDataDownload.HttpHelper
 import com.example.user.soil_supervise_kotlin.DbDataDownload.IHttpAction
-import com.example.user.soil_supervise_kotlin.Interfaces.FragmentBackPressedListener
-import com.example.user.soil_supervise_kotlin.Interfaces.FragmentMenuItemClickListener
+import com.example.user.soil_supervise_kotlin.Ui.FragmentBackPressedListener
+import com.example.user.soil_supervise_kotlin.Ui.FragmentMenuItemClickListener
 import com.example.user.soil_supervise_kotlin.Utility.DataWriter
 import com.example.user.soil_supervise_kotlin.Utility.HttpRequest
 import com.example.user.soil_supervise_kotlin.Utility.MySharedPreferences

@@ -7,44 +7,6 @@ import android.os.Bundle
 import android.os.Handler
 import java.util.concurrent.CopyOnWriteArrayList
 
-/**
- * Usage:
- *
- *
- * 1. Get the Foreground Singleton, passing a Context or Application object unless you
- * are sure that the Singleton has definitely already been initialised elsewhere.
- *
- *
- * 2.a) Perform a direct, synchronous check: Foreground.isForeground() / .isBackground()
- *
- *
- * or
- *
- *
- * 2.b) Register to be notified (useful in Service or other non-UI components):
- *
- *
- * Foreground.FragmentMenuItemClickListenerObject myListener = new Foreground.FragmentMenuItemClickListenerObject(){
- * public void onBecameForeground(){
- * // ... whatever you want to do
- * }
- * public void onBecameBackground(){
- * // ... whatever you want to do
- * }
- * }
- *
- *
- * public void onCreate(){
- * super.onCreate();
- * Foreground.get(this).addListener(listener);
- * }
- *
- *
- * public void onDestroy(){
- * super.onCreate();
- * Foreground.get(this).removeListener(listener);
- * }
- */
 class Foreground : Application.ActivityLifecycleCallbacks
 {
     var isForeground = false

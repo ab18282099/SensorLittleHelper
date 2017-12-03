@@ -12,7 +12,7 @@ import android.view.ViewGroup
 import android.widget.*
 import com.example.user.soil_supervise_kotlin.DbDataDownload.HttpHelper
 import com.example.user.soil_supervise_kotlin.DbDataDownload.IHttpAction
-import com.example.user.soil_supervise_kotlin.Interfaces.FragmentBackPressedListener
+import com.example.user.soil_supervise_kotlin.Ui.FragmentBackPressedListener
 import com.example.user.soil_supervise_kotlin.Utility.*
 import com.example.user.soil_supervise_kotlin.R
 import com.example.user.soil_supervise_kotlin.Ui.CustomerProgressDialog

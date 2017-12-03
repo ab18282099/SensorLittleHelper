@@ -14,8 +14,8 @@ import org.jetbrains.anko.noButton
 import org.jetbrains.anko.yesButton
 import java.util.ArrayList
 import java.util.HashMap
-import com.example.user.soil_supervise_kotlin.Interfaces.FragmentBackPressedListener
-import com.example.user.soil_supervise_kotlin.Interfaces.FragmentMenuItemClickListener
+import com.example.user.soil_supervise_kotlin.Ui.FragmentBackPressedListener
+import com.example.user.soil_supervise_kotlin.Ui.FragmentMenuItemClickListener
 import com.example.user.soil_supervise_kotlin.Utility.MySharedPreferences
 
 

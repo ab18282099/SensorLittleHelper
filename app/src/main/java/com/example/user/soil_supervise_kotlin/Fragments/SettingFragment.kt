@@ -20,7 +20,7 @@ import android.widget.*
 import com.android.volley.*
 import com.example.user.soil_supervise_kotlin.Database.DbAction
 import com.example.user.soil_supervise_kotlin.Database.IDbResponse
-import com.example.user.soil_supervise_kotlin.Interfaces.FragmentBackPressedListener
+import com.example.user.soil_supervise_kotlin.Ui.FragmentBackPressedListener
 import com.example.user.soil_supervise_kotlin.Utility.MySharedPreferences
 import com.example.user.soil_supervise_kotlin.R
 import kotlinx.android.synthetic.main.fragment_setting.*
