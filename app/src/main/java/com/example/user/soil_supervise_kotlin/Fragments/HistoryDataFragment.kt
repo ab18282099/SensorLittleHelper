@@ -558,12 +558,12 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
                     "Deleted Successfully." ->
                     {
                         MainActivity().LoadHistoryData(this@HistoryDataFragment, activity, "1", "100")
-                        toast("操作成功")
+                        toast("刪除成功")
                     }
                     "DB is clean." ->
                     {
                         MainActivity().LoadHistoryData(this@HistoryDataFragment, activity, "1", "100")
-                        toast("操作成功")
+                        toast("清空完成")
                     }
                     else ->
                     {

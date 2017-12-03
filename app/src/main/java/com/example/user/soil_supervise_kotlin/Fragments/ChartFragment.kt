@@ -15,9 +15,9 @@ import com.example.user.soil_supervise_kotlin.DbDataDownload.IHttpAction
 import com.example.user.soil_supervise_kotlin.Ui.FragmentBackPressedListener
 import com.example.user.soil_supervise_kotlin.Utility.*
 import com.example.user.soil_supervise_kotlin.R
+import com.example.user.soil_supervise_kotlin.Ui.ChartEngine.MyChartFactory
 import com.example.user.soil_supervise_kotlin.Ui.CustomerProgressDialog
 import kotlinx.android.synthetic.main.fragment_chart.*
-import org.achartengine.ChartFactory
 import org.achartengine.chart.PointStyle
 import org.achartengine.model.TimeSeries
 import org.achartengine.model.XYMultipleSeriesDataset
@@ -224,80 +224,56 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener
 
     private fun ChartDataRenew(jsonString: String?, chartID: Int)
     {
-        val title: String
-        val interval: Int
+        val jsonArray = JSONArray(jsonString)
+        val interval = if (jsonArray.length() > 500) (jsonArray.length()).div(500) else 1
+        val x = ArrayList<kotlin.Array<Date?>>()
+        val y = ArrayList<DoubleArray>()
+        val sensorData = arrayOfNulls<String>(jsonArray.length())
+        val timeData = arrayOfNulls<Date>(jsonArray.length())
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()) //HH: 24hr / hh: 12hr
 
-        try
+        for (i in 0 until jsonArray.length())
         {
-            val jsonArray = JSONArray(jsonString)
-
-            if (jsonArray.length() >= 10000) interval = 1000
-            else if (jsonArray.length() in 5000 until 10000) interval = 99
-            else if (jsonArray.length() in 1000 until 5000) interval = 49
-            else if (jsonArray.length() in 500 until 1000) interval = 9
-            else interval = 1
-
-            val x = ArrayList<kotlin.Array<Date?>>()
-            val y = ArrayList<DoubleArray>()
-
-            val sensorData = arrayOfNulls<String>(jsonArray.length())
-
-            val timeData = arrayOfNulls<Date>(jsonArray.length())
-
-            val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()) //HH: 24hr / hh: 12hr
-
-            for (i in 0 until jsonArray.length())
+            try
             {
-                try
-                {
-                    timeData[i] = simpleDateFormat.parse(jsonArray.getJSONObject(i).getString("time"))
-                }
-                catch (e: Exception)
-                {
-                    Log.e("ParseDate", e.toString())
-                }
+                timeData[i] = simpleDateFormat.parse(jsonArray.getJSONObject(i).getString("time"))
             }
-
-            x.add(timeData)
-            val firstTime = timeData[0]!!.time.toDouble()
-            val lastTime = timeData[timeData.size - 1]!!.time.toDouble()
-
-            for (i in 0 until jsonArray.length())
+            catch (e: Exception)
             {
-                sensorData[i] = jsonArray.getJSONObject(i).getString("sensor_" + (chartID + 1).toString())
-            }
-
-            val yData = ConvertUtils.convert(sensorData, java.lang.Double.TYPE) as DoubleArray
-            y.add(yData)
-            title = _sharePref!!.GetSensorName(chartID)
-
-            val dataSet = BuildDataSet(title, x, y, interval)
-            val renderer = BuildRenderer(Color.BLUE, PointStyle.CIRCLE, true)
-            InitChartSetting(renderer, "數據折線圖", "TIME", "%", firstTime, lastTime, (-50).toDouble(), (100).toDouble(), Color.BLACK)
-
-            val seriesLength = renderer.seriesRendererCount
-
-            for (i in 0 until seriesLength)
-            {
-                val seriesRenderer = renderer.getSeriesRendererAt(i)
-                seriesRenderer.isDisplayChartValues = true
-                seriesRenderer.chartValuesTextSize = (25).toFloat()
-            }
-
-            runOnUiThread {
-                chartLayout.removeAllViewsInLayout()
-                val chart = ChartFactory.getTimeChartView(activity, dataSet, renderer, null)
-                chart.setOnTouchListener { view, motionEvent ->
-                    chart.parent.requestDisallowInterceptTouchEvent(true)
-                    false
-                }
-
-                chartLayout.addView(chart)
+                Log.e("ParseDate", e.toString())
             }
         }
-        catch (e: Exception)
+
+        x.add(timeData)
+
+        for (i in 0 until jsonArray.length())
         {
-            Log.e("AnalysisDataFailed", e.toString())
+            sensorData[i] = jsonArray.getJSONObject(i).getString("sensor_" + (chartID + 1).toString())
+        }
+        val yData = ConvertUtils.convert(sensorData, java.lang.Double.TYPE) as DoubleArray
+        y.add(yData)
+        val firstTime = timeData[0]!!.time.toDouble()
+        val lastTime = timeData[timeData.size - 1]!!.time.toDouble()
+        val dataSet = BuildDataSet(_sharePref!!.GetSensorName(chartID), x, y, interval)
+        val renderer = BuildRenderer(Color.BLUE, PointStyle.CIRCLE, true)
+        InitChartSetting(renderer, "數據折線圖", "TIME", "%", firstTime, lastTime, (-50).toDouble(), (100).toDouble(), Color.BLACK)
+
+        for (i in 0 until renderer.seriesRendererCount)
+        {
+            val seriesRenderer = renderer.getSeriesRendererAt(i)
+            seriesRenderer.isDisplayChartValues = true
+            seriesRenderer.chartValuesTextSize = (25).toFloat()
+        }
+
+        runOnUiThread {
+            chartLayout.removeAllViewsInLayout()
+            val chart = MyChartFactory.getTimeChartView(activity, dataSet, renderer, null)
+            chart.setOnTouchListener { _, _ ->
+                chart.parent.requestDisallowInterceptTouchEvent(true)
+                false
+            }
+
+            chartLayout.addView(chart)
         }
     }
 
