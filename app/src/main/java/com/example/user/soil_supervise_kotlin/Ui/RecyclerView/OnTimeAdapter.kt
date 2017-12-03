@@ -10,10 +10,10 @@ import android.widget.TextView
 import com.example.user.soil_supervise_kotlin.R
 import com.example.user.soil_supervise_kotlin.Model.AppSettingModel
 
-class OnTimeAdapter constructor(context: Context, sensorDataList : ArrayList<String?>) : RecyclerView.Adapter<OnTimeAdapter.ViewHolder>()
+class OnTimeAdapter constructor(context: Context, sensorOnTimeData: ArrayList<String?>) : RecyclerView.Adapter<OnTimeAdapter.ViewHolder>()
 {
     private val _context = context
-    private val _sensorDataList = sensorDataList
+    private val _sensorOnTimeData = sensorOnTimeData
     private val _appSettingModel = AppSettingModel(context)
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
@@ -37,12 +37,12 @@ class OnTimeAdapter constructor(context: Context, sensorDataList : ArrayList<Str
 
     override fun onBindViewHolder(holder: ViewHolder?, position: Int)
     {
-        if (_sensorDataList.isNotEmpty())
+        if (_sensorOnTimeData.isNotEmpty())
         {
             if (position == 0)
             {
                 holder!!.tx_on_time_title!!.text = _context.getString(R.string.ID)
-                holder.tx_on_time_text!!.text = _sensorDataList[position]
+                holder.tx_on_time_text!!.text = _sensorOnTimeData[position]
 
                 holder.tx_on_time_text!!.visibility = View.VISIBLE
                 holder.tx_on_time_title!!.visibility = View.VISIBLE
@@ -64,18 +64,18 @@ class OnTimeAdapter constructor(context: Context, sensorDataList : ArrayList<Str
                     val warnCondition = _appSettingModel.WarningCondition(position - 1).toFloat()
                     val sensorDataFloat: Float
 
-                    if (_sensorDataList[position] == "") sensorDataFloat = (-1).toFloat()
-                    else sensorDataFloat = _sensorDataList[position]!!.toFloat()
+                    if (_sensorOnTimeData[position] == "") sensorDataFloat = (-1).toFloat()
+                    else sensorDataFloat = _sensorOnTimeData[position]!!.toFloat()
 
                     if (IsWarning(sensorDataFloat, warnCondition))
                     {
-                        holder.tx_on_time_text!!.text = _context.getString(R.string.warn, _sensorDataList[position], String.format("%.2f", warnCondition))
+                        holder.tx_on_time_text!!.text = _context.getString(R.string.warn, _sensorOnTimeData[position], String.format("%.2f", warnCondition))
                         holder.tx_on_time_text!!.setTextColor(Color.RED)
                         holder.tx_on_time_title!!.setTextColor(Color.RED)
                     }
                     else
                     {
-                        holder.tx_on_time_text!!.text = _sensorDataList[position]
+                        holder.tx_on_time_text!!.text = _sensorOnTimeData[position]
 
                         holder.tx_on_time_text!!.setTextColor(Color.BLACK)
                         holder.tx_on_time_title!!.setTextColor(Color.BLACK)
@@ -90,7 +90,7 @@ class OnTimeAdapter constructor(context: Context, sensorDataList : ArrayList<Str
             else
             {
                 holder!!.tx_on_time_title!!.text = _context.getString(R.string.TIME)
-                holder.tx_on_time_text!!.text = _sensorDataList[position]
+                holder.tx_on_time_text!!.text = _sensorOnTimeData[position]
 
                 holder.tx_on_time_text!!.visibility = View.VISIBLE
                 holder.tx_on_time_title!!.visibility = View.VISIBLE
@@ -108,7 +108,7 @@ class OnTimeAdapter constructor(context: Context, sensorDataList : ArrayList<Str
 
     override fun getItemCount(): Int
     {
-        return if (_sensorDataList.isEmpty()) 0 else _appSettingModel.SensorQuantity() + 2
+        return if (_sensorOnTimeData.isEmpty()) 0 else _appSettingModel.SensorQuantity() + 2
     }
 
     private fun IsWarning(sensorData: Float?, warnConditional: Float?): Boolean

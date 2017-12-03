@@ -42,8 +42,6 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
         }
     }
 
-    private var _sensorDataList = ArrayList<String?>()
-    private var _sensorQuantity = 5
     private var _count = 5
     private var _countHandler: Handler? = null
     private var _countRunnable: Runnable? = null
@@ -69,15 +67,10 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
         vpMain.currentItem = 1
     }
 
-    fun SetSensorQuantity(quantity: Int)
+    fun TryLoadLastData()
     {
-        _sensorQuantity = quantity
-    }
-
-    fun TryLoadLastData(user: String, pass: String)
-    {
-        _sensorDataList.clear()
-
+        val user = _appSettingModel!!.Username()
+        val pass = _appSettingModel!!.Password()
         val ServerIP = _appSettingModel!!.ServerIp()
         val phpAddress = "http://$ServerIP/android_mysql_last.php?&server=$ServerIP&user=$user&pass=$pass"
         val refreshDataAction = DbAction(activity)
@@ -85,24 +78,22 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
         {
             override fun OnSuccess(jsonObject: JSONObject)
             {
-                val sensorQuantity = _appSettingModel!!.SensorQuantity()
-                val sensorData = arrayOfNulls<String>(sensorQuantity + 2)
+                val sensorData = ArrayList<String?>()
 
-                for (i in 0 until sensorQuantity + 2)
+                for (i in 0 until _appSettingModel!!.SensorQuantity() + 2)
                 {
                     when (i)
                     {
-                        0 -> sensorData[i] = jsonObject.getString("ID")
-                        sensorQuantity + 1 -> sensorData[i] = jsonObject.getString("time")
-                        else -> sensorData[i] = jsonObject.getString("sensor_" + (i).toString())
+                        0 -> sensorData.add(jsonObject.getString("ID"))
+                        _appSettingModel!!.SensorQuantity() + 1 -> sensorData.add(jsonObject.getString("time"))
+                        else -> sensorData.add(jsonObject.getString("sensor_" + (i).toString()))
                     }
                 }
 
-                _sensorDataList.addAll(sensorData)
-                _recyclerOnTime?.adapter = OnTimeAdapter(activity, _sensorDataList)
+                _recyclerOnTime?.adapter = OnTimeAdapter(activity, sensorData)
                 _recyclerOnTime?.addItemDecoration(SimpleDividerItemDecoration(activity))
                 toast("連接成功")
-                WarningFunction(_sensorDataList)
+                WarningFunction(sensorData)
             }
 
             override fun OnException(e: Exception)
@@ -127,7 +118,7 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
         val toggleText: String
         val togglePin: String
 
-        for (i in 1.._sensorQuantity)
+        for (i in 1.._appSettingModel!!.SensorQuantity())
         {
             val warnCondition = _appSettingModel!!.WarningCondition(i - 1).toFloat()
             val sensorDataFloat = if (sensorDataList[i] == "") (-1).toFloat() else sensorDataList[i]!!.toFloat()
@@ -245,7 +236,7 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
 
                 val jsonResult = JSONObject(requestReply)
 
-                for (i in 0 until _sensorQuantity)
+                for (i in 0 until _appSettingModel!!.SensorQuantity())
                 {
                     _appSettingModel!!.PutString("getPin" + i.toString() + "State", jsonResult.getString("PIN" + _appSettingModel!!.SensorPin(i)))
                 }

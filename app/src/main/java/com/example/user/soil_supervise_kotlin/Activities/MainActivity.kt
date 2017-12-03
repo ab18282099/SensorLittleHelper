@@ -330,8 +330,7 @@ class MainActivity : BaseActivity()
     {
         _onTimeHandler = Handler()
         _onTimeRunnable = Runnable {
-            onTimeFragment.SetSensorQuantity(_appSettingModel!!.SensorQuantity())
-            onTimeFragment.TryLoadLastData(_appSettingModel!!.Username(), _appSettingModel!!.Password())
+            onTimeFragment.TryLoadLastData()
             _onTimeHandler!!.postDelayed(_onTimeRunnable, 30000)
         }
         _onTimeHandler!!.postDelayed(_onTimeRunnable, 200)
