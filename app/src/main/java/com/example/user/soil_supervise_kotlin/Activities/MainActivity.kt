@@ -8,19 +8,18 @@ import android.support.v4.view.ViewPager
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.widget.Toolbar
-import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
 import android.widget.SimpleAdapter
 import com.example.user.soil_supervise_kotlin.Fragments.*
-import com.example.user.soil_supervise_kotlin.DbDataDownload.HttpHelper
-import com.example.user.soil_supervise_kotlin.DbDataDownload.IHttpAction
+import com.example.user.soil_supervise_kotlin.MySqlDb.HttpHelper
 import com.example.user.soil_supervise_kotlin.Fragments.FragmentBackPressedListener
 import com.example.user.soil_supervise_kotlin.Fragments.FragmentMenuItemClickListener
+import com.example.user.soil_supervise_kotlin.Model.SensorDataModel
+import com.example.user.soil_supervise_kotlin.MySqlDb.IHttpAction
 import com.example.user.soil_supervise_kotlin.Utility.*
 import com.example.user.soil_supervise_kotlin.R
-import com.example.user.soil_supervise_kotlin.Ui.RecyclerView.HistoryDataRecyclerAdapter
 import kotlinx.android.synthetic.main.activity_main.*
 import net.lucode.hackware.magicindicator.ViewPagerHelper
 import net.lucode.hackware.magicindicator.buildins.commonnavigator.CommonNavigator
@@ -38,22 +37,16 @@ class MainActivity : BaseActivity()
     private val _fragmentOnTime = OnTimeFragment.NewInstance() as Fragment
     private val _fragmentChart = ChartFragment.NewInstance() as Fragment
     private val _fragmentToggle = ToggleFragment.NewInstance() as Fragment
-
     private val _fragmentList = ArrayList<Fragment>()
     private val _fragmentTitleList = ArrayList<String>()
     private val _fragmentImgList = ArrayList<Int>()
-
     private var _httpHelper : HttpHelper? = null
-
     private val _activeFragmentList = ArrayList<WeakReference<Fragment?>>()
     private var _vpMain: ViewPager? = null
     private var _mAdapter: FragmentViewPagerAdapter? = null
-
     private var _onTimeHandler: Handler? = null
     private var _onTimeRunnable: Runnable? = null
-
     private var _doubleBackToExit: Boolean? = null
-
     private var _sharePref: MySharedPreferences? = null
 
     override fun onCreate(savedInstanceState: Bundle?)
@@ -66,8 +59,6 @@ class MainActivity : BaseActivity()
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
         setContentView(R.layout.activity_main)
 
-        Log.e("MainActivity", "onCreate")
-
         ExitApplication.InitInstance()!!.AddActivity(this)
     }
 
@@ -75,37 +66,6 @@ class MainActivity : BaseActivity()
     {
         super.onAttachFragment(fragment)
         _activeFragmentList.add(WeakReference(fragment))
-        Log.e("MainActivity", "onAttachFragment")
-    }
-
-    override fun onStart()
-    {
-        super.onStart()
-        Log.e("MainActivity", "onStart")
-    }
-
-    override fun onResume()
-    {
-        super.onResume()
-        Log.e("MainActivity", "onResume")
-    }
-
-    override fun onPause()
-    {
-        super.onPause()
-        Log.e("MainActivity", "onPause")
-    }
-
-    override fun onStop()
-    {
-        super.onStop()
-        Log.e("MainActivity", "onStop")
-    }
-
-    override fun onRestart()
-    {
-        super.onRestart()
-        Log.e("MainActivity", "onRestart")
     }
 
     override fun InitActionBar()
@@ -283,8 +243,6 @@ class MainActivity : BaseActivity()
 
     override fun onBackPressed()
     {
-        Log.e("MainActivity", "onBackPressed")
-
         val activeFragment = GetActiveFragment()
         if (activeFragment.isNotEmpty())
         {
@@ -310,8 +268,6 @@ class MainActivity : BaseActivity()
 
     override fun onDestroy()
     {
-        Log.e("MainActivity", "onDestroy")
-
         CloseHttpHelper()
 
         super.onDestroy()
@@ -320,25 +276,27 @@ class MainActivity : BaseActivity()
     fun LoadHistoryData(historyFragment: HistoryDataFragment, context: Context, id: String, id2: String)
     {
         val sharePref = MySharedPreferences.InitInstance(context)
-        val serverIP = sharePref!!.GetServerIP()
+        val serverIp = sharePref!!.GetServerIP()
         val user = sharePref.GetUsername()
         val pass = sharePref.GetPassword()
+        val phpAddress = "http://$serverIp/load_history.php?&server=$serverIp&user=$user&pass=$pass&id=$id&id2=$id2"
+
         _httpHelper = HttpHelper.InitInstance(context)
         _httpHelper!!.SetHttpAction(object : IHttpAction
         {
             override fun OnHttpRequest()
             {
-                val phpAddress = "http://$serverIP/load_history.php?&server=$serverIP&user=$user&pass=$pass&id=$id&id2=$id2"
                 val data = HttpRequest.DownloadFromMySQL("society", phpAddress)
-
-                val sensorDataAnalyser = SensorDataParser.InitInstance()
-                sensorDataAnalyser!!.setSensorQuantity(sharePref.GetSensorQuantity())
-                sensorDataAnalyser.setSharePref(sharePref)
+                val model = SensorDataModel()
+                val dataParser = SensorDataParser.InitInstance()
+                val sensorQuantity = sharePref.GetSensorQuantity()
+                dataParser!!.SetSensorQuantity(sensorQuantity)
+                model.SensorDataQuantity = sensorQuantity
+                model.SensorDataLength = dataParser.GetJsonArrayLength(JSONArray(data))
+                model.SensorDataList = dataParser.GetSensorData(JSONArray(data))
 
                 historyFragment.SetCurrentId(id, id2)
-                historyFragment.SetSensorQuantity(sharePref.GetSensorQuantity())
-                historyFragment.SetSensorDataList(sensorDataAnalyser.getSensorData(JSONArray(data)))
-                historyFragment.SetJsonArrayLength(sensorDataAnalyser.getJsonArrayLength(JSONArray(data)))
+                historyFragment.SetDataModel(model)
                 historyFragment.SetLoadSuccess(true)
 
                 runOnUiThread {
@@ -349,6 +307,8 @@ class MainActivity : BaseActivity()
 
             override fun OnException(e : Exception)
             {
+                val model = SensorDataModel()
+
                 if (historyFragment.GetLoadSuccess()) // if last time is success
                 {
                     historyFragment.SetLoadSuccess(false) // this time is not success
@@ -357,8 +317,7 @@ class MainActivity : BaseActivity()
                 else
                 {
                     historyFragment.SetCurrentId("1", "100")
-                    historyFragment.SetSensorDataList(ArrayList()) // empty list
-                    historyFragment.SetJsonArrayLength(0)
+                    historyFragment.SetDataModel(model)
                 }
 
                 runOnUiThread { historyFragment.RenewRecyclerView() }

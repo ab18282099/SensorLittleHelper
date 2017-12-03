@@ -25,19 +25,13 @@ class SensorDataParser private constructor()
     }
 
     private var _sensorQuantity: Int = 5
-    private var _sharePref: MySharedPreferences? = null
 
-    fun setSensorQuantity(quantity: Int)
+    fun SetSensorQuantity(quantity: Int)
     {
         _sensorQuantity = quantity
     }
 
-    fun setSharePref(sharePref: MySharedPreferences?)
-    {
-        this._sharePref = sharePref
-    }
-
-    fun getSensorData(jsonArray: JSONArray): ArrayList<Array<String?>>
+    fun GetSensorData(jsonArray: JSONArray): ArrayList<Array<String?>>
     {
         val jsonList = ArrayList<Array<String?>>(_sensorQuantity + 2)
 
@@ -90,7 +84,7 @@ class SensorDataParser private constructor()
         return jsonList
     }
 
-    fun getJsonArrayLength(jsonArray: JSONArray): Int
+    fun GetJsonArrayLength(jsonArray: JSONArray): Int
     {
         if (jsonArray.length() != 0) return jsonArray.length()
         return 0

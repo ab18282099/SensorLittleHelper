@@ -14,9 +14,9 @@ import com.example.user.soil_supervise_kotlin.R
 import com.example.user.soil_supervise_kotlin.Utility.MySharedPreferences
 import org.jetbrains.anko.textColor
 
-class HistoryDataRecyclerAdapter constructor(context : Context, sensorQuantity : Int,
-                                             sensorDataList : ArrayList<Array<String?>>,
-                                             viewCount : Int) : RecyclerView.Adapter<HistoryDataRecyclerAdapter.ViewHolder>()
+class HistoryDataAdapter constructor(context : Context, sensorQuantity : Int,
+                                     sensorDataList : ArrayList<Array<String?>>,
+                                     viewCount : Int) : RecyclerView.Adapter<HistoryDataAdapter.ViewHolder>()
 {
     private val _sharePref = MySharedPreferences.InitInstance(context)
     private val _context = context
@@ -52,7 +52,7 @@ class HistoryDataRecyclerAdapter constructor(context : Context, sensorQuantity :
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): HistoryDataRecyclerAdapter.ViewHolder
+    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): HistoryDataAdapter.ViewHolder
     {
         Log.e("HistoryDataFragment", "onCreateViewHolder")
 
@@ -61,7 +61,7 @@ class HistoryDataRecyclerAdapter constructor(context : Context, sensorQuantity :
         return ViewHolder(converterView)
     }
 
-    override fun onBindViewHolder(holder: HistoryDataRecyclerAdapter.ViewHolder?, position: Int)
+    override fun onBindViewHolder(holder: HistoryDataAdapter.ViewHolder?, position: Int)
     {
         Log.e("HistoryDataFragment", "onBindViewHolder")
 

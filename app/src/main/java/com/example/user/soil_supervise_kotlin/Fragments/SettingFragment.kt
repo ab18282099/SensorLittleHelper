@@ -2,15 +2,10 @@ package com.example.user.soil_supervise_kotlin.Fragments
 
 import android.app.AlertDialog
 import android.content.Context
-import android.graphics.Canvas
 import android.os.Bundle
-import android.support.v4.content.ContextCompat
 import android.support.v4.view.ViewPager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.text.Editable
-import android.text.SpannableStringBuilder
-import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -18,10 +13,13 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.*
 import com.android.volley.*
-import com.example.user.soil_supervise_kotlin.Database.DbAction
-import com.example.user.soil_supervise_kotlin.Database.IDbResponse
+import com.example.user.soil_supervise_kotlin.MySqlDb.DbAction
+import com.example.user.soil_supervise_kotlin.MySqlDb.IDbResponse
 import com.example.user.soil_supervise_kotlin.Utility.MySharedPreferences
 import com.example.user.soil_supervise_kotlin.R
+import com.example.user.soil_supervise_kotlin.Ui.RecyclerView.SettingRecycler.SensorDialogAdapter
+import com.example.user.soil_supervise_kotlin.Ui.RecyclerView.SettingRecycler.SettingAdapter
+import com.example.user.soil_supervise_kotlin.Ui.RecyclerView.SimpleDividerItemDecoration
 import kotlinx.android.synthetic.main.fragment_setting.*
 import org.jetbrains.anko.toast
 import org.jetbrains.anko.vibrator
@@ -43,259 +41,8 @@ class SettingFragment : BaseFragment(), FragmentBackPressedListener
     private var _mainSettingDataTemp = arrayOfNulls<String>(4)
     private var _mainSettingDataText = arrayOfNulls<String>(5)
     private var _recyclerSetting: RecyclerView? = null
-    private var _mAdapter = SettingRecyclerViewAdapter()
+    private var _mAdapter : SettingAdapter? = null
     private var _sharePref: MySharedPreferences? = null
-
-    private inner class SettingRecyclerViewAdapter : RecyclerView.Adapter<SettingRecyclerViewAdapter.ViewHolder>()
-    {
-
-        inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
-        {
-            var tx_settingTitle: TextView? = null
-            var edit_setting: EditText? = null
-            var switch_setting: Switch? = null
-
-            init
-            {
-                tx_settingTitle = itemView.findViewById<TextView>(R.id.tx_settingTitle) as TextView
-                edit_setting = itemView.findViewById<EditText>(R.id.edit_setting) as EditText
-                switch_setting = itemView.findViewById<Switch>(R.id.switch_setting) as Switch
-            }
-        }
-
-        override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): SettingRecyclerViewAdapter.ViewHolder
-        {
-            val converterView = LayoutInflater.from(parent?.context)
-                    .inflate(R.layout.item_setting, parent, false)
-            return ViewHolder(converterView)
-        }
-
-        override fun getItemCount(): Int
-        {
-            return 5
-        }
-
-        override fun onBindViewHolder(holder: ViewHolder?, position: Int)
-        {
-            if (holder!!.adapterPosition == 4)
-            {
-                holder.switch_setting!!.visibility = View.VISIBLE
-                holder.switch_setting!!.isChecked = _sharePref!!.GetIsAutoToggle()
-                if (_sharePref!!.GetIsAutoToggle())
-                {
-                    holder.switch_setting!!.text = getString(R.string.on)
-                }
-                else
-                {
-                    holder.switch_setting!!.text = getString(R.string.off)
-                }
-                holder.switch_setting!!.setOnCheckedChangeListener { compoundButton, b ->
-                    if (compoundButton.id == R.id.switch_setting)
-                    {
-                        if (b)
-                        {
-                            _sharePref!!.PutBoolean("GetIsAutoToggle", true)
-                            holder.switch_setting!!.text = getString(R.string.on)
-                            toast("自動遙控開啟")
-                        }
-                        else
-                        {
-                            _sharePref!!.PutBoolean("GetIsAutoToggle", false)
-                            holder.switch_setting!!.text = getString(R.string.off)
-                            toast("自動遙控關閉")
-                        }
-                    }
-                }
-                holder.tx_settingTitle!!.text = _mainSettingDataText[4]
-                holder.edit_setting!!.visibility = View.GONE
-            }
-            else
-            {
-                holder.switch_setting!!.visibility = View.GONE
-                holder.tx_settingTitle!!.text = _mainSettingDataText[holder.adapterPosition]
-
-                val editable_setting = SpannableStringBuilder(_mainSettingDataTemp[holder.adapterPosition])
-                holder.edit_setting!!.text = editable_setting
-
-                holder.edit_setting!!.addTextChangedListener(object : TextWatcher
-                {
-                    override fun onTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int)
-                    {
-                    }
-
-                    override fun beforeTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int)
-                    {
-                    }
-
-                    override fun afterTextChanged(arg0: Editable)
-                    {
-                        //get data in _mainSettingDataTemp array
-                        _mainSettingDataTemp[holder.adapterPosition] = arg0.toString()
-                    }
-                })
-            }
-        }
-    }
-
-    private inner class DialogRecyclerViewAdapter : RecyclerView.Adapter<DialogRecyclerViewAdapter.ViewHolder>()
-    {
-
-        inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
-        {
-            var checkText: CheckBox? = null
-            var editName: EditText? = null
-            var editCondition: EditText? = null
-            var editPin: EditText? = null
-            var editApp: EditText? = null
-
-            init
-            {
-                checkText = itemView.findViewById<CheckBox>(R.id.checkText) as CheckBox
-                editName = itemView.findViewById<EditText>(R.id.editName) as EditText
-                editCondition = itemView.findViewById<EditText>(R.id.editCondition) as EditText
-                editPin = itemView.findViewById<EditText>(R.id.editPin) as EditText
-                editApp = itemView.findViewById<EditText>(R.id.editApp) as EditText
-            }
-        }
-
-        override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): DialogRecyclerViewAdapter.ViewHolder
-        {
-            val converterView = LayoutInflater.from(parent?.context)
-                    .inflate(R.layout.item_sensor_setting, parent, false)
-            return ViewHolder(converterView)
-        }
-
-        override fun onBindViewHolder(holder: ViewHolder?, position: Int)
-        {
-            holder!!.checkText?.setOnCheckedChangeListener { _, b ->
-                if (b)
-                {
-                    _sharePref!!.PutBoolean("GetCheck" + holder.adapterPosition.toString(), true)
-                    _sharePref!!.PutInt("getSensor" + holder.adapterPosition.toString() + "Visibility", View.VISIBLE)
-                }
-                else
-                {
-                    _sharePref!!.PutBoolean("GetCheck" + holder.adapterPosition.toString(), false)
-                    _sharePref!!.PutInt("getSensor" + holder.adapterPosition.toString() + "Visibility", View.GONE)
-                }
-            }
-            holder.checkText?.isChecked = _sharePref!!.GetCheck(holder.adapterPosition)
-
-            holder.editName?.text = SpannableStringBuilder(_sharePref!!.GetSensorName(holder.adapterPosition))
-            holder.editName?.addTextChangedListener(object : TextWatcher
-            {
-                override fun onTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int)
-                {
-                }
-
-                override fun beforeTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int)
-                {
-                }
-
-                override fun afterTextChanged(arg0: Editable)
-                {
-                    //get data in _mainSettingDataTemp array
-                    _sharePref!!.PutString("getSensor" + holder.adapterPosition.toString() + "Name", arg0.toString())
-                }
-            })
-
-            holder.editCondition?.text = SpannableStringBuilder(_sharePref!!.GetSensorCondition(holder.adapterPosition))
-            holder.editCondition?.addTextChangedListener(object : TextWatcher
-            {
-                override fun onTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int)
-                {
-                }
-
-                override fun beforeTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int)
-                {
-                }
-
-                override fun afterTextChanged(arg0: Editable)
-                {
-                    //get data in _mainSettingDataTemp array
-                    _sharePref!!.PutString("getSensor" + holder.adapterPosition.toString() + "Condition", arg0.toString())
-                }
-            })
-
-            holder.editPin?.text = SpannableStringBuilder(_sharePref!!.GetSensorPin(holder.adapterPosition))
-            holder.editPin?.addTextChangedListener(object : TextWatcher
-            {
-                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int)
-                {
-                }
-
-                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int)
-                {
-                }
-
-                override fun afterTextChanged(p0: Editable?)
-                {
-                    _sharePref!!.PutString("getSensor" + holder.adapterPosition.toString() + "Pin", p0.toString())
-                }
-            })
-
-            holder.editApp?.text = SpannableStringBuilder(_sharePref!!.GetPinApp(holder.adapterPosition))
-            holder.editApp?.addTextChangedListener(object : TextWatcher
-            {
-                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int)
-                {
-
-                }
-
-                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int)
-                {
-
-                }
-
-                override fun afterTextChanged(p0: Editable?)
-                {
-                    _sharePref!!.PutString("getPin" + holder.adapterPosition.toString() + "App", p0?.toString())
-                }
-            })
-        }
-
-        override fun getItemCount(): Int
-        {
-            return _sharePref!!.GetSensorQuantity()
-        }
-    }
-
-    private inner class SimpleDividerItemDecoration constructor(context: Context) : RecyclerView.ItemDecoration()
-    {
-        private val mDivider = ContextCompat.getDrawable(context, R.drawable.divider_line)
-
-        override fun onDrawOver(c: Canvas?, parent: RecyclerView?, state: RecyclerView.State?)
-        {
-            val left = parent!!.paddingLeft
-            val right = parent.width - parent.paddingRight
-
-            val childCount = parent.childCount
-            for (i in 0 until childCount)
-            {
-                val child = parent.getChildAt(i)
-
-                val params = child.layoutParams as RecyclerView.LayoutParams
-
-                val top = child.bottom + params.bottomMargin
-                val bottom = top + mDivider!!.intrinsicHeight
-
-                mDivider.setBounds(left, top, right, bottom)
-                mDivider.draw(c)
-            }
-        }
-    }
-
-    override fun onAttach(context: Context?)
-    {
-        super.onAttach(context)
-        Log.e("SettingFragment", "onAttach")
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?)
-    {
-        super.onCreate(savedInstanceState)
-        Log.e("SettingFragment", "onCreate")
-    }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View
     {
@@ -313,22 +60,15 @@ class SettingFragment : BaseFragment(), FragmentBackPressedListener
         layoutManger.orientation = LinearLayoutManager.VERTICAL
         _recyclerSetting!!.layoutManager = layoutManger
 
+        _mAdapter = SettingAdapter(context, _mainSettingDataTemp, _mainSettingDataText)
         _recyclerSetting!!.adapter = _mAdapter
 
-        Log.e("SettingFragment", "onCreateView")
         return view
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?)
-    {
-        super.onActivityCreated(savedInstanceState)
-        Log.e("SettingFragment", "onActivityCreated")
     }
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?)
     {
         super.onViewCreated(view, savedInstanceState)
-        Log.e("SettingFragment", "onViewCreated")
 
         btn_sensor_setting.text = getString(R.string.sensor_setting)
         btn_sensor_setting.setOnClickListener {
@@ -344,54 +84,6 @@ class SettingFragment : BaseFragment(), FragmentBackPressedListener
         btn_done_setting.setOnClickListener {
             DoneSetting()
         }
-    }
-
-    override fun onStart()
-    {
-        super.onStart()
-        Log.e("SettingFragment", "onStart")
-    }
-
-    override fun onResume()
-    {
-        super.onResume()
-        Log.e("SettingFragment", "onResume")
-    }
-
-    override fun onPause()
-    {
-        super.onPause()
-        Log.e("SettingFragment", "onPause")
-    }
-
-    override fun onStop()
-    {
-        super.onStop()
-        Log.e("SettingFragment", "onStop")
-    }
-
-    override fun onDestroyView()
-    {
-        super.onDestroyView()
-        Log.e("SettingFragment", "onDestroyView")
-    }
-
-    override fun onDestroy()
-    {
-        super.onDestroy()
-        Log.e("SettingFragment", "onDestroy")
-    }
-
-    override fun onDetach()
-    {
-        super.onDetach()
-        Log.e("SettingFragment", "onDetach")
-    }
-
-    override fun setUserVisibleHint(isVisibleToUser: Boolean)
-    {
-        super.setUserVisibleHint(isVisibleToUser)
-        Log.e("SettingFragment", isVisibleToUser.toString())
     }
 
     override fun OnFragmentBackPressed()
@@ -438,7 +130,7 @@ class SettingFragment : BaseFragment(), FragmentBackPressedListener
         layoutManger.orientation = LinearLayoutManager.VERTICAL
         recycler_in_dialog.layoutManager = layoutManger
 
-        val dialogAdapter = DialogRecyclerViewAdapter()
+        val dialogAdapter = SensorDialogAdapter(context)
         recycler_in_dialog.adapter = dialogAdapter
         val mDividerLine = SimpleDividerItemDecoration(context)
         recycler_in_dialog.addItemDecoration(mDividerLine)
@@ -477,10 +169,8 @@ class SettingFragment : BaseFragment(), FragmentBackPressedListener
         return dialog
     }
 
-    private fun TryEditSensorQuantity(query: String, sensorID: String, dialogAdapter: DialogRecyclerViewAdapter)
+    private fun TryEditSensorQuantity(query: String, sensorID: String, dialogAdapter: SensorDialogAdapter)
     {
-        Log.e("SettingFragment", "TryEditSensorQuantity")
-
         val ServerIP = _sharePref!!.GetServerIP()
         val user = _sharePref!!.GetUsername()
         val pass = _sharePref!!.GetPassword()
@@ -513,7 +203,7 @@ class SettingFragment : BaseFragment(), FragmentBackPressedListener
 
             override fun OnException(e: Exception)
             {
-                Log.e("editSensor", e.toString())
+                Log.e("Editing db", e.toString())
             }
 
             override fun OnError(volleyError: VolleyError)

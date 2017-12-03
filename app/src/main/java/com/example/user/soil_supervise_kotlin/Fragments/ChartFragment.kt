@@ -10,8 +10,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import com.example.user.soil_supervise_kotlin.DbDataDownload.HttpHelper
-import com.example.user.soil_supervise_kotlin.DbDataDownload.IHttpAction
+import com.example.user.soil_supervise_kotlin.MySqlDb.HttpHelper
+import com.example.user.soil_supervise_kotlin.MySqlDb.IHttpAction
 import com.example.user.soil_supervise_kotlin.Utility.*
 import com.example.user.soil_supervise_kotlin.R
 import com.example.user.soil_supervise_kotlin.Ui.ChartEngine.MyChartFactory
@@ -44,40 +44,20 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener
     }
 
     private var _sharePref: MySharedPreferences? = null
-
     private var _mTestDialog: CustomerProgressDialog? = null
     private var _buildChartHelper: HttpHelper? = null
-
-    override fun onAttach(context: Context?)
-    {
-        super.onAttach(context)
-        Log.e("ChartFragment", "onAttach")
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?)
-    {
-        super.onCreate(savedInstanceState)
-        Log.e("ChartFragment", "onCreate")
-    }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View
     {
         val view = inflater!!.inflate(R.layout.fragment_chart, container, false)
         _sharePref = MySharedPreferences.InitInstance(activity)
-        Log.e("ChartFragment", "onCreateView")
-        return view
-    }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?)
-    {
-        super.onActivityCreated(savedInstanceState)
-        Log.e("ChartFragment", "onActivityCreated")
+        return view
     }
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?)
     {
         super.onViewCreated(view, savedInstanceState)
-        Log.e("ChartFragment", "onViewCreated")
 
         btn_chart_dialog.text = "選擇感測器"
         btn_chart_dialog.setOnClickListener {
@@ -95,54 +75,6 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener
         }
     }
 
-    override fun onStart()
-    {
-        super.onStart()
-        Log.e("ChartFragment", "onStart")
-    }
-
-    override fun onResume()
-    {
-        super.onResume()
-        Log.e("ChartFragment", "onResume")
-    }
-
-    override fun onPause()
-    {
-        super.onPause()
-        Log.e("ChartFragment", "onPause")
-    }
-
-    override fun onStop()
-    {
-        super.onStop()
-        Log.e("ChartFragment", "onStop")
-    }
-
-    override fun onDestroyView()
-    {
-        super.onDestroyView()
-        Log.e("ChartFragment", "onDestroyView")
-    }
-
-    override fun onDestroy()
-    {
-        super.onDestroy()
-        Log.e("ChartFragment", "onDestroy")
-    }
-
-    override fun onDetach()
-    {
-        super.onDetach()
-        Log.e("ChartFragment", "onDetach")
-    }
-
-    override fun setUserVisibleHint(isVisibleToUser: Boolean)
-    {
-        super.setUserVisibleHint(isVisibleToUser)
-        Log.e("ChartFragment", isVisibleToUser.toString())
-    }
-
     override fun OnFragmentBackPressed()
     {
         val vpMain = activity.findViewById<ViewPager>(R.id._vpMain) as ViewPager
@@ -154,16 +86,13 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener
         val nullParent: ViewGroup? = null
         val factory = LayoutInflater.from(context)
         val convertView = factory.inflate(R.layout.dialog_set_chart, nullParent)
-
         val spinner_chart = convertView.findViewById<Spinner>(R.id.spinner_chart)
         val btn_set_chart = convertView.findViewById<Button>(R.id.btn_set_chart)
-
-        val dialog = android.app.AlertDialog.Builder(context).setView(convertView)
-                .create()
-
+        val dialog = android.app.AlertDialog.Builder(context).setView(convertView).create()
         var chartId = 0
         val sensorQuantity = _sharePref!!.GetSensorQuantity()
         val sensorTitleList = arrayOfNulls<String>(sensorQuantity)
+
         for (i in 0 until sensorQuantity)
         {
             sensorTitleList[i] = _sharePref!!.GetSensorName(i)
@@ -189,7 +118,6 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener
             SetChartView(chartId)
         }
 
-        // DO NOT USE getApplicationContext!!!
         return dialog
     }
 
@@ -210,7 +138,6 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener
 
             override fun OnException(e: Exception)
             {
-                Log.e("ChartDownloadFailed", e.toString())
                 runOnUiThread { toast(e.toString()) }
             }
 
@@ -221,7 +148,7 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener
         _buildChartHelper!!.StartHttpThread()
     }
 
-    private fun ChartDataRenew(jsonString: String?, chartID: Int)
+    private fun ChartDataRenew(jsonString: String?, chartId: Int)
     {
         val jsonArray = JSONArray(jsonString)
         val interval = if (jsonArray.length() > 500) (jsonArray.length()).div(500) else 1
@@ -239,7 +166,7 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener
             }
             catch (e: Exception)
             {
-                Log.e("ParseDate", e.toString())
+                Log.e("Parse time data in ChartFragment", e.toString())
             }
         }
 
@@ -247,13 +174,13 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener
 
         for (i in 0 until jsonArray.length())
         {
-            sensorData[i] = jsonArray.getJSONObject(i).getString("sensor_" + (chartID + 1).toString())
+            sensorData[i] = jsonArray.getJSONObject(i).getString("sensor_" + (chartId + 1).toString())
         }
         val yData = ConvertUtils.convert(sensorData, java.lang.Double.TYPE) as DoubleArray
         y.add(yData)
         val firstTime = timeData[0]!!.time.toDouble()
         val lastTime = timeData[timeData.size - 1]!!.time.toDouble()
-        val dataSet = BuildDataSet(_sharePref!!.GetSensorName(chartID), x, y, interval)
+        val dataSet = BuildDataSet(_sharePref!!.GetSensorName(chartId), x, y, interval)
         val renderer = BuildRenderer(Color.BLUE, PointStyle.CIRCLE, true)
         InitChartSetting(renderer, "數據折線圖", "TIME", "%", firstTime, lastTime, (-50).toDouble(), (100).toDouble(), Color.BLACK)
 
@@ -280,11 +207,9 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener
                              yVale: ArrayList<DoubleArray>, interval: Int): XYMultipleSeriesDataset
     {
         val dataSet = XYMultipleSeriesDataset()
-
         val series = TimeSeries(title)
-
-        val xV = xValue.get(0)
-        val yV = yVale.get(0)
+        val xV = xValue[0]
+        val yV = yVale[0]
 
         for (i in 0 until xV.size step interval)
         {
@@ -297,7 +222,6 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener
     private fun BuildRenderer(color: Int, style: PointStyle, fill: Boolean): XYMultipleSeriesRenderer
     {
         val renderer = XYMultipleSeriesRenderer()
-
         val singleRenderer = XYSeriesRenderer()
         singleRenderer.color = color
         singleRenderer.pointStyle = style

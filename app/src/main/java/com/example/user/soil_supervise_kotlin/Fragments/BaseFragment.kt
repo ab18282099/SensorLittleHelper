@@ -12,8 +12,6 @@ import com.example.user.soil_supervise_kotlin.R
 
 abstract class BaseFragment : Fragment()
 {
-    val _baseActivity: BaseActivity? = null
-
     override fun onAttach(context: Context?)
     {
         super.onAttach(context)

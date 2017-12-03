@@ -1,6 +1,5 @@
 package com.example.user.soil_supervise_kotlin.Fragments
 
-import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.support.v4.view.ViewPager
@@ -10,8 +9,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.android.volley.*
-import com.example.user.soil_supervise_kotlin.Database.DbAction
-import com.example.user.soil_supervise_kotlin.Database.IDbResponse
+import com.example.user.soil_supervise_kotlin.MySqlDb.DbAction
+import com.example.user.soil_supervise_kotlin.MySqlDb.IDbResponse
 import com.example.user.soil_supervise_kotlin.Utility.ExitApplication
 import com.example.user.soil_supervise_kotlin.Utility.MySharedPreferences
 import com.example.user.soil_supervise_kotlin.R
@@ -33,38 +32,16 @@ class LoginFragment : BaseFragment(), FragmentBackPressedListener
     }
 
     private var _sharePref: MySharedPreferences? = null
-
     private var _doubleBackToExit: Boolean? = null
-
-    override fun onAttach(context: Context?)
-    {
-        super.onAttach(context)
-        Log.e("LoginFragment", "onAttach")
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?)
-    {
-        super.onCreate(savedInstanceState)
-        Log.e("LoginFragment", "onCreate")
-    }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View
     {
-        val view = inflater!!.inflate(R.layout.fragment_login, container, false)
-        Log.e("LoginFragment", "onCreateView")
-        return view
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?)
-    {
-        super.onActivityCreated(savedInstanceState)
-        Log.e("LoginFragment", "onActivityCreated")
+        return inflater!!.inflate(R.layout.fragment_login, container, false)
     }
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?)
     {
         super.onViewCreated(view, savedInstanceState)
-        Log.e("LoginFragment", "onViewCreated")
 
         _sharePref = MySharedPreferences.InitInstance(activity)
 
@@ -93,54 +70,6 @@ class LoginFragment : BaseFragment(), FragmentBackPressedListener
         btn_login.setOnClickListener {
             TryConnectDataBase(edit_user.text.toString(), edit_pass.text.toString())
         }
-    }
-
-    override fun onStart()
-    {
-        super.onStart()
-        Log.e("LoginFragment", "onStart")
-    }
-
-    override fun onResume()
-    {
-        super.onResume()
-        Log.e("LoginFragment", "onResume")
-    }
-
-    override fun onPause()
-    {
-        super.onPause()
-        Log.e("LoginFragment", "onPause")
-    }
-
-    override fun onStop()
-    {
-        super.onStop()
-        Log.e("LoginFragment", "onStop")
-    }
-
-    override fun onDestroyView()
-    {
-        super.onDestroyView()
-        Log.e("LoginFragment", "onDestroyView")
-    }
-
-    override fun onDestroy()
-    {
-        super.onDestroy()
-        Log.e("LoginFragment", "onDestroy")
-    }
-
-    override fun onDetach()
-    {
-        super.onDetach()
-        Log.e("LoginFragment", "onDetach")
-    }
-
-    override fun setUserVisibleHint(isVisibleToUser: Boolean)
-    {
-        super.setUserVisibleHint(isVisibleToUser)
-        Log.e("LoginFragment", isVisibleToUser.toString())
     }
 
     override fun OnFragmentBackPressed()
@@ -178,7 +107,7 @@ class LoginFragment : BaseFragment(), FragmentBackPressedListener
 
             override fun OnException(e: Exception)
             {
-                Log.e("connJSON", e.toString())
+                Log.e("Login database", e.toString())
                 toast("連接失敗")
                 PutLoginInfo()
             }

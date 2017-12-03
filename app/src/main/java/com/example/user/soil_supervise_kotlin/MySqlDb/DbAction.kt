@@ -1,4 +1,4 @@
-package com.example.user.soil_supervise_kotlin.Database
+package com.example.user.soil_supervise_kotlin.MySqlDb
 
 import android.app.AlertDialog
 import android.content.Context

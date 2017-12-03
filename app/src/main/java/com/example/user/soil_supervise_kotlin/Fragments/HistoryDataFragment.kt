@@ -15,15 +15,16 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import com.android.volley.*
 import com.example.user.soil_supervise_kotlin.Activities.MainActivity
-import com.example.user.soil_supervise_kotlin.Database.DbAction
-import com.example.user.soil_supervise_kotlin.Database.IDbResponse
-import com.example.user.soil_supervise_kotlin.DbDataDownload.HttpHelper
-import com.example.user.soil_supervise_kotlin.DbDataDownload.IHttpAction
+import com.example.user.soil_supervise_kotlin.Model.SensorDataModel
+import com.example.user.soil_supervise_kotlin.MySqlDb.DbAction
+import com.example.user.soil_supervise_kotlin.MySqlDb.IDbResponse
+import com.example.user.soil_supervise_kotlin.MySqlDb.HttpHelper
+import com.example.user.soil_supervise_kotlin.MySqlDb.IHttpAction
 import com.example.user.soil_supervise_kotlin.Utility.DataWriter
 import com.example.user.soil_supervise_kotlin.Utility.HttpRequest
 import com.example.user.soil_supervise_kotlin.Utility.MySharedPreferences
 import com.example.user.soil_supervise_kotlin.R
-import com.example.user.soil_supervise_kotlin.Ui.RecyclerView.HistoryDataRecyclerAdapter
+import com.example.user.soil_supervise_kotlin.Ui.RecyclerView.HistoryDataAdapter
 import com.example.user.soil_supervise_kotlin.Ui.RecyclerView.SimpleDividerItemDecoration
 import kotlinx.android.synthetic.main.fragment_history.*
 import org.jetbrains.anko.*
@@ -42,11 +43,8 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
         }
     }
 
-    private var _mRecyclerViewAdapter: HistoryDataRecyclerAdapter? = null
     private var _viewCount: Int = 0
-    private var _sensorDataLength: Int = 0
-    private var _sensorDataList = ArrayList<Array<String?>>()
-    private var _sensorQuantity: Int = 5
+    private var _sensorDataModel = SensorDataModel()
     private var _recyclerHistory: RecyclerView? = null
     private var _sharePref: MySharedPreferences? = null
     private var _currentId1 = ""
@@ -54,46 +52,28 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
     private var _isSuccessLoad = false
     private var _historyDataBackUpHelper : HttpHelper? = null
 
-    override fun onAttach(context: Context?)
-    {
-        super.onAttach(context)
-        Log.e("HistoryDataFragment", "onAttach")
-    }
-
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        Log.e("HistoryDataFragment", "onCreate")
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View
     {
         val view = inflater!!.inflate(R.layout.fragment_history, container, false)
-
         _sharePref = MySharedPreferences.InitInstance(activity)
-
         _recyclerHistory = view.findViewById<RecyclerView>(R.id._recyclerHistory) as RecyclerView
-
         val layoutManger = LinearLayoutManager(context)
         layoutManger.orientation = LinearLayoutManager.VERTICAL
         _recyclerHistory?.layoutManager = layoutManger
         _recyclerHistory?.addItemDecoration(SimpleDividerItemDecoration(context))
 
-        Log.e("HistoryDataFragment", "onCreateView")
         return view
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?)
-    {
-        super.onActivityCreated(savedInstanceState)
-        Log.e("HistoryDataFragment", "onActivityCreated")
     }
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?)
     {
         super.onViewCreated(view, savedInstanceState)
-        Log.e("HistoryDataFragment", "onViewCreated")
 
         btn_left.text = "上一頁"
         btn_right.text = "下一頁"
@@ -114,55 +94,6 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
             dialog.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
             dialog.setCanceledOnTouchOutside(true)
         }
-    }
-
-    override fun onStart()
-    {
-        super.onStart()
-        Log.e("HistoryDataFragment", "onStart")
-    }
-
-    override fun onResume()
-    {
-        super.onResume()
-        Log.e("HistoryDataFragment", "onResume")
-    }
-
-    override fun onPause()
-    {
-        super.onPause()
-        Log.e("HistoryDataFragment", "onPause")
-    }
-
-    override fun onStop()
-    {
-        super.onStop()
-        Log.e("HistoryDataFragment", "onStop")
-    }
-
-    override fun onDestroyView()
-    {
-        super.onDestroyView()
-
-        Log.e("HistoryDataFragment", "onDestroyView")
-    }
-
-    override fun onDestroy()
-    {
-        super.onDestroy()
-        Log.e("HistoryDataFragment", "onDestroy")
-    }
-
-    override fun onDetach()
-    {
-        super.onDetach()
-        Log.e("HistoryDataFragment", "onDetach")
-    }
-
-    override fun setUserVisibleHint(isVisibleToUser: Boolean)
-    {
-        super.setUserVisibleHint(isVisibleToUser)
-        Log.e("HistoryDataFragment", isVisibleToUser.toString())
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?)
@@ -194,6 +125,11 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
         vpMain.currentItem = 1
     }
 
+    fun SetDataModel(model: SensorDataModel)
+    {
+        _sensorDataModel = model
+    }
+
     fun RenewSensorTitle()
     {
         tx_sensor1.visibility = _sharePref!!.GetSensorVisibility(0)
@@ -212,11 +148,11 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
 
         tx_title_content.removeAllViewsInLayout()
 
-        if (_sensorQuantity > 5)
+        if (_sensorDataModel.SensorDataQuantity > 5)
         {
             tx_title_content.visibility = View.VISIBLE
 
-            for (i in 0 until _sensorQuantity - 5)
+            for (i in 0 until _sensorDataModel.SensorDataQuantity - 5)
             {
                 val txCustomerTitle = TextView(context)
                 txCustomerTitle.text = _sharePref!!.GetSensorName(i + 5)
@@ -238,15 +174,16 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
 
     fun RenewRecyclerView()
     {
-        when (_sensorDataLength)
+        val model = _sensorDataModel
+
+        when (model.SensorDataLength)
         {
-            in 1..100 -> _viewCount = _sensorDataLength
+            in 1 until 100 -> _viewCount = model.SensorDataLength
             0 -> _viewCount = 0
             else -> _viewCount = 100
         }
 
-        _mRecyclerViewAdapter = HistoryDataRecyclerAdapter(context, _sensorQuantity, _sensorDataList, _viewCount)
-        _recyclerHistory?.adapter = _mRecyclerViewAdapter
+        _recyclerHistory?.adapter = HistoryDataAdapter(context, model.SensorDataQuantity, model.SensorDataList, _viewCount)
         CheckButton()
     }
 
@@ -254,21 +191,6 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
     {
         _currentId1 = id
         _currentId2 = id2
-    }
-
-    fun SetSensorQuantity(quantity: Int)
-    {
-        _sensorQuantity = quantity
-    }
-
-    fun SetJsonArrayLength(length: Int)
-    {
-        _sensorDataLength = length
-    }
-
-    fun SetSensorDataList(dataList: ArrayList<Array<String?>>)
-    {
-        _sensorDataList = dataList
     }
 
     fun SetLoadSuccess(isSuccess : Boolean)
@@ -351,13 +273,13 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
 
     private fun LeftView()
     {
-        MainActivity().LoadHistoryData(this, context, (_currentId1.toInt() - 100).toString(), (_currentId2.toInt() - 100).toString())
+        (activity as MainActivity).LoadHistoryData(this, context, (_currentId1.toInt() - 100).toString(), (_currentId2.toInt() - 100).toString())
         CheckButton()
     }
 
     private fun RightView()
     {
-        MainActivity().LoadHistoryData(this, context, (_currentId1.toInt() + 100).toString(), (_currentId2.toInt() + 100).toString())
+        (activity as MainActivity).LoadHistoryData(this, context, (_currentId1.toInt() + 100).toString(), (_currentId2.toInt() + 100).toString())
         CheckButton()
     }
 
@@ -390,8 +312,6 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
 
     private fun TryEditDataBase(phpAddress: String)
     {
-        Log.e("HistoryFragment", "TryEditDataBase")
-
         val loginAction = DbAction(context)
         loginAction.SetResponse(object : IDbResponse
         {
@@ -401,12 +321,12 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
                 {
                     "Deleted Successfully." ->
                     {
-                        MainActivity().LoadHistoryData(this@HistoryDataFragment, context, "1", "100")
+                        (activity as MainActivity).LoadHistoryData(this@HistoryDataFragment, context, "1", "100")
                         toast("刪除成功")
                     }
                     "DB is clean." ->
                     {
-                        MainActivity().LoadHistoryData(this@HistoryDataFragment, context, "1", "100")
+                        (activity as MainActivity).LoadHistoryData(this@HistoryDataFragment, context, "1", "100")
                         toast("清空完成")
                     }
                     else ->
@@ -449,7 +369,7 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
 
             override fun OnException(e : Exception)
             {
-                Log.e("backing up", e.toString())
+                Log.e("Backing up history data", e.toString())
                 runOnUiThread { toast(e.toString()) }
             }
 

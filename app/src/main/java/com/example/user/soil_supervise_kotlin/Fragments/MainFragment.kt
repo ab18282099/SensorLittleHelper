@@ -1,9 +1,7 @@
 package com.example.user.soil_supervise_kotlin.Fragments
 
-import android.content.Context
 import android.os.Bundle
 import android.support.v4.view.ViewPager
-import android.util.Log
 import android.view.*
 import android.widget.GridView
 import android.widget.SimpleAdapter
@@ -33,43 +31,26 @@ class MainFragment : BaseFragment(), FragmentBackPressedListener, FragmentMenuIt
     private val _images = intArrayOf(R.drawable.wifi, R.drawable.current, R.drawable.historydata, R.drawable.setting, R.drawable.chart, R.drawable.exit)
     private val _imgTextList = arrayOf("Wi-Fi 遙控", "即時監控", "歷史數據", "設定", "數據折線圖", "離開程式")
     private var _gridMain: GridView? = null
-
     private var _sharePref: MySharedPreferences? = null
-
-    override fun onAttach(context: Context?)
-    {
-        super.onAttach(context)
-        Log.e("MainFragment", "onAttach")
-    }
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        Log.e("MainFragment", "onCreate")
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View
     {
         val view = inflater!!.inflate(R.layout.fragment_main, container, false)
         _gridMain = view.findViewById(R.id._gridMain)
-
         _sharePref = MySharedPreferences.InitInstance(activity)
 
-        Log.e("MainFragment", "onCreateView")
         return view
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?)
-    {
-        super.onActivityCreated(savedInstanceState)
-        Log.e("MainFragment", "onActivityCreated")
     }
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?)
     {
         super.onViewCreated(view, savedInstanceState)
-        Log.e("MainFragment", "onViewCreated")
 
         val items = ArrayList<Map<String, Any>>()
         for (i in _images.indices)
@@ -102,54 +83,6 @@ class MainFragment : BaseFragment(), FragmentBackPressedListener, FragmentMenuIt
                 }
             }
         }
-    }
-
-    override fun onStart()
-    {
-        super.onStart()
-        Log.e("MainFragment", "onStart")
-    }
-
-    override fun onResume()
-    {
-        super.onResume()
-        Log.e("MainFragment", "onResume")
-    }
-
-    override fun onPause()
-    {
-        super.onPause()
-        Log.e("MainFragment", "onPause")
-    }
-
-    override fun onStop()
-    {
-        super.onStop()
-        Log.e("MainFragment", "onStop")
-    }
-
-    override fun onDestroyView()
-    {
-        super.onDestroyView()
-        Log.e("MainFragment", "onDestroyView")
-    }
-
-    override fun onDestroy()
-    {
-        super.onDestroy()
-        Log.e("MainFragment", "onDestroy")
-    }
-
-    override fun onDetach()
-    {
-        super.onDetach()
-        Log.e("MainFragment", "onDetach")
-    }
-
-    override fun setUserVisibleHint(isVisibleToUser: Boolean)
-    {
-        super.setUserVisibleHint(isVisibleToUser)
-        Log.e("MainFragment", isVisibleToUser.toString())
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?)

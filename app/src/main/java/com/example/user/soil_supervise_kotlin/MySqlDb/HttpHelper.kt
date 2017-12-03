@@ -1,4 +1,4 @@
-package com.example.user.soil_supervise_kotlin.DbDataDownload
+package com.example.user.soil_supervise_kotlin.MySqlDb
 
 import android.app.AlertDialog
 import android.content.Context
@@ -6,7 +6,6 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.view.View
 import com.example.user.soil_supervise_kotlin.Ui.ProgressDialog
-import org.jetbrains.anko.runOnUiThread
 
 class HttpHelper private constructor(context: Context)
 {
