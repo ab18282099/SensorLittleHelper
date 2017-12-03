@@ -7,7 +7,7 @@ import android.util.Log
 import android.view.*
 import android.widget.GridView
 import android.widget.SimpleAdapter
-import com.example.user.soil_supervise_kotlin.OtherClass.ExitApplication
+import com.example.user.soil_supervise_kotlin.Utility.ExitApplication
 import com.example.user.soil_supervise_kotlin.R
 import org.jetbrains.anko.alert
 import org.jetbrains.anko.noButton
@@ -16,7 +16,7 @@ import java.util.ArrayList
 import java.util.HashMap
 import com.example.user.soil_supervise_kotlin.Interfaces.FragmentBackPressedListener
 import com.example.user.soil_supervise_kotlin.Interfaces.FragmentMenuItemClickListener
-import com.example.user.soil_supervise_kotlin.OtherClass.MySharedPreferences
+import com.example.user.soil_supervise_kotlin.Utility.MySharedPreferences
 
 
 class MainFragment : BaseFragment(), FragmentBackPressedListener, FragmentMenuItemClickListener

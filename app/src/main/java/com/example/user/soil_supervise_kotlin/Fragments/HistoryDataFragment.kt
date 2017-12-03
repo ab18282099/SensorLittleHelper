@@ -5,8 +5,6 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.os.Bundle
-import android.os.Handler
-import android.os.HandlerThread
 import android.support.v4.content.ContextCompat
 import android.support.v4.view.ViewPager
 import android.support.v7.widget.LinearLayoutManager
@@ -19,18 +17,20 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.android.volley.*
-import com.android.volley.toolbox.JsonObjectRequest
-import com.android.volley.toolbox.Volley
 import com.example.user.soil_supervise_kotlin.Activities.MainActivity
+import com.example.user.soil_supervise_kotlin.Database.DbAction
+import com.example.user.soil_supervise_kotlin.Database.IDbResponse
+import com.example.user.soil_supervise_kotlin.DbDataDownload.HttpHelper
+import com.example.user.soil_supervise_kotlin.DbDataDownload.IHttpAction
 import com.example.user.soil_supervise_kotlin.Interfaces.FragmentBackPressedListener
 import com.example.user.soil_supervise_kotlin.Interfaces.FragmentMenuItemClickListener
-import com.example.user.soil_supervise_kotlin.OtherClass.DataWriter
-import com.example.user.soil_supervise_kotlin.OtherClass.HttpRequest
-import com.example.user.soil_supervise_kotlin.OtherClass.ProgressDialog
-import com.example.user.soil_supervise_kotlin.OtherClass.MySharedPreferences
+import com.example.user.soil_supervise_kotlin.Utility.DataWriter
+import com.example.user.soil_supervise_kotlin.Utility.HttpRequest
+import com.example.user.soil_supervise_kotlin.Utility.MySharedPreferences
 import com.example.user.soil_supervise_kotlin.R
 import kotlinx.android.synthetic.main.fragment_history.*
 import org.jetbrains.anko.*
+import org.json.JSONObject
 
 class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, FragmentMenuItemClickListener
 {
@@ -62,8 +62,7 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
 
     private var _isSuccessLoad = false
 
-    private var _httpThread : HandlerThread? = null
-    private var _threadHandler : Handler? = null
+    private var _historyDataBackUpHelper : HttpHelper? = null
 
     private inner class HistoryDataRecyclerAdapter : RecyclerView.Adapter<HistoryDataFragment.HistoryDataRecyclerAdapter.ViewHolder>()
     {
@@ -293,13 +292,13 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
     override fun onDestroyView()
     {
         super.onDestroyView()
+
         Log.e("HistoryDataFragment", "onDestroyView")
     }
 
     override fun onDestroy()
     {
         super.onDestroy()
-        RecycleThread()
         Log.e("HistoryDataFragment", "onDestroy")
     }
 
@@ -314,10 +313,6 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
         super.setUserVisibleHint(isVisibleToUser)
         Log.e("HistoryDataFragment", isVisibleToUser.toString())
     }
-
-    /*
-    No need onOptionsItemSelected, just set clickListener in MainActivity by toolbar.setMenuItemClickListener
-    */
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?)
     {
@@ -348,7 +343,7 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
         vpMain.currentItem = 1
     }
 
-    fun SetSensorTitle()
+    fun RenewSensorTitle()
     {
         tx_sensor1.visibility = _sharePref!!.GetSensorVisibility(0)
         tx_sensor2.visibility = _sharePref!!.GetSensorVisibility(1)
@@ -390,20 +385,31 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
         sensorTitle!!.invalidate()
     }
 
+    fun RenewRecyclerView()
+    {
+        if (_sensorDataLength in 1..100)
+        {
+            _viewCount = _sensorDataLength
+            _mRecyclerViewAdapter?.notifyDataSetChanged()
+        }
+        else if (_sensorDataLength == 0)
+        {
+            _viewCount = 0
+            _mRecyclerViewAdapter?.notifyDataSetChanged()
+        }
+        else
+        {
+            _viewCount = 100
+            _mRecyclerViewAdapter?.notifyDataSetChanged()
+        }
+
+        CheckButton()
+    }
+
     fun SetCurrentId(id : String, id2 : String)
     {
         _currentId1 = id
         _currentId2 = id2
-    }
-
-    fun GetCurrentId1() : String
-    {
-        return _currentId1
-    }
-
-    fun GetCurrentId2() : String
-    {
-        return _currentId2
     }
 
     fun SetSensorQuantity(quantity: Int)
@@ -426,40 +432,19 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
         _isSuccessLoad = isSuccess
     }
 
+    fun GetCurrentId1() : String
+    {
+        return _currentId1
+    }
+
+    fun GetCurrentId2() : String
+    {
+        return _currentId2
+    }
+
     fun GetLoadSuccess() : Boolean
     {
         return _isSuccessLoad
-    }
-
-    fun RenewRecyclerView()
-    {
-        if (_sensorDataLength in 1..100)
-        {
-            _viewCount = _sensorDataLength
-            _mRecyclerViewAdapter?.notifyDataSetChanged()
-        }
-        else if (_sensorDataLength == 0)
-        {
-            _viewCount = 0
-            _mRecyclerViewAdapter?.notifyDataSetChanged()
-        }
-        else
-        {
-            _viewCount = 100
-            _mRecyclerViewAdapter?.notifyDataSetChanged()
-        }
-
-        CheckButton()
-    }
-
-    fun RecycleThread()
-    {
-        if (_threadHandler != null && _httpThread != null)
-        {
-            _threadHandler?.removeCallbacksAndMessages(null)
-            _httpThread?.quitSafely()
-            _httpThread?.interrupt()
-        }
     }
 
     private fun SetDeletedDialog(context: Context): AlertDialog
@@ -563,69 +548,43 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
     {
         Log.e("HistoryFragment", "TryEditDataBase")
 
-        val queue: RequestQueue = Volley.newRequestQueue(context)
-        val progressDialog = ProgressDialog.DialogProgress(activity, "連接中…", View.VISIBLE)
-
-        if (!progressDialog.isShowing)
+        val loginAction = DbAction(context)
+        loginAction.SetResponse(object : IDbResponse
         {
-            progressDialog.show()
-            progressDialog.setCancelable(false)
-        }
-
-        val connectRequest = JsonObjectRequest(phpAddress, null, { jsonObject ->
-            try
+            override fun OnSuccess(jsonObject: JSONObject)
             {
-                val success = jsonObject?.getString("message")
-                if (success == "Deleted Successfully.")
+                when (jsonObject.getString("message"))
                 {
-                    if (progressDialog.isShowing)
+                    "Deleted Successfully." ->
                     {
-                        progressDialog.dismiss()
+                        MainActivity().LoadHistoryData(this@HistoryDataFragment, activity, "1", "100")
+                        toast("操作成功")
                     }
-
-                    MainActivity().LoadHistoryData(this@HistoryDataFragment, activity, "1", "100")
-                    toast("操作成功")
-                }
-                else if (success == "DB is clean.")
-                {
-                    if (progressDialog.isShowing)
+                    "DB is clean." ->
                     {
-                        progressDialog.dismiss()
+                        MainActivity().LoadHistoryData(this@HistoryDataFragment, activity, "1", "100")
+                        toast("操作成功")
                     }
-
-                    MainActivity().LoadHistoryData(this@HistoryDataFragment, activity, "1", "100")
-                    toast("操作成功")
-                }
-                else
-                {
-                    if (progressDialog.isShowing)
+                    else ->
                     {
-                        progressDialog.dismiss()
+                        toast("操作失敗")
                     }
-
-                    //MainActivity().LoadHistoryData(this@HistoryDataFragment, activity)
-                    toast("操作失敗")
                 }
             }
-            catch (e: Exception)
+
+            override fun OnException(e: Exception)
             {
                 Log.e("editSensor", e.toString())
                 toast(e.toString())
             }
-        }, { volleyError ->
-            if (progressDialog.isShowing)
+
+            override fun OnError(volleyError: VolleyError)
             {
-                progressDialog.dismiss()
+                VolleyLog.e("ERROR", volleyError.toString())
+                toast("CONNECT ERROR")
             }
-            VolleyLog.e("ERROR", volleyError.toString())
-            toast("CONNECT ERROR")
         })
-        val Timeout = 9000
-        val policy = DefaultRetryPolicy(Timeout,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT)
-        connectRequest.retryPolicy = policy
-        queue.add(connectRequest)
+        loginAction.DoDbOperate(phpAddress)
     }
 
     private fun BackUpHistoryData()
@@ -633,27 +592,27 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
         val username = _sharePref!!.GetUsername()
         val password = _sharePref!!.GetPassword()
         val serverIp = _sharePref!!.GetServerIP()
-        val progressDialog = ProgressDialog.DialogProgress(activity, "下載中", View.VISIBLE)
-        progressDialog.setCancelable(false)
-        progressDialog.show()
-
-        _httpThread = HandlerThread("history_data_backup")
-        _httpThread!!.start()
-        _threadHandler = Handler(_httpThread!!.looper)
-        _threadHandler!!.post {
-            try
+        _historyDataBackUpHelper = HttpHelper.InitInstance(context)
+        _historyDataBackUpHelper!!.SetHttpAction(object : IHttpAction
+        {
+            override fun OnHttpRequest()
             {
                 val phpAddress = "http://$serverIp/android_mysql.php?&server=$serverIp&user=$username&pass=$password"
-                val data = HttpRequest.DownloadFromMySQL("society", phpAddress)
-                DataWriter.WriteData(activity, _sharePref!!.GetFileSavedName(), data)
+                DataWriter.WriteData(activity, _sharePref!!.GetFileSavedName()
+                        , HttpRequest.DownloadFromMySQL("society", phpAddress))
                 runOnUiThread { toast("備份完成") }
-                progressDialog.dismiss()
             }
-            catch (e : Exception)
+
+            override fun OnException(e : Exception)
             {
+                Log.e("backing up", e.toString())
                 runOnUiThread { toast(e.toString()) }
-                progressDialog.dismiss()
             }
-        }
+
+            override fun OnPostExecute()
+            {
+            }
+        })
+        _historyDataBackUpHelper!!.StartHttpThread()
     }
 }

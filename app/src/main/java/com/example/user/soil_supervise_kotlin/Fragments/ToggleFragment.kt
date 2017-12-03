@@ -1,12 +1,9 @@
 package com.example.user.soil_supervise_kotlin.Fragments
 
-import android.app.AlertDialog
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.os.Bundle
-import android.os.Handler
-import android.os.HandlerThread
 import android.support.v4.content.ContextCompat
 import android.support.v4.view.ViewPager
 import android.support.v7.widget.LinearLayoutManager
@@ -16,11 +13,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import com.example.user.soil_supervise_kotlin.DbDataDownload.HttpHelper
+import com.example.user.soil_supervise_kotlin.DbDataDownload.IHttpAction
 import com.example.user.soil_supervise_kotlin.Interfaces.FragmentBackPressedListener
 import com.example.user.soil_supervise_kotlin.Interfaces.RecyclerViewOnItemClickListener
-import com.example.user.soil_supervise_kotlin.OtherClass.HttpRequest
-import com.example.user.soil_supervise_kotlin.OtherClass.ProgressDialog
-import com.example.user.soil_supervise_kotlin.OtherClass.MySharedPreferences
+import com.example.user.soil_supervise_kotlin.Utility.HttpRequest
+import com.example.user.soil_supervise_kotlin.Ui.ProgressDialog
+import com.example.user.soil_supervise_kotlin.Utility.MySharedPreferences
 import com.example.user.soil_supervise_kotlin.R
 import kotlinx.android.synthetic.main.fragment_toggle.*
 import org.jetbrains.anko.runOnUiThread
@@ -46,11 +45,7 @@ class ToggleFragment : BaseFragment(), FragmentBackPressedListener
     private var _recyclerToggle: RecyclerView? = null
     private var _initAdapter: InitRecyclerAdapter? = null
     private var _toggleAdapter: ToggleRecyclerViewAdapter? = null
-
-    private var _httpThread: HandlerThread? = null
-    private var _threadHandler: Handler? = null
-
-    private var _progressDialog: AlertDialog? = null
+    private var _wifiToggleHelper : HttpHelper? = null
 
     private inner class ToggleRecyclerViewAdapter : RecyclerView.Adapter<ToggleFragment.ToggleRecyclerViewAdapter.ViewHolder>(),
             View.OnClickListener
@@ -241,7 +236,7 @@ class ToggleFragment : BaseFragment(), FragmentBackPressedListener
             val port = _sharePref!!.GetPort()
             val parameterValue = "78%78"
 
-            HttpThread(ipAddress, port, parameterValue)
+            TryTogglePin(ipAddress, port, parameterValue)
         }
     }
 
@@ -272,7 +267,7 @@ class ToggleFragment : BaseFragment(), FragmentBackPressedListener
     override fun onDestroyView()
     {
         super.onDestroyView()
-        RecycleThread()
+
         Log.e("ToggleFragment", "onDestroyView")
     }
 
@@ -296,7 +291,6 @@ class ToggleFragment : BaseFragment(), FragmentBackPressedListener
 
     override fun OnFragmentBackPressed()
     {
-        RecycleThread()
         val vpMain = activity.findViewById<ViewPager>(R.id._vpMain) as ViewPager
         vpMain.currentItem = 1
     }
@@ -327,7 +321,7 @@ class ToggleFragment : BaseFragment(), FragmentBackPressedListener
                     val port = _sharePref!!.GetPort()
                     val parameterValue = _sharePref!!.GetSensorPin(position) // pin 7~12
 
-                    HttpThread(ipAddress, port, parameterValue)
+                    TryTogglePin(ipAddress, port, parameterValue)
                 }
             }
         })
@@ -336,49 +330,17 @@ class ToggleFragment : BaseFragment(), FragmentBackPressedListener
         _recyclerToggle?.addItemDecoration(SimpleDividerItemDecoration(context))
     }
 
-    private fun HttpThread(ipAddress: String, port: String, parameterValue: String)
+    private fun TryTogglePin(ipAddress: String, port: String, parameterValue: String)
     {
-        _progressDialog = ProgressDialog.DialogProgress(activity, "連接中…", View.VISIBLE)
-        _progressDialog!!.show()
-        _progressDialog!!.setCancelable(false)
-
-        _httpThread = HandlerThread("togglePin")
-        _httpThread!!.start()
-        _threadHandler = Handler(_httpThread!!.looper)
-        _threadHandler!!.post {
-            if (ipAddress.isNotEmpty() && port.isNotEmpty())
-            {
-                var requestReply: String? = ""
-                try
-                {
-                    requestReply = HttpRequest.SendToggleRequest(parameterValue, ipAddress, port, "pin")
-                }
-                catch (e: Exception)
-                {
-                    Log.e("toggling", e.toString())
-                }
-
-                if (requestReply != null && requestReply.isNotEmpty())
-                {
-                    PostExecute(requestReply)
-                }
-            }
-        }
-    }
-
-    private fun PostExecute(requestReply: String)
-    {
-        if (_progressDialog!!.isShowing) _progressDialog!!.dismiss()
-
-        if (requestReply == "THIS PIN NOT IN SERVICE")
+        _wifiToggleHelper = HttpHelper.InitInstance(context)
+        _wifiToggleHelper!!.SetHttpAction(object : IHttpAction
         {
-            val resultDialog = ProgressDialog.DialogProgress(activity, requestReply, View.GONE)
-            resultDialog.show()
-        }
-        else
-        {
-            try
+            override fun OnHttpRequest()
             {
+                val requestReply = HttpRequest.SendToggleRequest(parameterValue, ipAddress, port, "pin")
+                val resultDialog = ProgressDialog.DialogProgress(activity, requestReply, View.GONE)
+                resultDialog.show()
+
                 val jsonResult = JSONObject(requestReply)
 
                 for (i in 0 until _sensorQuantity)
@@ -386,30 +348,18 @@ class ToggleFragment : BaseFragment(), FragmentBackPressedListener
                     _sharePref!!.PutString("getPin" + i.toString() + "State", jsonResult.getString("PIN" + _sharePref!!.GetSensorPin(i)))
                 }
 
-                runOnUiThread {
-                    _toggleAdapter!!.notifyDataSetChanged()
-                }
-
-                val resultDialog = ProgressDialog.DialogProgress(activity, "完成", View.GONE)
-                resultDialog.show()
+                runOnUiThread { _toggleAdapter!!.notifyDataSetChanged() }
             }
-            catch (e: Exception)
+
+            override fun OnException(e: Exception)
             {
-                Log.e("RESULT NOT JSON", e.toString())
-
-                val resultDialog = ProgressDialog.DialogProgress(activity, requestReply, View.GONE)
-                resultDialog.show()
+                Log.e("toggling", e.toString())
             }
-        }
-    }
 
-    private fun RecycleThread()
-    {
-        if (_threadHandler != null && _httpThread != null)
-        {
-            _threadHandler?.removeCallbacksAndMessages(null)
-            _httpThread?.quitSafely()
-            _httpThread?.interrupt()
-        }
+            override fun OnPostExecute()
+            {
+            }
+        })
+        _wifiToggleHelper!!.StartHttpThread()
     }
 }

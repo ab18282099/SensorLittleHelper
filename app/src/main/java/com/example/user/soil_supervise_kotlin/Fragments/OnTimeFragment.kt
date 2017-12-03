@@ -6,7 +6,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
-import android.os.HandlerThread
 import android.support.v4.content.ContextCompat
 import android.support.v4.view.ViewPager
 import android.support.v7.widget.LinearLayoutManager
@@ -18,12 +17,14 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import com.android.volley.*
-import com.android.volley.toolbox.JsonObjectRequest
-import com.android.volley.toolbox.Volley
+import com.example.user.soil_supervise_kotlin.Database.DbAction
+import com.example.user.soil_supervise_kotlin.Database.IDbResponse
+import com.example.user.soil_supervise_kotlin.DbDataDownload.HttpHelper
+import com.example.user.soil_supervise_kotlin.DbDataDownload.IHttpAction
 import com.example.user.soil_supervise_kotlin.Interfaces.FragmentBackPressedListener
-import com.example.user.soil_supervise_kotlin.OtherClass.HttpRequest
-import com.example.user.soil_supervise_kotlin.OtherClass.ProgressDialog
-import com.example.user.soil_supervise_kotlin.OtherClass.MySharedPreferences
+import com.example.user.soil_supervise_kotlin.Utility.HttpRequest
+import com.example.user.soil_supervise_kotlin.Ui.ProgressDialog
+import com.example.user.soil_supervise_kotlin.Utility.MySharedPreferences
 import com.example.user.soil_supervise_kotlin.R
 import org.jetbrains.anko.alert
 import org.jetbrains.anko.noButton
@@ -50,15 +51,14 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
     private var _count = 5
     private var _countHandler: Handler? = null
     private var _countRunnable: Runnable? = null
-    private var _httpThread: HandlerThread? = null
-    private var _threadHandler: Handler? = null
-    private var _progressDialog: AlertDialog? = null
 
     private var _recyclerOnTime: RecyclerView? = null
     private var _onTimeRecyclerAdapter: OnTimeRecyclerAdapter? = null
     private var _initRecyclerAdapter: InitRecyclerAdapter? = null
 
     private var _sharePref: MySharedPreferences? = null
+
+    private var _wifiToggleHelper : HttpHelper? = null
 
     private inner class OnTimeRecyclerAdapter : RecyclerView.Adapter<OnTimeFragment.OnTimeRecyclerAdapter.ViewHolder>()
     {
@@ -288,8 +288,6 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
     {
         super.onDestroyView()
         Log.e("OnTimeFragment", "onDestroyView")
-
-        RecycleThread()
     }
 
     override fun onDestroy()
@@ -312,8 +310,6 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
 
     override fun OnFragmentBackPressed()
     {
-        RecycleThread()
-
         val vpMain = activity.findViewById<ViewPager>(R.id._vpMain) as ViewPager
         vpMain.currentItem = 1
     }
@@ -329,72 +325,50 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
 
         _sensorDataList.clear()
 
-        val queue: RequestQueue = Volley.newRequestQueue(context)
-        val progressDialog = ProgressDialog.DialogProgress(activity, "連接中…", View.VISIBLE)
-
-        if (!progressDialog.isShowing)
-        {
-            progressDialog.show()
-            progressDialog.setCancelable(false)
-        }
         val ServerIP = _sharePref!!.GetServerIP()
         val phpAddress = "http://$ServerIP/android_mysql_last.php?&server=$ServerIP&user=$user&pass=$pass"
-        val connectRequest = JsonObjectRequest(phpAddress, null, { jsonObject ->
-            try
+        val refreshDataAction = DbAction(context)
+        refreshDataAction.SetResponse(object : IDbResponse
+        {
+            override fun OnSuccess(jsonObject: JSONObject)
             {
                 val sensorQuantity = _sharePref!!.GetSensorQuantity()
                 val sensorData = arrayOfNulls<String>(sensorQuantity + 2)
 
                 for (i in 0 until sensorQuantity + 2)
                 {
-                    if (i == 0) sensorData[i] = jsonObject?.getString("ID")
-                    else if (i == sensorQuantity + 1) sensorData[i] = jsonObject?.getString("time")
+                    if (i == 0)
+                        sensorData[i] = jsonObject.getString("ID")
+                    else if (i == sensorQuantity + 1)
+                        sensorData[i] = jsonObject.getString("time")
                     else
-                    {
-                        sensorData[i] = jsonObject?.getString("sensor_" + (i).toString())
-                    }
+                        sensorData[i] = jsonObject.getString("sensor_" + (i).toString())
                 }
-                _sensorDataList.addAll(sensorData)
 
+                _sensorDataList.addAll(sensorData)
                 val layoutManger = LinearLayoutManager(activity)
                 layoutManger.orientation = LinearLayoutManager.VERTICAL
                 _recyclerOnTime?.layoutManager = layoutManger
-
                 _onTimeRecyclerAdapter = OnTimeRecyclerAdapter()
                 _recyclerOnTime?.adapter = _onTimeRecyclerAdapter
                 _recyclerOnTime?.addItemDecoration(SimpleDividerItemDecoration(context))
-
-                if (progressDialog.isShowing)
-                {
-                    progressDialog.dismiss()
-                }
-
                 toast("連接成功")
                 WarningFunction(_sensorDataList)
             }
-            catch (e: Exception)
+
+            override fun OnException(e: Exception)
             {
                 Log.e("LoadOnTimeData", e.toString())
-                if (progressDialog.isShowing)
-                {
-                    progressDialog.dismiss()
-                }
                 toast(e.toString())
             }
-        }, { volleyError ->
-            if (progressDialog.isShowing)
+
+            override fun OnError(volleyError: VolleyError)
             {
-                progressDialog.dismiss()
+                VolleyLog.e("ERROR", volleyError.toString())
+                toast("CONNECT ERROR")
             }
-            VolleyLog.e("ERROR", volleyError.toString())
-            toast("CONNECT ERROR")
         })
-        val Timeout = 5000
-        val policy = DefaultRetryPolicy(Timeout,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT)
-        connectRequest.retryPolicy = policy
-        queue.add(connectRequest)
+        refreshDataAction.DoDbOperate(phpAddress)
     }
 
     private fun WarningFunction(sensorDataList: ArrayList<String?>)
@@ -463,9 +437,7 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
         val invalidFloat = (-1).toFloat()
 
         if (sensorData != null && warnConditional != null && sensorData != invalidFloat && sensorData < warnConditional)
-        {
             return true
-        }
 
         return false
     }
@@ -490,7 +462,7 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
 
                 val ipAddress = _sharePref!!.GetIPAddress()
                 val port = _sharePref!!.GetPort()
-                HttpThread(ipAddress, port, togglePin)
+                TryTogglePin(ipAddress, port, togglePin)
             }
             else
             {
@@ -506,81 +478,38 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
             dialog.dismiss()
             _count = 5
             _countHandler!!.removeCallbacks(_countRunnable)
-            RecycleThread()
         }
 
         return dialog
     }
 
-    private fun HttpThread(ipAddress: String, port: String, parameterValue: String)
+    private fun TryTogglePin(ipAddress: String, port: String, parameterValue: String)
     {
-        _progressDialog = ProgressDialog.DialogProgress(activity, "連接中…", View.VISIBLE)
-        _progressDialog!!.show()
-        _progressDialog!!.setCancelable(false)
-
-        _httpThread = HandlerThread("togglePin")
-        _httpThread!!.start()
-        _threadHandler = Handler(_httpThread!!.looper)
-        _threadHandler!!.post {
-            if (ipAddress.isNotEmpty() && port.isNotEmpty())
-            {
-                var requestReply: String? = ""
-                try
-                {
-                    requestReply = HttpRequest.SendToggleRequest(parameterValue, ipAddress, port, "pin")
-                }
-                catch (e: Exception)
-                {
-                    Log.e("toggling", e.toString())
-                }
-
-                if (requestReply != null && requestReply.isNotEmpty())
-                {
-                    PostExecute(requestReply)
-                }
-            }
-        }
-    }
-
-    private fun PostExecute(requestReply: String)
-    {
-        if (_progressDialog!!.isShowing) _progressDialog!!.dismiss()
-
-        if (requestReply == "THIS PIN NOT IN SERVICE")
+        _wifiToggleHelper = HttpHelper.InitInstance(context)
+        _wifiToggleHelper!!.SetHttpAction(object : IHttpAction
         {
-            val resultDialog = ProgressDialog.DialogProgress(activity, requestReply, View.GONE)
-            resultDialog.show()
-        }
-        else
-        {
-            try
+            override fun OnHttpRequest()
             {
+                val requestReply = HttpRequest.SendToggleRequest(parameterValue, ipAddress, port, "pin")
+                val resultDialog = ProgressDialog.DialogProgress(activity, requestReply, View.GONE)
+                resultDialog.show()
+
                 val jsonResult = JSONObject(requestReply)
+
                 for (i in 0 until _sensorQuantity)
                 {
                     _sharePref!!.PutString("getPin" + i.toString() + "State", jsonResult.getString("PIN" + _sharePref!!.GetSensorPin(i)))
                 }
-
-                val resultDialog = ProgressDialog.DialogProgress(activity, "完成", View.GONE)
-                resultDialog.show()
             }
-            catch (e: Exception)
+
+            override fun OnException(e: Exception)
             {
-                Log.e("RESULT NOT JSON", e.toString())
-
-                val resultDialog = ProgressDialog.DialogProgress(activity, requestReply, View.GONE)
-                resultDialog.show()
+                Log.e("toggling", e.toString())
             }
-        }
-    }
 
-    private fun RecycleThread()
-    {
-        if (_threadHandler != null && _httpThread != null)
-        {
-            _threadHandler?.removeCallbacksAndMessages(null)
-            _httpThread?.quitSafely()
-            _httpThread?.interrupt()
-        }
+            override fun OnPostExecute()
+            {
+            }
+        })
     }
 }

@@ -10,16 +10,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.android.volley.*
-import com.android.volley.toolbox.JsonObjectRequest
-import com.android.volley.toolbox.Volley
+import com.example.user.soil_supervise_kotlin.Database.DbAction
+import com.example.user.soil_supervise_kotlin.Database.IDbResponse
 import com.example.user.soil_supervise_kotlin.Interfaces.FragmentBackPressedListener
-import com.example.user.soil_supervise_kotlin.OtherClass.ProgressDialog
-import com.example.user.soil_supervise_kotlin.OtherClass.ExitApplication
-import com.example.user.soil_supervise_kotlin.OtherClass.MySharedPreferences
+import com.example.user.soil_supervise_kotlin.Utility.ExitApplication
+import com.example.user.soil_supervise_kotlin.Utility.MySharedPreferences
 import com.example.user.soil_supervise_kotlin.R
 import kotlinx.android.synthetic.main.fragment_login.*
 import org.jetbrains.anko.toast
-import org.json.JSONException
+import org.json.JSONObject
 
 class LoginFragment : BaseFragment(), FragmentBackPressedListener
 {
@@ -163,67 +162,41 @@ class LoginFragment : BaseFragment(), FragmentBackPressedListener
 
     private fun TryConnectDataBase(user: String, pass: String)
     {
-        Log.e("LoginFragment", "TryConnectDataBase")
-
-        val queue: RequestQueue = Volley.newRequestQueue(context)
-        val progressDialog = ProgressDialog.DialogProgress(activity, "連接中…", View.VISIBLE)
-
-        if (!progressDialog.isShowing)
-        {
-            progressDialog.show()
-            progressDialog.setCancelable(false)
-        }
         val ServerIP = _sharePref!!.GetServerIP()
         val phpAddress = "http://$ServerIP/conn_json.php?&server=$ServerIP&user=$user&pass=$pass"
-        val connectRequest = JsonObjectRequest(phpAddress, null, { jsonObject ->
-            try
+        val loginAction = DbAction(context)
+        loginAction.SetResponse(object : IDbResponse
+        {
+            override fun OnSuccess(jsonObject: JSONObject)
             {
-                val success = jsonObject?.getInt("success")
-                if (success == 1)
+                if (jsonObject.getInt("success") == 1)
                 {
-                    if (progressDialog.isShowing)
-                    {
-                        progressDialog.dismiss()
-                    }
-                    toast("已連接資料庫")
-                    _sharePref!!.PutString("GetUsername", edit_user.text.toString())
-                    _sharePref!!.PutString("GetPassword", edit_pass.text.toString())
-
-                    val vpMain = activity.findViewById<ViewPager>(R.id._vpMain) as ViewPager
-                    vpMain.currentItem = 1
-                }
-                else
-                {
-                    if (progressDialog.isShowing)
-                    {
-                        progressDialog.dismiss()
-                    }
-                    toast("連接失敗")
-                    _sharePref!!.PutString("GetUsername", edit_user.text.toString())
-                    _sharePref!!.PutString("GetPassword", edit_pass.text.toString())
+                    toast("成功連接資料庫")
+                    PutLoginInfo()
+                    (activity.findViewById<ViewPager>(R.id._vpMain) as ViewPager).currentItem = 1
                 }
             }
-            catch (e: JSONException)
+
+            override fun OnException(e: Exception)
             {
                 Log.e("connJSON", e.toString())
-                _sharePref!!.PutString("GetUsername", edit_user.text.toString())
-                _sharePref!!.PutString("GetPassword", edit_pass.text.toString())
+                toast("連接失敗")
+                PutLoginInfo()
             }
-        }, { volleyError ->
-            if (progressDialog.isShowing)
+
+            override fun OnError(volleyError: VolleyError)
             {
-                progressDialog.dismiss()
+                VolleyLog.e("ERROR", volleyError.toString())
+                toast("CONNECT ERROR")
+                PutLoginInfo()
             }
-            VolleyLog.e("ERROR", volleyError.toString())
-            toast("CONNECT ERROR")
-            _sharePref!!.PutString("GetUsername", edit_user.text.toString())
-            _sharePref!!.PutString("GetPassword", edit_pass.text.toString())
         })
-        val Timeout = 9000
-        val policy = DefaultRetryPolicy(Timeout,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT)
-        connectRequest.retryPolicy = policy
-        queue.add(connectRequest)
+        loginAction.DoDbOperate(phpAddress)
+    }
+
+    private fun PutLoginInfo()
+    {
+        _sharePref!!.PutString("GetUsername", edit_user.text.toString())
+        _sharePref!!.PutString("GetPassword", edit_pass.text.toString())
     }
 }

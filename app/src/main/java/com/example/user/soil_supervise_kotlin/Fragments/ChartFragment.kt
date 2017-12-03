@@ -4,17 +4,18 @@ import android.app.AlertDialog
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
-import android.os.Handler
-import android.os.HandlerThread
 import android.support.v4.view.ViewPager
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import com.example.user.soil_supervise_kotlin.DbDataDownload.HttpHelper
+import com.example.user.soil_supervise_kotlin.DbDataDownload.IHttpAction
 import com.example.user.soil_supervise_kotlin.Interfaces.FragmentBackPressedListener
-import com.example.user.soil_supervise_kotlin.OtherClass.*
+import com.example.user.soil_supervise_kotlin.Utility.*
 import com.example.user.soil_supervise_kotlin.R
+import com.example.user.soil_supervise_kotlin.Ui.CustomerProgressDialog
 import kotlinx.android.synthetic.main.fragment_chart.*
 import org.achartengine.ChartFactory
 import org.achartengine.chart.PointStyle
@@ -43,12 +44,10 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener
         }
     }
 
-    private var _httpThread: HandlerThread? = null
-    private var _threadHandler: Handler? = null
-
     private var _sharePref: MySharedPreferences? = null
 
     private var _mTestDialog: CustomerProgressDialog? = null
+    private var _buildChartHelper: HttpHelper? = null
 
     override fun onAttach(context: Context?)
     {
@@ -125,13 +124,6 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener
     {
         super.onDestroyView()
         Log.e("ChartFragment", "onDestroyView")
-
-        if (_threadHandler != null && _httpThread != null)
-        {
-            _threadHandler?.removeCallbacksAndMessages(null)
-            _httpThread?.quitSafely()
-            _httpThread?.interrupt()
-        }
     }
 
     override fun onDestroy()
@@ -204,41 +196,30 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener
 
     private fun SetChartView(chartID: Int)
     {
-        val progressDialog = ProgressDialog.DialogProgress(activity, "連接中…", View.VISIBLE)
-        progressDialog.show()
-        progressDialog.setCancelable(false)
-
+        tx_chartTitle.text = _sharePref!!.GetSensorName(chartID)
         val serverIP = _sharePref!!.GetServerIP()
         val user = _sharePref!!.GetUsername()
         val pass = _sharePref!!.GetPassword()
-
-        tx_chartTitle.text = _sharePref!!.GetSensorName(chartID)
-
-        _httpThread = HandlerThread("history_data_download")
-        _httpThread!!.start()
-        _threadHandler = Handler(_httpThread!!.looper)
-        _threadHandler!!.post {
-            try
+        _buildChartHelper = HttpHelper.InitInstance(context)
+        _buildChartHelper!!.SetHttpAction(object : IHttpAction
+        {
+            override fun OnHttpRequest()
             {
                 val phpAddress = "http://$serverIP/android_mysql.php?&server=$serverIP&user=$user&pass=$pass"
-                val data = HttpRequest.DownloadFromMySQL("society", phpAddress)
-                val jsonString: String?
-                jsonString = data
-
-                ChartDataRenew(jsonString, chartID)
-                progressDialog.dismiss()
+                ChartDataRenew(HttpRequest.DownloadFromMySQL("society", phpAddress), chartID)
             }
-            catch (e: Exception)
+
+            override fun OnException(e: Exception)
             {
                 Log.e("ChartDownloadFailed", e.toString())
-
-                runOnUiThread {
-                    toast(e.toString())
-                }
-
-                progressDialog.dismiss()
+                runOnUiThread { toast(e.toString()) }
             }
-        }
+
+            override fun OnPostExecute()
+            {
+            }
+        })
+        _buildChartHelper!!.StartHttpThread()
     }
 
     private fun ChartDataRenew(jsonString: String?, chartID: Int)
@@ -375,5 +356,4 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener
         renderer.setShowGrid(true) // 設定格線
         renderer.margins = intArrayOf(30, 50, 0, 20)
     }
-
 }

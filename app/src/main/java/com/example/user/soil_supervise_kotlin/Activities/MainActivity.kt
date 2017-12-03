@@ -4,7 +4,6 @@ import android.app.Fragment
 import android.content.Context
 import android.os.Bundle
 import android.os.Handler
-import android.os.HandlerThread
 import android.support.v4.view.ViewPager
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.ActionBarDrawerToggle
@@ -15,10 +14,14 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.SimpleAdapter
 import com.example.user.soil_supervise_kotlin.Fragments.*
+import com.example.user.soil_supervise_kotlin.DbDataDownload.HttpHelper
+import com.example.user.soil_supervise_kotlin.DbDataDownload.IHttpAction
 import com.example.user.soil_supervise_kotlin.Interfaces.FragmentBackPressedListener
 import com.example.user.soil_supervise_kotlin.Interfaces.FragmentMenuItemClickListener
-import com.example.user.soil_supervise_kotlin.OtherClass.*
+import com.example.user.soil_supervise_kotlin.Utility.*
 import com.example.user.soil_supervise_kotlin.R
+import com.example.user.soil_supervise_kotlin.Ui.FragmentViewPagerAdapter
+import com.example.user.soil_supervise_kotlin.Ui.MyCommonNavigatorAdapter
 import kotlinx.android.synthetic.main.activity_main.*
 import net.lucode.hackware.magicindicator.ViewPagerHelper
 import net.lucode.hackware.magicindicator.buildins.commonnavigator.CommonNavigator
@@ -41,12 +44,11 @@ class MainActivity : BaseActivity()
     private val _fragmentTitleList = ArrayList<String>()
     private val _fragmentImgList = ArrayList<Int>()
 
+    private var _httpHelper : HttpHelper? = null
+
     private val _activeFragmentList = ArrayList<WeakReference<Fragment?>>()
     private var _vpMain: ViewPager? = null
     private var _mAdapter: FragmentViewPagerAdapter? = null
-
-    private var _httpThread: HandlerThread? = null
-    private var _threadHandler: Handler? = null
 
     private var _onTimeHandler: Handler? = null
     private var _onTimeRunnable: Runnable? = null
@@ -216,7 +218,6 @@ class MainActivity : BaseActivity()
                             _vpMain?.currentItem = 0
                         })
                         SetMenuClickListener(MainFragmentMenuItemClickListener)
-                        RecycleThread()
                         RemoveCallOnTime()
                     }
                     2 ->
@@ -228,7 +229,6 @@ class MainActivity : BaseActivity()
                         val toggleFragment = _mAdapter!!.GetFragment(2) as ToggleFragment
                         toggleFragment.SetSensorQuantity(_sharePref!!.GetSensorQuantity())
                         toggleFragment.SetToggleRecycler()
-                        RecycleThread()
                         RemoveCallOnTime()
                     }
                     3 ->
@@ -240,7 +240,6 @@ class MainActivity : BaseActivity()
                             LoadOnTimeData(onTimeFragment)
                         })
                         LoadOnTimeData(onTimeFragment)
-                        RecycleThread()
                     }
                     4 ->
                     {
@@ -255,6 +254,7 @@ class MainActivity : BaseActivity()
                         SetMenuClickListener(historyFragmentMenuClickListener)
 
                         LoadHistoryData(historyFragment, this@MainActivity, "1", "100")
+
                         RemoveCallOnTime()
                     }
                     5 ->
@@ -263,7 +263,6 @@ class MainActivity : BaseActivity()
                         SetRightImageAndClickListener(R.drawable.main, View.OnClickListener {
                             _vpMain?.currentItem = 1
                         })
-                        RecycleThread()
                         RemoveCallOnTime()
                     }
                     6 ->
@@ -272,7 +271,6 @@ class MainActivity : BaseActivity()
                         SetRightImageAndClickListener(R.drawable.main, View.OnClickListener {
                             _vpMain?.currentItem = 1
                         })
-                        RecycleThread()
                         RemoveCallOnTime()
                     }
                 }
@@ -280,7 +278,6 @@ class MainActivity : BaseActivity()
 
             override fun onPageScrollStateChanged(state: Int)
             {
-
             }
         })
     }
@@ -288,8 +285,6 @@ class MainActivity : BaseActivity()
     override fun onBackPressed()
     {
         Log.e("MainActivity", "onBackPressed")
-
-        RemoveCallOnTime()
 
         val activeFragment = GetActiveFragment()
         if (activeFragment.isNotEmpty())
@@ -318,65 +313,43 @@ class MainActivity : BaseActivity()
     {
         Log.e("MainActivity", "onDestroy")
 
-        RecycleThread()
+        CloseHttpHelper()
 
         super.onDestroy()
     }
 
     fun LoadHistoryData(historyFragment: HistoryDataFragment, context: Context, id: String, id2: String)
     {
-        val progressDialog = ProgressDialog.DialogProgress(context, "連接中…", View.VISIBLE)
-        progressDialog.show()
-        progressDialog.setCancelable(false)
-
         val sharePref = MySharedPreferences.InitInstance(context)
-
         val serverIP = sharePref!!.GetServerIP()
         val user = sharePref.GetUsername()
         val pass = sharePref.GetPassword()
-
-        _httpThread = HandlerThread("history_data_download")
-        _httpThread!!.start()
-        _threadHandler = Handler(_httpThread!!.looper)
-        _threadHandler!!.post {
-            try
+        _httpHelper = HttpHelper.InitInstance(context)
+        _httpHelper!!.SetHttpAction(object : IHttpAction
+        {
+            override fun OnHttpRequest()
             {
                 val phpAddress = "http://$serverIP/load_history.php?&server=$serverIP&user=$user&pass=$pass&id=$id&id2=$id2"
                 val data = HttpRequest.DownloadFromMySQL("society", phpAddress)
 
-                val sensorQuantity = sharePref.GetSensorQuantity()
-                val sensorDataAnalyser = SensorDataAnalyser.InitInstance()
-                sensorDataAnalyser!!.setSensorQuantity(sensorQuantity)
-
+                val sensorDataAnalyser = SensorDataParser.InitInstance()
+                sensorDataAnalyser!!.setSensorQuantity(sharePref.GetSensorQuantity())
                 sensorDataAnalyser.setSharePref(sharePref)
 
                 historyFragment.SetCurrentId(id, id2)
-
-                val dataList = sensorDataAnalyser.getSensorData(JSONArray(data)) //Json Exception catch by this line
-                val dateLength = sensorDataAnalyser.getJsonArrayLength(JSONArray(data))
-
-                historyFragment.SetSensorQuantity(sensorQuantity)
-
-                if (dataList.isNotEmpty())
-                    historyFragment.SetSensorDataList(dataList)
-                if (dateLength != 0)
-                    historyFragment.SetJsonArrayLength(dateLength)
+                historyFragment.SetSensorQuantity(sharePref.GetSensorQuantity())
+                historyFragment.SetSensorDataList(sensorDataAnalyser.getSensorData(JSONArray(data)))
+                historyFragment.SetJsonArrayLength(sensorDataAnalyser.getJsonArrayLength(JSONArray(data)))
+                historyFragment.SetLoadSuccess(true)
 
                 runOnUiThread {
                     historyFragment.RenewRecyclerView()
-                    historyFragment.SetSensorTitle()
+                    historyFragment.RenewSensorTitle()
                 }
-
-                progressDialog.dismiss()
-
-                historyFragment.SetLoadSuccess(true)
             }
-            catch (e: Exception)
+
+            override fun OnException(e : Exception)
             {
-                Log.e("DataDownloadFailed", e.toString())
-
-                progressDialog.dismiss()
-
                 if (historyFragment.GetLoadSuccess()) // if last time is success
                 {
                     historyFragment.SetLoadSuccess(false) // this time is not success
@@ -384,15 +357,19 @@ class MainActivity : BaseActivity()
                 }
                 else
                 {
-                    runOnUiThread {
-                        historyFragment.SetCurrentId("1", "100")
-                        historyFragment.SetSensorDataList(ArrayList()) // empty list
-                        historyFragment.SetJsonArrayLength(0)
-                        historyFragment.RenewRecyclerView()
-                    }
+                    historyFragment.SetCurrentId("1", "100")
+                    historyFragment.SetSensorDataList(ArrayList()) // empty list
+                    historyFragment.SetJsonArrayLength(0)
                 }
+
+                runOnUiThread { historyFragment.RenewRecyclerView() }
             }
-        }
+
+            override fun OnPostExecute()
+            {
+            }
+        })
+        _httpHelper!!.StartHttpThread()
     }
 
     fun LoadOnTimeData(onTimeFragment: OnTimeFragment)
@@ -422,13 +399,9 @@ class MainActivity : BaseActivity()
         return ret
     }
 
-    private fun RecycleThread()
+    private fun CloseHttpHelper()
     {
-        if (_threadHandler != null && _httpThread != null)
-        {
-            _threadHandler?.removeCallbacksAndMessages(null)
-            _httpThread?.quitSafely()
-            _httpThread?.interrupt()
-        }
+        if (_httpHelper != null)
+            _httpHelper!!.RecycleThread()
     }
 }

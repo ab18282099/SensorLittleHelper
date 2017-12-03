@@ -18,16 +18,15 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.*
 import com.android.volley.*
-import com.android.volley.toolbox.JsonObjectRequest
-import com.android.volley.toolbox.Volley
+import com.example.user.soil_supervise_kotlin.Database.DbAction
+import com.example.user.soil_supervise_kotlin.Database.IDbResponse
 import com.example.user.soil_supervise_kotlin.Interfaces.FragmentBackPressedListener
-import com.example.user.soil_supervise_kotlin.OtherClass.ProgressDialog
-import com.example.user.soil_supervise_kotlin.OtherClass.MySharedPreferences
+import com.example.user.soil_supervise_kotlin.Utility.MySharedPreferences
 import com.example.user.soil_supervise_kotlin.R
 import kotlinx.android.synthetic.main.fragment_setting.*
 import org.jetbrains.anko.toast
 import org.jetbrains.anko.vibrator
-import org.json.JSONException
+import org.json.JSONObject
 
 class SettingFragment : BaseFragment(), FragmentBackPressedListener
 {
@@ -483,71 +482,48 @@ class SettingFragment : BaseFragment(), FragmentBackPressedListener
     {
         Log.e("SettingFragment", "TryEditSensorQuantity")
 
-        val queue: RequestQueue = Volley.newRequestQueue(context)
-        val progressDialog = ProgressDialog.DialogProgress(activity, "連接中…", View.VISIBLE)
-
-        if (!progressDialog.isShowing)
-        {
-            progressDialog.show()
-            progressDialog.setCancelable(false)
-        }
         val ServerIP = _sharePref!!.GetServerIP()
         val user = _sharePref!!.GetUsername()
         val pass = _sharePref!!.GetPassword()
         val phpAddress = "http://$ServerIP/$query.php?&server=$ServerIP&user=$user&pass=$pass&sensor_id=$sensorID"
-
-        val connectRequest = JsonObjectRequest(phpAddress, null, { jsonObject ->
-            try
+        val addSensorAction = DbAction(context)
+        addSensorAction.SetResponse(object : IDbResponse
+        {
+            override fun OnSuccess(jsonObject: JSONObject)
             {
-                val success = jsonObject?.getInt("success")
-                val message = jsonObject?.getString("message")
+                val success = jsonObject.getInt("success")
+                val message = jsonObject.getString("message")
+
                 if (success == 1 && message == "Created Successfully.")
                 {
-                    if (progressDialog.isShowing)
-                    {
-                        progressDialog.dismiss()
-                    }
                     dialogAdapter.notifyItemInserted(_sharePref!!.GetSensorQuantity())
                     _sharePref!!.PutInt("GetSensorQuantity", _sharePref!!.GetSensorQuantity() + 1)
                     toast("已新增Sensor")
                 }
                 else if (success == 1 && message == "Deleted Successfully.")
                 {
-                    if (progressDialog.isShowing)
-                    {
-                        progressDialog.dismiss()
-                    }
                     dialogAdapter.notifyItemRemoved(_sharePref!!.GetSensorQuantity() - 1)
                     _sharePref!!.PutInt("GetSensorQuantity", _sharePref!!.GetSensorQuantity() - 1)
                     toast("已移除Sensor")
                 }
                 else
                 {
-                    if (progressDialog.isShowing)
-                    {
-                        progressDialog.dismiss()
-                    }
                     toast("操作失敗")
                 }
             }
-            catch (e: JSONException)
+
+            override fun OnException(e: Exception)
             {
                 Log.e("editSensor", e.toString())
             }
-        }, { volleyError ->
-            if (progressDialog.isShowing)
+
+            override fun OnError(volleyError: VolleyError)
             {
-                progressDialog.dismiss()
+                VolleyLog.e("ERROR", volleyError.toString())
+                toast("CONNECT ERROR")
             }
-            VolleyLog.e("ERROR", volleyError.toString())
-            toast("CONNECT ERROR")
         })
-        val Timeout = 9000
-        val policy = DefaultRetryPolicy(Timeout,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT)
-        connectRequest.retryPolicy = policy
-        queue.add(connectRequest)
+        addSensorAction.DoDbOperate(phpAddress)
     }
 
     private fun CheckInputType(): Int

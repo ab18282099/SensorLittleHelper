@@ -23,7 +23,7 @@ die ( ) {
     echo
     echo "$*"
     echo
-    exit 1
+    Exit 1
 }
 
 # OS specific support (must be 'true' or 'false').
