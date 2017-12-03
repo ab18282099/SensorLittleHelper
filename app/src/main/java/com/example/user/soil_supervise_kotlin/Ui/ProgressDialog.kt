@@ -22,11 +22,7 @@ class ProgressDialog
             progressBar.visibility = progressVisibility
             tx_connecting.text = title
 
-            val dialog = android.app.AlertDialog.Builder(context).setView(convertView).create()
-
-            // init other fun
-
-            return dialog
+            return android.app.AlertDialog.Builder(context).setView(convertView).create()
         }
     }
 }

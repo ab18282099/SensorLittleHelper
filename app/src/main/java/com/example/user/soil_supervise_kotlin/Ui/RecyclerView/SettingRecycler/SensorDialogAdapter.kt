@@ -11,11 +11,11 @@ import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.EditText
 import com.example.user.soil_supervise_kotlin.R
-import com.example.user.soil_supervise_kotlin.Utility.MySharedPreferences
+import com.example.user.soil_supervise_kotlin.Model.AppSettingModel
 
 class SensorDialogAdapter constructor(context: Context) : RecyclerView.Adapter<SensorDialogAdapter.ViewHolder>()
 {
-    private val _sharePref = MySharedPreferences.InitInstance(context)
+    private val _appSettingModel = AppSettingModel(context)
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
     {
@@ -47,18 +47,18 @@ class SensorDialogAdapter constructor(context: Context) : RecyclerView.Adapter<S
         holder!!.checkText?.setOnCheckedChangeListener { _, b ->
             if (b)
             {
-                _sharePref!!.PutBoolean("GetCheck" + holder.adapterPosition.toString(), true)
-                _sharePref.PutInt("getSensor" + holder.adapterPosition.toString() + "Visibility", View.VISIBLE)
+                _appSettingModel.PutBoolean("IsUsingSensor" + holder.adapterPosition.toString(), true)
+                _appSettingModel.PutInt("getSensor" + holder.adapterPosition.toString() + "Visibility", View.VISIBLE)
             }
             else
             {
-                _sharePref!!.PutBoolean("GetCheck" + holder.adapterPosition.toString(), false)
-                _sharePref.PutInt("getSensor" + holder.adapterPosition.toString() + "Visibility", View.GONE)
+                _appSettingModel.PutBoolean("IsUsingSensor" + holder.adapterPosition.toString(), false)
+                _appSettingModel.PutInt("getSensor" + holder.adapterPosition.toString() + "Visibility", View.GONE)
             }
         }
-        holder.checkText?.isChecked = _sharePref!!.GetCheck(holder.adapterPosition)
+        holder.checkText?.isChecked = _appSettingModel.IsUsingSensor(holder.adapterPosition)
 
-        holder.editName?.text = SpannableStringBuilder(_sharePref.GetSensorName(holder.adapterPosition))
+        holder.editName?.text = SpannableStringBuilder(_appSettingModel.SensorName(holder.adapterPosition))
         holder.editName?.addTextChangedListener(object : TextWatcher
         {
             override fun onTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int)
@@ -72,11 +72,11 @@ class SensorDialogAdapter constructor(context: Context) : RecyclerView.Adapter<S
             override fun afterTextChanged(arg0: Editable)
             {
                 //get data in _mainSettingDataTemp array
-                _sharePref.PutString("getSensor" + holder.adapterPosition.toString() + "Name", arg0.toString())
+                _appSettingModel.PutString("getSensor" + holder.adapterPosition.toString() + "Name", arg0.toString())
             }
         })
 
-        holder.editCondition?.text = SpannableStringBuilder(_sharePref.GetSensorCondition(holder.adapterPosition))
+        holder.editCondition?.text = SpannableStringBuilder(_appSettingModel.WarningCondition(holder.adapterPosition))
         holder.editCondition?.addTextChangedListener(object : TextWatcher
         {
             override fun onTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int)
@@ -90,11 +90,11 @@ class SensorDialogAdapter constructor(context: Context) : RecyclerView.Adapter<S
             override fun afterTextChanged(arg0: Editable)
             {
                 //get data in _mainSettingDataTemp array
-                _sharePref.PutString("getSensor" + holder.adapterPosition.toString() + "Condition", arg0.toString())
+                _appSettingModel.PutString("getSensor" + holder.adapterPosition.toString() + "Condition", arg0.toString())
             }
         })
 
-        holder.editPin?.text = SpannableStringBuilder(_sharePref.GetSensorPin(holder.adapterPosition))
+        holder.editPin?.text = SpannableStringBuilder(_appSettingModel.SensorPin(holder.adapterPosition))
         holder.editPin?.addTextChangedListener(object : TextWatcher
         {
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int)
@@ -107,11 +107,11 @@ class SensorDialogAdapter constructor(context: Context) : RecyclerView.Adapter<S
 
             override fun afterTextChanged(p0: Editable?)
             {
-                _sharePref.PutString("getSensor" + holder.adapterPosition.toString() + "Pin", p0.toString())
+                _appSettingModel.PutString("getSensor" + holder.adapterPosition.toString() + "Pin", p0.toString())
             }
         })
 
-        holder.editApp?.text = SpannableStringBuilder(_sharePref.GetPinApp(holder.adapterPosition))
+        holder.editApp?.text = SpannableStringBuilder(_appSettingModel.PinAppliance(holder.adapterPosition))
         holder.editApp?.addTextChangedListener(object : TextWatcher
         {
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int)
@@ -124,13 +124,13 @@ class SensorDialogAdapter constructor(context: Context) : RecyclerView.Adapter<S
 
             override fun afterTextChanged(p0: Editable?)
             {
-                _sharePref.PutString("getPin" + holder.adapterPosition.toString() + "App", p0?.toString())
+                _appSettingModel.PutString("getPin" + holder.adapterPosition.toString() + "App", p0?.toString())
             }
         })
     }
 
     override fun getItemCount(): Int
     {
-        return _sharePref!!.GetSensorQuantity()
+        return _appSettingModel.SensorQuantity()
     }
 }

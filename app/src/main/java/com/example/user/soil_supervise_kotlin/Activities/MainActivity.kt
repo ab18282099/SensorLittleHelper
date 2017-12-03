@@ -16,6 +16,7 @@ import com.example.user.soil_supervise_kotlin.Fragments.*
 import com.example.user.soil_supervise_kotlin.MySqlDb.HttpHelper
 import com.example.user.soil_supervise_kotlin.Fragments.FragmentBackPressedListener
 import com.example.user.soil_supervise_kotlin.Fragments.FragmentMenuItemClickListener
+import com.example.user.soil_supervise_kotlin.Model.AppSettingModel
 import com.example.user.soil_supervise_kotlin.Model.SensorDataModel
 import com.example.user.soil_supervise_kotlin.MySqlDb.IHttpAction
 import com.example.user.soil_supervise_kotlin.Utility.*
@@ -47,14 +48,14 @@ class MainActivity : BaseActivity()
     private var _onTimeHandler: Handler? = null
     private var _onTimeRunnable: Runnable? = null
     private var _doubleBackToExit: Boolean? = null
-    private var _sharePref: MySharedPreferences? = null
+    private var _appSettingModel: AppSettingModel? = null
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
 
-        _sharePref = MySharedPreferences.InitInstance(this)
-        _sharePref!!.PutString("GetUsername", "")
+        _appSettingModel = AppSettingModel(this)
+        _appSettingModel!!.PutString("Username", "")
 
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
         setContentView(R.layout.activity_main)
@@ -72,7 +73,6 @@ class MainActivity : BaseActivity()
     {
         val drawerLayout = findViewById<DrawerLayout>(R.id.drawerLayout) as DrawerLayout
         val toolbar = findViewById<Toolbar>(R.id.toolbar) as Toolbar
-
         val drawerMenuTextList = arrayOf("關於")
         val drawerMenuIconList = arrayOf(R.drawable.about)
         val items = java.util.ArrayList<Map<String, Any>>()
@@ -151,7 +151,6 @@ class MainActivity : BaseActivity()
         {
             override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int)
             {
-
             }
 
             override fun onPageSelected(position: Int)
@@ -186,7 +185,6 @@ class MainActivity : BaseActivity()
                             _vpMain?.currentItem = 1
                         })
                         val toggleFragment = _mAdapter!!.GetFragment(2) as ToggleFragment
-                        toggleFragment.SetSensorQuantity(_sharePref!!.GetSensorQuantity())
                         toggleFragment.SetToggleRecycler()
                         RemoveCallOnTime()
                     }
@@ -268,17 +266,18 @@ class MainActivity : BaseActivity()
 
     override fun onDestroy()
     {
-        CloseHttpHelper()
+        if (_httpHelper != null)
+            _httpHelper!!.RecycleThread()
 
         super.onDestroy()
     }
 
     fun LoadHistoryData(historyFragment: HistoryDataFragment, context: Context, id: String, id2: String)
     {
-        val sharePref = MySharedPreferences.InitInstance(context)
-        val serverIp = sharePref!!.GetServerIP()
-        val user = sharePref.GetUsername()
-        val pass = sharePref.GetPassword()
+        val appSettingModel = AppSettingModel(context)
+        val serverIp = appSettingModel.ServerIp()
+        val user = appSettingModel.Username()
+        val pass = appSettingModel.Password()
         val phpAddress = "http://$serverIp/load_history.php?&server=$serverIp&user=$user&pass=$pass&id=$id&id2=$id2"
 
         _httpHelper = HttpHelper.InitInstance(context)
@@ -289,9 +288,8 @@ class MainActivity : BaseActivity()
                 val data = HttpRequest.DownloadFromMySQL("society", phpAddress)
                 val model = SensorDataModel()
                 val dataParser = SensorDataParser.InitInstance()
-                val sensorQuantity = sharePref.GetSensorQuantity()
+                val sensorQuantity = appSettingModel.SensorQuantity()
                 dataParser!!.SetSensorQuantity(sensorQuantity)
-                model.SensorDataQuantity = sensorQuantity
                 model.SensorDataLength = dataParser.GetJsonArrayLength(JSONArray(data))
                 model.SensorDataList = dataParser.GetSensorData(JSONArray(data))
 
@@ -307,8 +305,6 @@ class MainActivity : BaseActivity()
 
             override fun OnException(e : Exception)
             {
-                val model = SensorDataModel()
-
                 if (historyFragment.GetLoadSuccess()) // if last time is success
                 {
                     historyFragment.SetLoadSuccess(false) // this time is not success
@@ -317,7 +313,7 @@ class MainActivity : BaseActivity()
                 else
                 {
                     historyFragment.SetCurrentId("1", "100")
-                    historyFragment.SetDataModel(model)
+                    historyFragment.SetDataModel(SensorDataModel())
                 }
 
                 runOnUiThread { historyFragment.RenewRecyclerView() }
@@ -334,8 +330,8 @@ class MainActivity : BaseActivity()
     {
         _onTimeHandler = Handler()
         _onTimeRunnable = Runnable {
-            onTimeFragment.SetSensorQuantity(_sharePref!!.GetSensorQuantity())
-            onTimeFragment.TryLoadLastData(_sharePref!!.GetUsername(), _sharePref!!.GetPassword())
+            onTimeFragment.SetSensorQuantity(_appSettingModel!!.SensorQuantity())
+            onTimeFragment.TryLoadLastData(_appSettingModel!!.Username(), _appSettingModel!!.Password())
             _onTimeHandler!!.postDelayed(_onTimeRunnable, 30000)
         }
         _onTimeHandler!!.postDelayed(_onTimeRunnable, 200)
@@ -355,11 +351,5 @@ class MainActivity : BaseActivity()
         val weak_ret = _activeFragmentList.asSequence().filter { it.get()!!.isVisible and it.get()!!.userVisibleHint }
         weak_ret.forEach { ret.add(it.get()) }
         return ret
-    }
-
-    private fun CloseHttpHelper()
-    {
-        if (_httpHelper != null)
-            _httpHelper!!.RecycleThread()
     }
 }

@@ -12,7 +12,7 @@ import org.jetbrains.anko.noButton
 import org.jetbrains.anko.yesButton
 import java.util.ArrayList
 import java.util.HashMap
-import com.example.user.soil_supervise_kotlin.Utility.MySharedPreferences
+import com.example.user.soil_supervise_kotlin.Model.AppSettingModel
 
 
 class MainFragment : BaseFragment(), FragmentBackPressedListener, FragmentMenuItemClickListener
@@ -31,7 +31,6 @@ class MainFragment : BaseFragment(), FragmentBackPressedListener, FragmentMenuIt
     private val _images = intArrayOf(R.drawable.wifi, R.drawable.current, R.drawable.historydata, R.drawable.setting, R.drawable.chart, R.drawable.exit)
     private val _imgTextList = arrayOf("Wi-Fi 遙控", "即時監控", "歷史數據", "設定", "數據折線圖", "離開程式")
     private var _gridMain: GridView? = null
-    private var _sharePref: MySharedPreferences? = null
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
@@ -43,7 +42,6 @@ class MainFragment : BaseFragment(), FragmentBackPressedListener, FragmentMenuIt
     {
         val view = inflater!!.inflate(R.layout.fragment_main, container, false)
         _gridMain = view.findViewById(R.id._gridMain)
-        _sharePref = MySharedPreferences.InitInstance(activity)
 
         return view
     }
@@ -65,7 +63,6 @@ class MainFragment : BaseFragment(), FragmentBackPressedListener, FragmentMenuIt
         _gridMain!!.numColumns = 2
         _gridMain!!.adapter = adapter
         _gridMain!!.setOnItemClickListener { adapterView, viewGrid, i, l ->
-            // use getActivity() to get mother-activity and find view which we'll use
             val vpMain = activity.findViewById<ViewPager>(R.id._vpMain) as ViewPager
             when (i)
             {

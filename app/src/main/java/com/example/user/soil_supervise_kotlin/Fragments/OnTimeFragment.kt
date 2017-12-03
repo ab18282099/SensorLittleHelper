@@ -19,7 +19,7 @@ import com.example.user.soil_supervise_kotlin.MySqlDb.HttpHelper
 import com.example.user.soil_supervise_kotlin.MySqlDb.IHttpAction
 import com.example.user.soil_supervise_kotlin.Utility.HttpRequest
 import com.example.user.soil_supervise_kotlin.Ui.ProgressDialog
-import com.example.user.soil_supervise_kotlin.Utility.MySharedPreferences
+import com.example.user.soil_supervise_kotlin.Model.AppSettingModel
 import com.example.user.soil_supervise_kotlin.R
 import com.example.user.soil_supervise_kotlin.Ui.RecyclerView.OnTimeAdapter
 import com.example.user.soil_supervise_kotlin.Ui.RecyclerView.SimpleDividerItemDecoration
@@ -48,19 +48,15 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
     private var _countHandler: Handler? = null
     private var _countRunnable: Runnable? = null
     private var _recyclerOnTime: RecyclerView? = null
-    private var _onTimeRecyclerAdapter: OnTimeAdapter? = null
-    private var _sharePref: MySharedPreferences? = null
+    private var _appSettingModel: AppSettingModel? = null
     private var _wifiToggleHelper : HttpHelper? = null
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View
     {
         val view = inflater!!.inflate(R.layout.fragment_on_time, container, false)
-
-        _sharePref = MySharedPreferences.InitInstance(activity)
-
+        _appSettingModel = AppSettingModel(activity)
         _recyclerOnTime = view.findViewById<RecyclerView>(R.id.recycler_on_time) as RecyclerView
-
-        val layoutManger = LinearLayoutManager(this.context)
+        val layoutManger = LinearLayoutManager(activity)
         layoutManger.orientation = LinearLayoutManager.VERTICAL
         _recyclerOnTime?.layoutManager = layoutManger
 
@@ -82,14 +78,14 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
     {
         _sensorDataList.clear()
 
-        val ServerIP = _sharePref!!.GetServerIP()
+        val ServerIP = _appSettingModel!!.ServerIp()
         val phpAddress = "http://$ServerIP/android_mysql_last.php?&server=$ServerIP&user=$user&pass=$pass"
-        val refreshDataAction = DbAction(context)
+        val refreshDataAction = DbAction(activity)
         refreshDataAction.SetResponse(object : IDbResponse
         {
             override fun OnSuccess(jsonObject: JSONObject)
             {
-                val sensorQuantity = _sharePref!!.GetSensorQuantity()
+                val sensorQuantity = _appSettingModel!!.SensorQuantity()
                 val sensorData = arrayOfNulls<String>(sensorQuantity + 2)
 
                 for (i in 0 until sensorQuantity + 2)
@@ -103,12 +99,8 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
                 }
 
                 _sensorDataList.addAll(sensorData)
-                val layoutManger = LinearLayoutManager(activity)
-                layoutManger.orientation = LinearLayoutManager.VERTICAL
-                _recyclerOnTime?.layoutManager = layoutManger
-                _onTimeRecyclerAdapter = OnTimeAdapter(context, _sensorQuantity, _sensorDataList)
-                _recyclerOnTime?.adapter = _onTimeRecyclerAdapter
-                _recyclerOnTime?.addItemDecoration(SimpleDividerItemDecoration(context))
+                _recyclerOnTime?.adapter = OnTimeAdapter(activity, _sensorDataList)
+                _recyclerOnTime?.addItemDecoration(SimpleDividerItemDecoration(activity))
                 toast("連接成功")
                 WarningFunction(_sensorDataList)
             }
@@ -137,25 +129,25 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
 
         for (i in 1.._sensorQuantity)
         {
-            val warnCondition = _sharePref!!.GetSensorCondition(i - 1).toFloat()
+            val warnCondition = _appSettingModel!!.WarningCondition(i - 1).toFloat()
             val sensorDataFloat = if (sensorDataList[i] == "") (-1).toFloat() else sensorDataList[i]!!.toFloat()
 
-            if (_sharePref!!.GetSensorVisibility(i - 1) == View.VISIBLE)
+            if (_appSettingModel!!.SensorVisibility(i - 1) == View.VISIBLE)
             {
                 if (IsWarning(sensorDataFloat, warnCondition))
                 {
-                    if (_sharePref!!.GetPinState(i - 1) == "OFF")
+                    if (_appSettingModel!!.PinState(i - 1) == "OFF")
                     {
-                        toggleSensorList.add(_sharePref!!.GetSensorName(i - 1))
-                        toggleSensorPinList.add(_sharePref!!.GetSensorPin(i - 1))
+                        toggleSensorList.add(_appSettingModel!!.SensorName(i - 1))
+                        toggleSensorPinList.add(_appSettingModel!!.SensorPin(i - 1))
                     }
                 }
                 else
                 {
-                    if (_sharePref!!.GetPinState(i - 1) == "ON")
+                    if (_appSettingModel!!.PinState(i - 1) == "ON")
                     {
-                        toggleSensorList.add(_sharePref!!.GetSensorName(i - 1))
-                        toggleSensorPinList.add(_sharePref!!.GetSensorPin(i - 1))
+                        toggleSensorList.add(_appSettingModel!!.SensorName(i - 1))
+                        toggleSensorPinList.add(_appSettingModel!!.SensorPin(i - 1))
                     }
                 }
             }
@@ -166,7 +158,7 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
             toggleText = toggleSensorList.joinToString(separator = ", ")
             togglePin = toggleSensorPinList.joinToString(separator = ",")
 
-            when(_sharePref!!.GetIsAutoToggle())
+            when(_appSettingModel!!.IsAutoToggle())
             {
                 true ->
                 {
@@ -217,8 +209,8 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
                 _count = 5
                 _countHandler!!.removeCallbacks(_countRunnable)
 
-                val ipAddress = _sharePref!!.GetIPAddress()
-                val port = _sharePref!!.GetPort()
+                val ipAddress = _appSettingModel!!.WifiIp()
+                val port = _appSettingModel!!.WifiPort()
                 TryTogglePin(ipAddress, port, togglePin)
             }
             else
@@ -242,7 +234,7 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
 
     private fun TryTogglePin(ipAddress: String, port: String, parameterValue: String)
     {
-        _wifiToggleHelper = HttpHelper.InitInstance(context)
+        _wifiToggleHelper = HttpHelper.InitInstance(activity)
         _wifiToggleHelper!!.SetHttpAction(object : IHttpAction
         {
             override fun OnHttpRequest()
@@ -255,13 +247,13 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
 
                 for (i in 0 until _sensorQuantity)
                 {
-                    _sharePref!!.PutString("getPin" + i.toString() + "State", jsonResult.getString("PIN" + _sharePref!!.GetSensorPin(i)))
+                    _appSettingModel!!.PutString("getPin" + i.toString() + "State", jsonResult.getString("PIN" + _appSettingModel!!.SensorPin(i)))
                 }
             }
 
             override fun OnException(e: Exception)
             {
-                Log.e("toggling", e.toString())
+                Log.e("Toggling Pin in OnTimeFragment", e.toString())
             }
 
             override fun OnPostExecute()

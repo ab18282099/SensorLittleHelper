@@ -12,7 +12,7 @@ import android.widget.EditText
 import android.widget.Switch
 import android.widget.TextView
 import com.example.user.soil_supervise_kotlin.R
-import com.example.user.soil_supervise_kotlin.Utility.MySharedPreferences
+import com.example.user.soil_supervise_kotlin.Model.AppSettingModel
 import org.jetbrains.anko.toast
 
 class SettingAdapter constructor(context: Context,
@@ -20,7 +20,7 @@ class SettingAdapter constructor(context: Context,
                                  mainSettingDataText : Array<String?>) : RecyclerView.Adapter<SettingAdapter.ViewHolder>()
 {
     private val _context = context
-    private val _sharePref = MySharedPreferences.InitInstance(context)
+    private val _appSettingModel = AppSettingModel(context)
     private val _mainSettingDataTemp = mainSettingDataTemp
     private val _mainSettingDataText = mainSettingDataText
 
@@ -55,8 +55,8 @@ class SettingAdapter constructor(context: Context,
         if (holder!!.adapterPosition == 4)
         {
             holder.switch_setting!!.visibility = View.VISIBLE
-            holder.switch_setting!!.isChecked = _sharePref!!.GetIsAutoToggle()
-            if (_sharePref.GetIsAutoToggle())
+            holder.switch_setting!!.isChecked = _appSettingModel.IsAutoToggle()
+            if (_appSettingModel.IsAutoToggle())
             {
                 holder.switch_setting!!.text = _context.getString(R.string.on)
             }
@@ -69,13 +69,13 @@ class SettingAdapter constructor(context: Context,
                 {
                     if (b)
                     {
-                        _sharePref.PutBoolean("GetIsAutoToggle", true)
+                        _appSettingModel.PutBoolean("IsAutoToggle", true)
                         holder.switch_setting!!.text = _context.getString(R.string.on)
                         _context.toast("自動遙控開啟")
                     }
                     else
                     {
-                        _sharePref.PutBoolean("GetIsAutoToggle", false)
+                        _appSettingModel.PutBoolean("IsAutoToggle", false)
                         holder.switch_setting!!.text = _context.getString(R.string.off)
                         _context.toast("自動遙控關閉")
                     }

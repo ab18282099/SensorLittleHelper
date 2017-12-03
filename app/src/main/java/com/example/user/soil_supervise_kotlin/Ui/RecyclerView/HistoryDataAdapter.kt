@@ -11,16 +11,14 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.example.user.soil_supervise_kotlin.R
-import com.example.user.soil_supervise_kotlin.Utility.MySharedPreferences
+import com.example.user.soil_supervise_kotlin.Model.AppSettingModel
 import org.jetbrains.anko.textColor
 
-class HistoryDataAdapter constructor(context : Context, sensorQuantity : Int,
-                                     sensorDataList : ArrayList<Array<String?>>,
+class HistoryDataAdapter constructor(context : Context, sensorDataList : ArrayList<Array<String?>>,
                                      viewCount : Int) : RecyclerView.Adapter<HistoryDataAdapter.ViewHolder>()
 {
-    private val _sharePref = MySharedPreferences.InitInstance(context)
+    private val _appSettingModel = AppSettingModel(context)
     private val _context = context
-    private val _sensorQuantity = sensorQuantity
     private val _sensorDataList = sensorDataList
     private val _viewCount = viewCount
 
@@ -65,24 +63,24 @@ class HistoryDataAdapter constructor(context : Context, sensorQuantity : Int,
     {
         Log.e("HistoryDataFragment", "onBindViewHolder")
 
-        holder!!.tx_item_sensor1!!.visibility = _sharePref!!.GetSensorVisibility(0)
-        holder.tx_item_sensor2!!.visibility = _sharePref.GetSensorVisibility(1)
-        holder.tx_item_sensor3!!.visibility = _sharePref.GetSensorVisibility(2)
-        holder.tx_item_sensor4!!.visibility = _sharePref.GetSensorVisibility(3)
-        holder.tx_item_sensor5!!.visibility = _sharePref.GetSensorVisibility(4)
+        holder!!.tx_item_sensor1!!.visibility = _appSettingModel.SensorVisibility(0)
+        holder.tx_item_sensor2!!.visibility = _appSettingModel.SensorVisibility(1)
+        holder.tx_item_sensor3!!.visibility = _appSettingModel.SensorVisibility(2)
+        holder.tx_item_sensor4!!.visibility = _appSettingModel.SensorVisibility(3)
+        holder.tx_item_sensor5!!.visibility = _appSettingModel.SensorVisibility(4)
 
         holder.tx_item_content?.removeAllViewsInLayout()
 
         if (_sensorDataList.isNotEmpty())
         {
-            if (_sensorQuantity > 5)
+            if (_appSettingModel.SensorQuantity() > 5)
             {
-                for (i in 0 until _sensorQuantity - 5)
+                for (i in 0 until _appSettingModel.SensorQuantity() - 5)
                 {
                     val txCustomer = TextView(_context)
                     val sensorData = _sensorDataList[i + 6][position]
                     SetSensorText(txCustomer, sensorData, i + 5)
-                    txCustomer.visibility = _sharePref.GetSensorVisibility(i + 5)
+                    txCustomer.visibility = _appSettingModel.SensorVisibility(i + 5)
 
                     val height = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, (50).toFloat(), _context.resources.displayMetrics)
                     txCustomer.layoutParams = LinearLayout.LayoutParams(height.toInt(), LinearLayout.LayoutParams.WRAP_CONTENT)
@@ -92,7 +90,7 @@ class HistoryDataAdapter constructor(context : Context, sensorQuantity : Int,
             }
 
             holder.tx_item_id!!.text = _sensorDataList[0][position] // id dataList[0]
-            holder.tx_item_time!!.text = _sensorDataList[_sensorQuantity + 1][position] // id dataList[last]
+            holder.tx_item_time!!.text = _sensorDataList[_appSettingModel.SensorQuantity() + 1][position] // id dataList[last]
 
             SetSensorText(holder.tx_item_sensor1, _sensorDataList[1][position], 0)
             SetSensorText(holder.tx_item_sensor2, _sensorDataList[2][position], 1)
@@ -116,7 +114,7 @@ class HistoryDataAdapter constructor(context : Context, sensorQuantity : Int,
         }
         else
         {
-            val warnConditional1 = _sharePref!!.GetSensorCondition(position).toFloat()
+            val warnConditional1 = _appSettingModel.WarningCondition(position).toFloat()
 
             if (sensorData!!.toFloat() < warnConditional1)
             {

@@ -1,7 +1,6 @@
 package com.example.user.soil_supervise_kotlin.Fragments
 
 import android.app.AlertDialog
-import android.content.Context
 import android.os.Bundle
 import android.support.v4.view.ViewPager
 import android.support.v7.widget.LinearLayoutManager
@@ -15,7 +14,7 @@ import android.widget.*
 import com.android.volley.*
 import com.example.user.soil_supervise_kotlin.MySqlDb.DbAction
 import com.example.user.soil_supervise_kotlin.MySqlDb.IDbResponse
-import com.example.user.soil_supervise_kotlin.Utility.MySharedPreferences
+import com.example.user.soil_supervise_kotlin.Model.AppSettingModel
 import com.example.user.soil_supervise_kotlin.R
 import com.example.user.soil_supervise_kotlin.Ui.RecyclerView.SettingRecycler.SensorDialogAdapter
 import com.example.user.soil_supervise_kotlin.Ui.RecyclerView.SettingRecycler.SettingAdapter
@@ -42,25 +41,25 @@ class SettingFragment : BaseFragment(), FragmentBackPressedListener
     private var _mainSettingDataText = arrayOfNulls<String>(5)
     private var _recyclerSetting: RecyclerView? = null
     private var _mAdapter : SettingAdapter? = null
-    private var _sharePref: MySharedPreferences? = null
+    private var _appSettingModel: AppSettingModel? = null
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View
     {
         val view = inflater!!.inflate(R.layout.fragment_setting, container, false)
         _recyclerSetting = view.findViewById<RecyclerView>(R.id._recyclerSetting) as RecyclerView
 
-        _sharePref = MySharedPreferences.InitInstance(activity)
+        _appSettingModel = AppSettingModel(activity)
 
         _mainSettingDataText = arrayOf("1.ESP8266之IP位址 ", "2.ESP8266之通訊埠 ", "3.Server IP位置 ",
                 "4.歷史資料儲存檔名 ", "5.AUTO TOGGLE ")
-        _mainSettingDataTemp = arrayOf(_sharePref!!.GetIPAddress(), _sharePref!!.GetPort(),
-                _sharePref!!.GetServerIP(), _sharePref!!.GetFileSavedName())
+        _mainSettingDataTemp = arrayOf(_appSettingModel!!.WifiIp(), _appSettingModel!!.WifiPort(),
+                _appSettingModel!!.ServerIp(), _appSettingModel!!.FileSavedName())
 
-        val layoutManger = LinearLayoutManager(this.context)
+        val layoutManger = LinearLayoutManager(activity)
         layoutManger.orientation = LinearLayoutManager.VERTICAL
         _recyclerSetting!!.layoutManager = layoutManger
 
-        _mAdapter = SettingAdapter(context, _mainSettingDataTemp, _mainSettingDataText)
+        _mAdapter = SettingAdapter(activity, _mainSettingDataTemp, _mainSettingDataText)
         _recyclerSetting!!.adapter = _mAdapter
 
         return view
@@ -72,7 +71,7 @@ class SettingFragment : BaseFragment(), FragmentBackPressedListener
 
         btn_sensor_setting.text = getString(R.string.sensor_setting)
         btn_sensor_setting.setOnClickListener {
-            val dialog = DialogSensorSetter(activity)
+            val dialog = DialogSensorSetter()
             dialog.show()
             dialog.window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
             dialog.window.clearFlags(WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM)
@@ -101,38 +100,38 @@ class SettingFragment : BaseFragment(), FragmentBackPressedListener
                 _mainSettingDataTemp[2]!!.matches(regIPAddress) && _mainSettingDataTemp[3] != "")
         {
             toast("設定成功")
-            _sharePref!!.PutString("GetIPAddress", _mainSettingDataTemp[0])
-            _sharePref!!.PutString("GetPort", _mainSettingDataTemp[1])
-            _sharePref!!.PutString("GetServerIP", _mainSettingDataTemp[2])
-            _sharePref!!.PutString("GetFileSavedName", _mainSettingDataTemp[3])
+            _appSettingModel!!.PutString("WifiIp", _mainSettingDataTemp[0])
+            _appSettingModel!!.PutString("WifiPort", _mainSettingDataTemp[1])
+            _appSettingModel!!.PutString("ServerIp", _mainSettingDataTemp[2])
+            _appSettingModel!!.PutString("FileSavedName", _mainSettingDataTemp[3])
         }
         else
         {
-            val v = context.vibrator
+            val v = activity.vibrator
             v.vibrate(500)
             toast("設定失敗")
         }
     }
 
-    private fun DialogSensorSetter(context: Context): AlertDialog
+    private fun DialogSensorSetter(): AlertDialog
     {
         val nullParent: ViewGroup? = null
-        val convertView = LayoutInflater.from(context).inflate(R.layout.dialog_sensor_setting, nullParent)
+        val convertView = LayoutInflater.from(activity).inflate(R.layout.dialog_sensor_setting, nullParent)
 
         val recycler_in_dialog = convertView.findViewById<RecyclerView>(R.id.recycler_in_dialog) as RecyclerView
         val btn_insert = convertView.findViewById<Button>(R.id.btn_insert) as Button
         val btn_drop = convertView.findViewById<Button>(R.id.btn_drop) as Button
         val btn_sensor_done = convertView.findViewById<Button>(R.id.btn_sensor_done) as Button
 
-        val dialog = android.app.AlertDialog.Builder(context).setView(convertView).create()
+        val dialog = android.app.AlertDialog.Builder(activity).setView(convertView).create()
 
-        val layoutManger = LinearLayoutManager(context)
+        val layoutManger = LinearLayoutManager(activity)
         layoutManger.orientation = LinearLayoutManager.VERTICAL
         recycler_in_dialog.layoutManager = layoutManger
 
-        val dialogAdapter = SensorDialogAdapter(context)
+        val dialogAdapter = SensorDialogAdapter(activity)
         recycler_in_dialog.adapter = dialogAdapter
-        val mDividerLine = SimpleDividerItemDecoration(context)
+        val mDividerLine = SimpleDividerItemDecoration(activity)
         recycler_in_dialog.addItemDecoration(mDividerLine)
 
         btn_insert.setOnClickListener {
@@ -140,7 +139,7 @@ class SettingFragment : BaseFragment(), FragmentBackPressedListener
             TryEditSensorQuantity("create_sensor", (id + 1).toString(), dialogAdapter)
         }
         btn_drop.setOnClickListener {
-            if (_sharePref!!.GetSensorQuantity() == 5)
+            if (_appSettingModel!!.SensorQuantity() == 5)
             {
                 toast("At least 5 sensor")
             }
@@ -160,9 +159,9 @@ class SettingFragment : BaseFragment(), FragmentBackPressedListener
             }
             else
             {
-                val v = context.vibrator
+                val v = activity.vibrator
                 v.vibrate(500)
-                toast("(" + _sharePref!!.GetSensorName(wrongInput) + ")" + "輸入有誤")
+                toast("(" + _appSettingModel!!.SensorName(wrongInput) + ")" + "輸入有誤")
             }
         }
 
@@ -171,11 +170,11 @@ class SettingFragment : BaseFragment(), FragmentBackPressedListener
 
     private fun TryEditSensorQuantity(query: String, sensorID: String, dialogAdapter: SensorDialogAdapter)
     {
-        val ServerIP = _sharePref!!.GetServerIP()
-        val user = _sharePref!!.GetUsername()
-        val pass = _sharePref!!.GetPassword()
+        val ServerIP = _appSettingModel!!.ServerIp()
+        val user = _appSettingModel!!.Username()
+        val pass = _appSettingModel!!.Password()
         val phpAddress = "http://$ServerIP/$query.php?&server=$ServerIP&user=$user&pass=$pass&sensor_id=$sensorID"
-        val addSensorAction = DbAction(context)
+        val addSensorAction = DbAction(activity)
         addSensorAction.SetResponse(object : IDbResponse
         {
             override fun OnSuccess(jsonObject: JSONObject)
@@ -185,14 +184,14 @@ class SettingFragment : BaseFragment(), FragmentBackPressedListener
 
                 if (success == 1 && message == "Created Successfully.")
                 {
-                    dialogAdapter.notifyItemInserted(_sharePref!!.GetSensorQuantity())
-                    _sharePref!!.PutInt("GetSensorQuantity", _sharePref!!.GetSensorQuantity() + 1)
+                    dialogAdapter.notifyItemInserted(_appSettingModel!!.SensorQuantity())
+                    _appSettingModel!!.PutInt("SensorQuantity", _appSettingModel!!.SensorQuantity() + 1)
                     toast("已新增Sensor")
                 }
                 else if (success == 1 && message == "Deleted Successfully.")
                 {
-                    dialogAdapter.notifyItemRemoved(_sharePref!!.GetSensorQuantity() - 1)
-                    _sharePref!!.PutInt("GetSensorQuantity", _sharePref!!.GetSensorQuantity() - 1)
+                    dialogAdapter.notifyItemRemoved(_appSettingModel!!.SensorQuantity() - 1)
+                    _appSettingModel!!.PutInt("SensorQuantity", _appSettingModel!!.SensorQuantity() - 1)
                     toast("已移除Sensor")
                 }
                 else
@@ -219,12 +218,12 @@ class SettingFragment : BaseFragment(), FragmentBackPressedListener
     {
         val regWarningCondition = Regex("[0-9]*.?[0-9]+")
         val regPin = Regex("[0-9]{1,2}")
-        val sensorQuantity = _sharePref!!.GetSensorQuantity()
+        val sensorQuantity = _appSettingModel!!.SensorQuantity()
 
         for (i in 0 until sensorQuantity)
         {
-            val warnCondition = _sharePref!!.GetSensorCondition(i)
-            val pin = _sharePref!!.GetSensorPin(i)
+            val warnCondition = _appSettingModel!!.WarningCondition(i)
+            val pin = _appSettingModel!!.SensorPin(i)
 
             if (!warnCondition.matches(regWarningCondition) || !pin.matches(regPin))
             {

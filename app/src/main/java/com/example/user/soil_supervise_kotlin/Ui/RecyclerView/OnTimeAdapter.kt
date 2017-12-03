@@ -8,14 +8,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.example.user.soil_supervise_kotlin.R
-import com.example.user.soil_supervise_kotlin.Utility.MySharedPreferences
+import com.example.user.soil_supervise_kotlin.Model.AppSettingModel
 
-class OnTimeAdapter constructor(context: Context, sensorQuantity : Int, sensorDataList : ArrayList<String?>) : RecyclerView.Adapter<OnTimeAdapter.ViewHolder>()
+class OnTimeAdapter constructor(context: Context, sensorDataList : ArrayList<String?>) : RecyclerView.Adapter<OnTimeAdapter.ViewHolder>()
 {
     private val _context = context
-    private val _sensorQuantity = sensorQuantity
     private val _sensorDataList = sensorDataList
-    private val _sharePref = MySharedPreferences.InitInstance(context)
+    private val _appSettingModel = AppSettingModel(context)
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
     {
@@ -51,18 +50,18 @@ class OnTimeAdapter constructor(context: Context, sensorQuantity : Int, sensorDa
                 holder.tx_on_time_text!!.setTextColor(Color.BLACK)
                 holder.tx_on_time_title!!.setTextColor(Color.BLACK)
             }
-            else if (position in 1.._sensorQuantity)
+            else if (position in 1.._appSettingModel.SensorQuantity())
             {
-                val sensorVisibility = _sharePref!!.GetSensorVisibility(position - 1)
+                val sensorVisibility = _appSettingModel.SensorVisibility(position - 1)
 
                 if (sensorVisibility == View.VISIBLE)
                 {
                     holder!!.tx_on_time_title!!.visibility = sensorVisibility
                     holder.tx_on_time_text!!.visibility = sensorVisibility
 
-                    holder.tx_on_time_title!!.text = _sharePref.GetSensorName(position - 1)
+                    holder.tx_on_time_title!!.text = _appSettingModel.SensorName(position - 1)
 
-                    val warnCondition = _sharePref.GetSensorCondition(position - 1).toFloat()
+                    val warnCondition = _appSettingModel.WarningCondition(position - 1).toFloat()
                     val sensorDataFloat: Float
 
                     if (_sensorDataList[position] == "") sensorDataFloat = (-1).toFloat()
@@ -109,17 +108,11 @@ class OnTimeAdapter constructor(context: Context, sensorQuantity : Int, sensorDa
 
     override fun getItemCount(): Int
     {
-        if (_sensorDataList.isEmpty()) return 0
-        else return _sensorQuantity + 2
+        return if (_sensorDataList.isEmpty()) 0 else _appSettingModel.SensorQuantity() + 2
     }
 
     private fun IsWarning(sensorData: Float?, warnConditional: Float?): Boolean
     {
-        val invalidFloat = (-1).toFloat()
-
-        if (sensorData != null && warnConditional != null && sensorData != invalidFloat && sensorData < warnConditional)
-            return true
-
-        return false
+        return (sensorData != null && warnConditional != null && sensorData != (-1).toFloat() && sensorData < warnConditional)
     }
 }

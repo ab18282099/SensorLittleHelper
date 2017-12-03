@@ -13,7 +13,7 @@ import com.example.user.soil_supervise_kotlin.MySqlDb.IHttpAction
 import com.example.user.soil_supervise_kotlin.Ui.RecyclerView.RecyclerViewOnItemClickListener
 import com.example.user.soil_supervise_kotlin.Utility.HttpRequest
 import com.example.user.soil_supervise_kotlin.Ui.ProgressDialog
-import com.example.user.soil_supervise_kotlin.Utility.MySharedPreferences
+import com.example.user.soil_supervise_kotlin.Model.AppSettingModel
 import com.example.user.soil_supervise_kotlin.R
 import com.example.user.soil_supervise_kotlin.Ui.RecyclerView.SimpleDividerItemDecoration
 import com.example.user.soil_supervise_kotlin.Ui.RecyclerView.ToggleAdapter
@@ -35,19 +35,19 @@ class ToggleFragment : BaseFragment(), FragmentBackPressedListener
         }
     }
 
-    private var _sharePref: MySharedPreferences? = null
-    private var _sensorQuantity = 5
-
+    private var _appSettingModel: AppSettingModel? = null
     private var _recyclerToggle: RecyclerView? = null
     private var _toggleAdapter: ToggleAdapter? = null
     private var _wifiToggleHelper : HttpHelper? = null
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View
     {
+        _appSettingModel = AppSettingModel(activity)
+
         val view = inflater!!.inflate(R.layout.fragment_toggle, container, false)
         _recyclerToggle = view.findViewById<RecyclerView>(R.id._recyclerToggle) as RecyclerView
 
-        val layoutManger = LinearLayoutManager(this.context)
+        val layoutManger = LinearLayoutManager(activity)
         layoutManger.orientation = LinearLayoutManager.VERTICAL
         _recyclerToggle?.layoutManager = layoutManger
 
@@ -58,10 +58,8 @@ class ToggleFragment : BaseFragment(), FragmentBackPressedListener
     {
         super.onViewCreated(view, savedInstanceState)
 
-        _sharePref = MySharedPreferences.InitInstance(activity)
-
-        tx_ip.text = getString(R.string.wifi_ip, _sharePref!!.GetIPAddress())
-        tx_port.text = getString(R.string.wifi_port, _sharePref!!.GetPort())
+        tx_ip.text = getString(R.string.wifi_ip, _appSettingModel!!.WifiIp())
+        tx_port.text = getString(R.string.wifi_port, _appSettingModel!!.WifiPort())
         tx_name.text = getString(R.string.pin_title)
         tx_pin_num.text = getString(R.string.pin_num)
         tx_pin_state.text = getString(R.string.pin_state)
@@ -69,8 +67,8 @@ class ToggleFragment : BaseFragment(), FragmentBackPressedListener
 
         btn_pin_state.text = getString(R.string.getPinState)
         btn_pin_state.setOnClickListener {
-            val ipAddress = _sharePref!!.GetIPAddress()
-            val port = _sharePref!!.GetPort()
+            val ipAddress = _appSettingModel!!.WifiIp()
+            val port = _appSettingModel!!.WifiPort()
             val parameterValue = "78%78"
 
             TryTogglePin(ipAddress, port, parameterValue)
@@ -83,27 +81,22 @@ class ToggleFragment : BaseFragment(), FragmentBackPressedListener
         vpMain.currentItem = 1
     }
 
-    fun SetSensorQuantity(quantity: Int)
-    {
-        _sensorQuantity = quantity
-    }
-
     fun SetToggleRecycler()
     {
-        _toggleAdapter = ToggleAdapter(context, _sensorQuantity)
+        _toggleAdapter = ToggleAdapter(activity)
         _toggleAdapter?.SetOnItemClickListener(object : RecyclerViewOnItemClickListener
         {
             override fun OnRecyclerViewItemClick(view: View?, position: Int)
             {
-                if (_sharePref!!.GetSensorVisibility(position) == View.GONE)
+                if (_appSettingModel!!.SensorVisibility(position) == View.GONE)
                 {
                     toast("THIS SENSOR NOT IN SERVICE")
                 }
                 else
                 {
-                    val ipAddress = _sharePref!!.GetIPAddress()
-                    val port = _sharePref!!.GetPort()
-                    val parameterValue = _sharePref!!.GetSensorPin(position) // pin 7~12
+                    val ipAddress = _appSettingModel!!.WifiIp()
+                    val port = _appSettingModel!!.WifiPort()
+                    val parameterValue = _appSettingModel!!.SensorPin(position) // pin 7~12
 
                     TryTogglePin(ipAddress, port, parameterValue)
                 }
@@ -111,25 +104,25 @@ class ToggleFragment : BaseFragment(), FragmentBackPressedListener
         })
 
         _recyclerToggle?.adapter = _toggleAdapter
-        _recyclerToggle?.addItemDecoration(SimpleDividerItemDecoration(context))
+        _recyclerToggle?.addItemDecoration(SimpleDividerItemDecoration(activity))
     }
 
     private fun TryTogglePin(ipAddress: String, port: String, parameterValue: String)
     {
-        _wifiToggleHelper = HttpHelper.InitInstance(context)
+        _wifiToggleHelper = HttpHelper.InitInstance(activity)
         _wifiToggleHelper!!.SetHttpAction(object : IHttpAction
         {
             override fun OnHttpRequest()
             {
                 val requestReply = HttpRequest.SendToggleRequest(parameterValue, ipAddress, port, "pin")
-                val resultDialog = ProgressDialog.DialogProgress(context, requestReply, View.GONE)
+                val resultDialog = ProgressDialog.DialogProgress(activity, requestReply, View.GONE)
                 resultDialog.show()
 
                 val jsonResult = JSONObject(requestReply)
 
-                for (i in 0 until _sensorQuantity)
+                for (i in 0 until _appSettingModel!!.SensorQuantity())
                 {
-                    _sharePref!!.PutString("getPin" + i.toString() + "State", jsonResult.getString("PIN" + _sharePref!!.GetSensorPin(i)))
+                    _appSettingModel!!.PutString("getPin" + i.toString() + "State", jsonResult.getString("PIN" + _appSettingModel!!.SensorPin(i)))
                 }
 
                 runOnUiThread { _toggleAdapter!!.notifyDataSetChanged() }

@@ -4,5 +4,4 @@ class SensorDataModel
 {
     var SensorDataLength : Int = 0
     var SensorDataList = ArrayList<Array<String?>>()
-    var SensorDataQuantity : Int = 5
 }

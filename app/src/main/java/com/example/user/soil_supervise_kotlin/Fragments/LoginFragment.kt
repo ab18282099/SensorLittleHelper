@@ -12,7 +12,7 @@ import com.android.volley.*
 import com.example.user.soil_supervise_kotlin.MySqlDb.DbAction
 import com.example.user.soil_supervise_kotlin.MySqlDb.IDbResponse
 import com.example.user.soil_supervise_kotlin.Utility.ExitApplication
-import com.example.user.soil_supervise_kotlin.Utility.MySharedPreferences
+import com.example.user.soil_supervise_kotlin.Model.AppSettingModel
 import com.example.user.soil_supervise_kotlin.R
 import kotlinx.android.synthetic.main.fragment_login.*
 import org.jetbrains.anko.toast
@@ -31,38 +31,35 @@ class LoginFragment : BaseFragment(), FragmentBackPressedListener
         }
     }
 
-    private var _sharePref: MySharedPreferences? = null
+    private var _appSettingModel: AppSettingModel? = null
     private var _doubleBackToExit: Boolean? = null
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View
     {
+        _appSettingModel = AppSettingModel(activity)
         return inflater!!.inflate(R.layout.fragment_login, container, false)
     }
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?)
     {
         super.onViewCreated(view, savedInstanceState)
-
-        _sharePref = MySharedPreferences.InitInstance(activity)
-
         edit_user.text = SpannableStringBuilder("")
 
-        if (_sharePref!!.GetIsRememberPassword())
-        {
-            edit_pass.text = SpannableStringBuilder(_sharePref!!.GetPassword())
-        }
-        else edit_pass.text = SpannableStringBuilder("")
+        if (_appSettingModel!!.IsRememberPassword())
+            edit_pass.text = SpannableStringBuilder(_appSettingModel!!.Password())
+        else
+            edit_pass.text = SpannableStringBuilder("")
 
         rememberPass.text = "記住密碼"
-        rememberPass.isChecked = _sharePref!!.GetIsRememberPassword()
-        rememberPass.setOnCheckedChangeListener { _, b ->
-            if (b)
+        rememberPass.isChecked = _appSettingModel!!.IsRememberPassword()
+        rememberPass.setOnCheckedChangeListener { _, isCheck ->
+            if (isCheck)
             {
-                _sharePref!!.PutBoolean("GetIsRememberPassword", true)
+                _appSettingModel!!.PutBoolean("IsRememberPassword", true)
             }
             else
             {
-                _sharePref!!.PutBoolean("GetIsRememberPassword", false)
+                _appSettingModel!!.PutBoolean("IsRememberPassword", false)
             }
         }
 
@@ -90,9 +87,9 @@ class LoginFragment : BaseFragment(), FragmentBackPressedListener
 
     private fun TryConnectDataBase(user: String, pass: String)
     {
-        val ServerIP = _sharePref!!.GetServerIP()
+        val ServerIP = _appSettingModel!!.ServerIp()
         val phpAddress = "http://$ServerIP/conn_json.php?&server=$ServerIP&user=$user&pass=$pass"
-        val loginAction = DbAction(context)
+        val loginAction = DbAction(activity)
         loginAction.SetResponse(object : IDbResponse
         {
             override fun OnSuccess(jsonObject: JSONObject)
@@ -124,7 +121,7 @@ class LoginFragment : BaseFragment(), FragmentBackPressedListener
 
     private fun PutLoginInfo()
     {
-        _sharePref!!.PutString("GetUsername", edit_user.text.toString())
-        _sharePref!!.PutString("GetPassword", edit_pass.text.toString())
+        _appSettingModel!!.PutString("Username", edit_user.text.toString())
+        _appSettingModel!!.PutString("Password", edit_pass.text.toString())
     }
 }

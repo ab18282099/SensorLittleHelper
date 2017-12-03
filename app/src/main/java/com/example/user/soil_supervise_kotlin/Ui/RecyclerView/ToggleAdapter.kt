@@ -8,13 +8,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.example.user.soil_supervise_kotlin.R
-import com.example.user.soil_supervise_kotlin.Utility.MySharedPreferences
+import com.example.user.soil_supervise_kotlin.Model.AppSettingModel
 
-class ToggleAdapter constructor(context: Context, sensorQuantity : Int) : RecyclerView.Adapter<ToggleAdapter.ViewHolder>(),
+class ToggleAdapter constructor(context: Context) : RecyclerView.Adapter<ToggleAdapter.ViewHolder>(),
         View.OnClickListener
 {
-    private val _sharePref = MySharedPreferences.InitInstance(context)
-    private val _sensorQuantity = sensorQuantity
+    private val _appSettingModel = AppSettingModel(context)
     private var onItemClickListener: RecyclerViewOnItemClickListener? = null
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
@@ -43,12 +42,12 @@ class ToggleAdapter constructor(context: Context, sensorQuantity : Int) : Recycl
 
     override fun onBindViewHolder(holder: ViewHolder?, position: Int)
     {
-        holder!!.tx_toggle_sensor!!.text = _sharePref!!.GetSensorName(position)
-        holder.tx_toggle_pin!!.text = _sharePref.GetSensorPin(position)
-        holder.tx_toggle_state!!.text = _sharePref.GetPinState(position)
-        holder.tx_toggle_app!!.text = _sharePref.GetPinApp(position)
+        holder!!.tx_toggle_sensor!!.text = _appSettingModel.SensorName(position)
+        holder.tx_toggle_pin!!.text = _appSettingModel.SensorPin(position)
+        holder.tx_toggle_state!!.text = _appSettingModel.PinState(position)
+        holder.tx_toggle_app!!.text = _appSettingModel.PinAppliance(position)
 
-        if (_sharePref.GetSensorVisibility(position) == View.GONE)
+        if (_appSettingModel.SensorVisibility(position) == View.GONE)
         {
             holder.tx_toggle_sensor!!.setTextColor(Color.LTGRAY)
             holder.tx_toggle_pin!!.setTextColor(Color.LTGRAY)
@@ -84,7 +83,6 @@ class ToggleAdapter constructor(context: Context, sensorQuantity : Int) : Recycl
 
     override fun getItemCount(): Int
     {
-        if (_sensorQuantity > 0) return _sensorQuantity
-        return 0
+        return if (_appSettingModel.SensorQuantity() > 0) _appSettingModel.SensorQuantity() else 0
     }
 }
