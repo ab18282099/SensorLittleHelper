@@ -1,4 +1,4 @@
-package com.example.user.soil_supervise_kotlin.Ui
+package com.example.user.soil_supervise_kotlin.Fragments
 
 import android.view.MenuItem
 

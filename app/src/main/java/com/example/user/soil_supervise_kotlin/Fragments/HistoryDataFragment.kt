@@ -2,10 +2,7 @@ package com.example.user.soil_supervise_kotlin.Fragments
 
 import android.app.AlertDialog
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Color
 import android.os.Bundle
-import android.support.v4.content.ContextCompat
 import android.support.v4.view.ViewPager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -22,12 +19,12 @@ import com.example.user.soil_supervise_kotlin.Database.DbAction
 import com.example.user.soil_supervise_kotlin.Database.IDbResponse
 import com.example.user.soil_supervise_kotlin.DbDataDownload.HttpHelper
 import com.example.user.soil_supervise_kotlin.DbDataDownload.IHttpAction
-import com.example.user.soil_supervise_kotlin.Ui.FragmentBackPressedListener
-import com.example.user.soil_supervise_kotlin.Ui.FragmentMenuItemClickListener
 import com.example.user.soil_supervise_kotlin.Utility.DataWriter
 import com.example.user.soil_supervise_kotlin.Utility.HttpRequest
 import com.example.user.soil_supervise_kotlin.Utility.MySharedPreferences
 import com.example.user.soil_supervise_kotlin.R
+import com.example.user.soil_supervise_kotlin.Ui.RecyclerView.HistoryDataRecyclerAdapter
+import com.example.user.soil_supervise_kotlin.Ui.RecyclerView.SimpleDividerItemDecoration
 import kotlinx.android.synthetic.main.fragment_history.*
 import org.jetbrains.anko.*
 import org.json.JSONObject
@@ -46,159 +43,16 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
     }
 
     private var _mRecyclerViewAdapter: HistoryDataRecyclerAdapter? = null
-
-    private var _viewCount: Int? = null
-
+    private var _viewCount: Int = 0
     private var _sensorDataLength: Int = 0
     private var _sensorDataList = ArrayList<Array<String?>>()
     private var _sensorQuantity: Int = 5
-
     private var _recyclerHistory: RecyclerView? = null
-
     private var _sharePref: MySharedPreferences? = null
-
     private var _currentId1 = ""
     private var _currentId2 = ""
-
     private var _isSuccessLoad = false
-
     private var _historyDataBackUpHelper : HttpHelper? = null
-
-    private inner class HistoryDataRecyclerAdapter : RecyclerView.Adapter<HistoryDataFragment.HistoryDataRecyclerAdapter.ViewHolder>()
-    {
-        inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
-        {
-            // id
-            var tx_item_id: TextView? = null
-            // default 5 sensor
-            var tx_item_sensor1: TextView? = null
-            var tx_item_sensor2: TextView? = null
-            var tx_item_sensor3: TextView? = null
-            var tx_item_sensor4: TextView? = null
-            var tx_item_sensor5: TextView? = null
-            // customer sensor
-            var tx_item_content: LinearLayout? = null
-            // time
-            var tx_item_time: TextView? = null
-
-            init
-            {
-                tx_item_id = itemView.findViewById<TextView>(R.id.tx_item_id) as TextView
-                tx_item_sensor1 = itemView.findViewById<TextView>(R.id.tx_item_moisture) as TextView
-                tx_item_sensor2 = itemView.findViewById<TextView>(R.id.tx_item_light) as TextView
-                tx_item_sensor3 = itemView.findViewById<TextView>(R.id.tx_item_sensor3) as TextView
-                tx_item_sensor4 = itemView.findViewById<TextView>(R.id.tx_item_sensor4) as TextView
-                tx_item_sensor5 = itemView.findViewById<TextView>(R.id.tx_item_sensor5) as TextView
-                tx_item_content = itemView.findViewById<LinearLayout>(R.id.tx_item_content) as LinearLayout
-                tx_item_time = itemView.findViewById<TextView>(R.id.tx_item_time) as TextView
-            }
-        }
-
-        override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): HistoryDataFragment.HistoryDataRecyclerAdapter.ViewHolder
-        {
-            Log.e("HistoryDataFragment", "onCreateViewHolder")
-
-            val converterView = LayoutInflater.from(parent?.context)
-                    .inflate(R.layout.item_sensor_data, parent, false)
-            return ViewHolder(converterView)
-        }
-
-        override fun onBindViewHolder(holder: HistoryDataFragment.HistoryDataRecyclerAdapter.ViewHolder?, position: Int)
-        {
-            Log.e("HistoryDataFragment", "onBindViewHolder")
-
-            holder!!.tx_item_sensor1!!.visibility = _sharePref!!.GetSensorVisibility(0)
-            holder.tx_item_sensor2!!.visibility = _sharePref!!.GetSensorVisibility(1)
-            holder.tx_item_sensor3!!.visibility = _sharePref!!.GetSensorVisibility(2)
-            holder.tx_item_sensor4!!.visibility = _sharePref!!.GetSensorVisibility(3)
-            holder.tx_item_sensor5!!.visibility = _sharePref!!.GetSensorVisibility(4)
-
-            holder.tx_item_content?.removeAllViewsInLayout()
-
-            if (_sensorDataList.isNotEmpty())
-            {
-                if (_sensorQuantity > 5)
-                {
-                    for (i in 0 until _sensorQuantity - 5)
-                    {
-                        val txCustomer = TextView(context)
-                        val sensorData = _sensorDataList[i + 6][position]
-                        SetSensorText(txCustomer, sensorData, i + 5)
-                        txCustomer.visibility = _sharePref!!.GetSensorVisibility(i + 5)
-
-                        val height = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, (50).toFloat(), context.resources.displayMetrics)
-                        txCustomer.layoutParams = LinearLayout.LayoutParams(height.toInt(), LinearLayout.LayoutParams.WRAP_CONTENT)
-
-                        holder.tx_item_content!!.addView(txCustomer)
-                    }
-                }
-
-                holder.tx_item_id!!.text = _sensorDataList[0][position] // id dataList[0]
-                holder.tx_item_time!!.text = _sensorDataList[_sensorQuantity + 1][position] // id dataList[last]
-
-                SetSensorText(holder.tx_item_sensor1, _sensorDataList[1][position], 0)
-                SetSensorText(holder.tx_item_sensor2, _sensorDataList[2][position], 1)
-                SetSensorText(holder.tx_item_sensor3, _sensorDataList[3][position], 2)
-                SetSensorText(holder.tx_item_sensor4, _sensorDataList[4][position], 3)
-                SetSensorText(holder.tx_item_sensor5, _sensorDataList[5][position], 4)
-            }
-        }
-
-        override fun getItemCount(): Int
-        {
-            val viewCount = _viewCount
-            if (viewCount != null && viewCount > 0) return viewCount
-            return 0
-        }
-
-        private fun SetSensorText(textView: TextView?, sensorData: String?, position: Int)
-        {
-            if (sensorData == "")
-            {
-                textView!!.text = sensorData
-            }
-            else
-            {
-                val warnConditional1 = _sharePref!!.GetSensorCondition(position).toFloat()
-
-                if (sensorData!!.toFloat() < warnConditional1)
-                {
-                    textView!!.text = sensorData
-                    textView.textColor = Color.RED
-                }
-                else
-                {
-                    textView!!.text = sensorData
-                    textView.textColor = Color.BLACK
-                }
-            }
-        }
-    }
-
-    private inner class SimpleDividerItemDecoration constructor(context: Context) : RecyclerView.ItemDecoration()
-    {
-        private val _mDivider = ContextCompat.getDrawable(context, R.drawable.divider_line)
-
-        override fun onDrawOver(c: Canvas?, parent: RecyclerView?, state: RecyclerView.State?)
-        {
-            val left = parent!!.paddingLeft
-            val right = parent.width - parent.paddingRight
-
-            val childCount = parent.childCount
-            for (i in 0 until childCount)
-            {
-                val child = parent.getChildAt(i)
-
-                val params = child.layoutParams as RecyclerView.LayoutParams
-
-                val top = child.bottom + params.bottomMargin
-                val bottom = top + _mDivider!!.intrinsicHeight
-
-                _mDivider.setBounds(left, top, right, bottom)
-                _mDivider.draw(c)
-            }
-        }
-    }
 
     override fun onAttach(context: Context?)
     {
@@ -221,12 +75,9 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
 
         _recyclerHistory = view.findViewById<RecyclerView>(R.id._recyclerHistory) as RecyclerView
 
-        val layoutManger = LinearLayoutManager(this.context)
+        val layoutManger = LinearLayoutManager(context)
         layoutManger.orientation = LinearLayoutManager.VERTICAL
         _recyclerHistory?.layoutManager = layoutManger
-
-        _mRecyclerViewAdapter = HistoryDataRecyclerAdapter()
-        _recyclerHistory?.adapter = _mRecyclerViewAdapter
         _recyclerHistory?.addItemDecoration(SimpleDividerItemDecoration(context))
 
         Log.e("HistoryDataFragment", "onCreateView")
@@ -387,22 +238,15 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
 
     fun RenewRecyclerView()
     {
-        if (_sensorDataLength in 1..100)
+        when (_sensorDataLength)
         {
-            _viewCount = _sensorDataLength
-            _mRecyclerViewAdapter?.notifyDataSetChanged()
-        }
-        else if (_sensorDataLength == 0)
-        {
-            _viewCount = 0
-            _mRecyclerViewAdapter?.notifyDataSetChanged()
-        }
-        else
-        {
-            _viewCount = 100
-            _mRecyclerViewAdapter?.notifyDataSetChanged()
+            in 1..100 -> _viewCount = _sensorDataLength
+            0 -> _viewCount = 0
+            else -> _viewCount = 100
         }
 
+        _mRecyclerViewAdapter = HistoryDataRecyclerAdapter(context, _sensorQuantity, _sensorDataList, _viewCount)
+        _recyclerHistory?.adapter = _mRecyclerViewAdapter
         CheckButton()
     }
 
@@ -507,13 +351,13 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
 
     private fun LeftView()
     {
-        MainActivity().LoadHistoryData(this, activity, (_currentId1.toInt() - 100).toString(), (_currentId2.toInt() - 100).toString())
+        MainActivity().LoadHistoryData(this, context, (_currentId1.toInt() - 100).toString(), (_currentId2.toInt() - 100).toString())
         CheckButton()
     }
 
     private fun RightView()
     {
-        MainActivity().LoadHistoryData(this, activity, (_currentId1.toInt() + 100).toString(), (_currentId2.toInt() + 100).toString())
+        MainActivity().LoadHistoryData(this, context, (_currentId1.toInt() + 100).toString(), (_currentId2.toInt() + 100).toString())
         CheckButton()
     }
 
@@ -557,12 +401,12 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
                 {
                     "Deleted Successfully." ->
                     {
-                        MainActivity().LoadHistoryData(this@HistoryDataFragment, activity, "1", "100")
+                        MainActivity().LoadHistoryData(this@HistoryDataFragment, context, "1", "100")
                         toast("刪除成功")
                     }
                     "DB is clean." ->
                     {
-                        MainActivity().LoadHistoryData(this@HistoryDataFragment, activity, "1", "100")
+                        MainActivity().LoadHistoryData(this@HistoryDataFragment, context, "1", "100")
                         toast("清空完成")
                     }
                     else ->

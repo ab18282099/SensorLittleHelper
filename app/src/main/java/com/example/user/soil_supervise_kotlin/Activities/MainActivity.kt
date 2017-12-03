@@ -16,12 +16,11 @@ import android.widget.SimpleAdapter
 import com.example.user.soil_supervise_kotlin.Fragments.*
 import com.example.user.soil_supervise_kotlin.DbDataDownload.HttpHelper
 import com.example.user.soil_supervise_kotlin.DbDataDownload.IHttpAction
-import com.example.user.soil_supervise_kotlin.Ui.FragmentBackPressedListener
-import com.example.user.soil_supervise_kotlin.Ui.FragmentMenuItemClickListener
+import com.example.user.soil_supervise_kotlin.Fragments.FragmentBackPressedListener
+import com.example.user.soil_supervise_kotlin.Fragments.FragmentMenuItemClickListener
 import com.example.user.soil_supervise_kotlin.Utility.*
 import com.example.user.soil_supervise_kotlin.R
-import com.example.user.soil_supervise_kotlin.Ui.FragmentViewPagerAdapter
-import com.example.user.soil_supervise_kotlin.Ui.MyCommonNavigatorAdapter
+import com.example.user.soil_supervise_kotlin.Ui.RecyclerView.HistoryDataRecyclerAdapter
 import kotlinx.android.synthetic.main.activity_main.*
 import net.lucode.hackware.magicindicator.ViewPagerHelper
 import net.lucode.hackware.magicindicator.buildins.commonnavigator.CommonNavigator

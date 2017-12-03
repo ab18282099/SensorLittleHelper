@@ -12,7 +12,7 @@ import android.support.v7.widget.Toolbar
 import android.util.Log
 import android.view.*
 import android.widget.*
-import com.example.user.soil_supervise_kotlin.Ui.FragmentMenuItemClickListener
+import com.example.user.soil_supervise_kotlin.Fragments.FragmentMenuItemClickListener
 import com.example.user.soil_supervise_kotlin.R
 
 abstract class BaseActivity : AppCompatActivity()
