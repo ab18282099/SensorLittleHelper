@@ -106,7 +106,6 @@ class MainActivity : BaseActivity()
         })
 
         SetDrawMenuAdapterAndItemClickListener(drawerMenuAdapter, { adapterView, view, i, l ->
-
             when(i)
             {
                 0 ->
@@ -116,7 +115,6 @@ class MainActivity : BaseActivity()
                     }.show()
                 }
             }
-
         })
     }
 
@@ -275,8 +273,6 @@ class MainActivity : BaseActivity()
 
     fun LoadHistoryData(historyFragment: HistoryDataFragment, context: Context, id1: String, id2: String)
     {
-        val appSettingModel = AppSettingModel(context)
-
         _httpHelper = HttpHelper.InitInstance(context)
         _httpHelper!!.SetHttpAction(object : IHttpAction
         {
@@ -284,9 +280,7 @@ class MainActivity : BaseActivity()
             {
                 val data = HttpRequest.DownloadFromMySQL("society", PhpUrlDto(context).LoadingHistoryDataById(id1, id2))
                 val model = SensorDataModel()
-                val dataParser = SensorDataParser.InitInstance()
-                val sensorQuantity = appSettingModel.SensorQuantity()
-                dataParser!!.SetSensorQuantity(sensorQuantity)
+                val dataParser = SensorDataParser(context)
                 model.SensorDataLength = dataParser.GetJsonArrayLength(JSONArray(data))
                 model.SensorDataList = dataParser.GetSensorData(JSONArray(data))
 

@@ -1,45 +1,24 @@
 package com.example.user.soil_supervise_kotlin.Utility
 
+import android.content.Context
 import android.util.Log
+import com.example.user.soil_supervise_kotlin.Model.AppSettingModel
 import org.json.JSONArray
 import org.json.JSONException
 
-class SensorDataParser private constructor()
+class SensorDataParser constructor(context: Context)
 {
-    companion object
-    {
-        @Volatile private var instance: SensorDataParser? = null
-        fun InitInstance(): SensorDataParser?
-        {
-            if (instance == null)
-            {
-                synchronized(SensorDataParser::class.java) {
-                    if (instance == null)
-                    {
-                        instance = SensorDataParser()
-                    }
-                }
-            }
-            return instance
-        }
-    }
-
-    private var _sensorQuantity: Int = 5
-
-    fun SetSensorQuantity(quantity: Int)
-    {
-        _sensorQuantity = quantity
-    }
+    private val _appSettingModel = AppSettingModel(context)
 
     fun GetSensorData(jsonArray: JSONArray): ArrayList<Array<String?>>
     {
-        val jsonList = ArrayList<Array<String?>>(_sensorQuantity + 2)
+        val jsonList = ArrayList<Array<String?>>(_appSettingModel.SensorQuantity() + 2)
 
         try
         {
             val jsonArrayLength: Int = jsonArray.length()
 
-            for (i in 0 until _sensorQuantity + 2)
+            for (i in 0 until _appSettingModel.SensorQuantity() + 2)
             {
                 if (i == 0)
                 {
@@ -52,7 +31,7 @@ class SensorDataParser private constructor()
 
                     jsonList.add(i, arrayTemp)
                 }
-                else if (i == _sensorQuantity + 1)
+                else if (i == _appSettingModel.SensorQuantity() + 1)
                 {
                     val arrayTemp = arrayOfNulls<String?>(jsonArrayLength)
 
