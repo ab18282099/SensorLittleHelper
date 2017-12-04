@@ -12,8 +12,6 @@ import org.jetbrains.anko.noButton
 import org.jetbrains.anko.yesButton
 import java.util.ArrayList
 import java.util.HashMap
-import com.example.user.soil_supervise_kotlin.Model.AppSettingModel
-
 
 class MainFragment : BaseFragment(), FragmentBackPressedListener, FragmentMenuItemClickListener
 {

@@ -20,6 +20,7 @@ import com.example.user.soil_supervise_kotlin.MySqlDb.IHttpAction
 import com.example.user.soil_supervise_kotlin.Utility.HttpRequest
 import com.example.user.soil_supervise_kotlin.Ui.ProgressDialog
 import com.example.user.soil_supervise_kotlin.Model.AppSettingModel
+import com.example.user.soil_supervise_kotlin.Dto.PhpUrlDto
 import com.example.user.soil_supervise_kotlin.R
 import com.example.user.soil_supervise_kotlin.Ui.RecyclerView.OnTimeAdapter
 import com.example.user.soil_supervise_kotlin.Ui.RecyclerView.SimpleDividerItemDecoration
@@ -69,10 +70,6 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
 
     fun TryLoadLastData()
     {
-        val user = _appSettingModel!!.Username()
-        val pass = _appSettingModel!!.Password()
-        val ServerIP = _appSettingModel!!.ServerIp()
-        val phpAddress = "http://$ServerIP/android_mysql_last.php?&server=$ServerIP&user=$user&pass=$pass"
         val refreshDataAction = DbAction(activity)
         refreshDataAction.SetResponse(object : IDbResponse
         {
@@ -108,7 +105,7 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
                 toast("CONNECT ERROR")
             }
         })
-        refreshDataAction.DoDbOperate(phpAddress)
+        refreshDataAction.DoDbOperate(PhpUrlDto(activity).LoadingLastData)
     }
 
     private fun WarningFunction(sensorDataList: ArrayList<String?>)

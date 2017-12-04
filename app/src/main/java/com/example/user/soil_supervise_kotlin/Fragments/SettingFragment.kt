@@ -15,6 +15,7 @@ import com.android.volley.*
 import com.example.user.soil_supervise_kotlin.MySqlDb.DbAction
 import com.example.user.soil_supervise_kotlin.MySqlDb.IDbResponse
 import com.example.user.soil_supervise_kotlin.Model.AppSettingModel
+import com.example.user.soil_supervise_kotlin.Dto.PhpUrlDto
 import com.example.user.soil_supervise_kotlin.R
 import com.example.user.soil_supervise_kotlin.Ui.RecyclerView.SettingRecycler.SensorDialogAdapter
 import com.example.user.soil_supervise_kotlin.Ui.RecyclerView.SettingRecycler.SettingAdapter
@@ -168,12 +169,8 @@ class SettingFragment : BaseFragment(), FragmentBackPressedListener
         return dialog
     }
 
-    private fun TryEditSensorQuantity(query: String, sensorID: String, dialogAdapter: SensorDialogAdapter)
+    private fun TryEditSensorQuantity(query: String, sensorId: String, dialogAdapter: SensorDialogAdapter)
     {
-        val ServerIP = _appSettingModel!!.ServerIp()
-        val user = _appSettingModel!!.Username()
-        val pass = _appSettingModel!!.Password()
-        val phpAddress = "http://$ServerIP/$query.php?&server=$ServerIP&user=$user&pass=$pass&sensor_id=$sensorID"
         val addSensorAction = DbAction(activity)
         addSensorAction.SetResponse(object : IDbResponse
         {
@@ -211,7 +208,7 @@ class SettingFragment : BaseFragment(), FragmentBackPressedListener
                 toast("CONNECT ERROR")
             }
         })
-        addSensorAction.DoDbOperate(phpAddress)
+        addSensorAction.DoDbOperate(PhpUrlDto(activity).EditingSensorQuantityByQuery(query, sensorId))
     }
 
     private fun CheckInputType(): Int

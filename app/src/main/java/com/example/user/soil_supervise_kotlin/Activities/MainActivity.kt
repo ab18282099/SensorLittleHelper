@@ -17,6 +17,7 @@ import com.example.user.soil_supervise_kotlin.MySqlDb.HttpHelper
 import com.example.user.soil_supervise_kotlin.Fragments.FragmentBackPressedListener
 import com.example.user.soil_supervise_kotlin.Fragments.FragmentMenuItemClickListener
 import com.example.user.soil_supervise_kotlin.Model.AppSettingModel
+import com.example.user.soil_supervise_kotlin.Dto.PhpUrlDto
 import com.example.user.soil_supervise_kotlin.Model.SensorDataModel
 import com.example.user.soil_supervise_kotlin.MySqlDb.IHttpAction
 import com.example.user.soil_supervise_kotlin.Utility.*
@@ -272,20 +273,16 @@ class MainActivity : BaseActivity()
         super.onDestroy()
     }
 
-    fun LoadHistoryData(historyFragment: HistoryDataFragment, context: Context, id: String, id2: String)
+    fun LoadHistoryData(historyFragment: HistoryDataFragment, context: Context, id1: String, id2: String)
     {
         val appSettingModel = AppSettingModel(context)
-        val serverIp = appSettingModel.ServerIp()
-        val user = appSettingModel.Username()
-        val pass = appSettingModel.Password()
-        val phpAddress = "http://$serverIp/load_history.php?&server=$serverIp&user=$user&pass=$pass&id=$id&id2=$id2"
 
         _httpHelper = HttpHelper.InitInstance(context)
         _httpHelper!!.SetHttpAction(object : IHttpAction
         {
             override fun OnHttpRequest()
             {
-                val data = HttpRequest.DownloadFromMySQL("society", phpAddress)
+                val data = HttpRequest.DownloadFromMySQL("society", PhpUrlDto(context).LoadingHistoryDataById(id1, id2))
                 val model = SensorDataModel()
                 val dataParser = SensorDataParser.InitInstance()
                 val sensorQuantity = appSettingModel.SensorQuantity()
@@ -293,7 +290,7 @@ class MainActivity : BaseActivity()
                 model.SensorDataLength = dataParser.GetJsonArrayLength(JSONArray(data))
                 model.SensorDataList = dataParser.GetSensorData(JSONArray(data))
 
-                historyFragment.SetCurrentId(id, id2)
+                historyFragment.SetCurrentId(id1, id2)
                 historyFragment.SetDataModel(model)
                 historyFragment.SetLoadSuccess(true)
 
@@ -308,7 +305,7 @@ class MainActivity : BaseActivity()
                 if (historyFragment.GetLoadSuccess()) // if last time is success
                 {
                     historyFragment.SetLoadSuccess(false) // this time is not success
-                    LoadHistoryData(historyFragment, context, (id.toInt() - 100).toString(), (id2.toInt() - 100).toString())
+                    LoadHistoryData(historyFragment, context, (id1.toInt() - 100).toString(), (id2.toInt() - 100).toString())
                 }
                 else
                 {

@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.example.user.soil_supervise_kotlin.Model.AppSettingModel
+import com.example.user.soil_supervise_kotlin.Dto.PhpUrlDto
 import com.example.user.soil_supervise_kotlin.MySqlDb.HttpHelper
 import com.example.user.soil_supervise_kotlin.MySqlDb.IHttpAction
 import com.example.user.soil_supervise_kotlin.Utility.*
@@ -112,16 +113,13 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener
     private fun SetChartView(chartID: Int)
     {
         tx_chartTitle.text = _appSettingModel!!.SensorName(chartID)
-        val serverIP = _appSettingModel!!.ServerIp()
-        val user = _appSettingModel!!.Username()
-        val pass = _appSettingModel!!.Password()
         _buildChartHelper = HttpHelper.InitInstance(activity)
         _buildChartHelper!!.SetHttpAction(object : IHttpAction
         {
             override fun OnHttpRequest()
             {
-                val phpAddress = "http://$serverIP/android_mysql.php?&server=$serverIP&user=$user&pass=$pass"
-                ChartDataRenew(HttpRequest.DownloadFromMySQL("society", phpAddress), chartID)
+                ChartDataRenew(HttpRequest.DownloadFromMySQL("society",
+                        PhpUrlDto(activity).LoadingWholeData), chartID)
             }
 
             override fun OnException(e: Exception)

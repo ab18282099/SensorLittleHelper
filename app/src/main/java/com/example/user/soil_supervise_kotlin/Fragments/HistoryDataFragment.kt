@@ -22,6 +22,7 @@ import com.example.user.soil_supervise_kotlin.MySqlDb.IHttpAction
 import com.example.user.soil_supervise_kotlin.Utility.DataWriter
 import com.example.user.soil_supervise_kotlin.Utility.HttpRequest
 import com.example.user.soil_supervise_kotlin.Model.AppSettingModel
+import com.example.user.soil_supervise_kotlin.Dto.PhpUrlDto
 import com.example.user.soil_supervise_kotlin.R
 import com.example.user.soil_supervise_kotlin.Ui.RecyclerView.HistoryDataAdapter
 import com.example.user.soil_supervise_kotlin.Ui.RecyclerView.SimpleDividerItemDecoration
@@ -136,7 +137,6 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
         tx_sensor3.visibility = _appSettingModel!!.SensorVisibility(2)
         tx_sensor4.visibility = _appSettingModel!!.SensorVisibility(3)
         tx_sensor5.visibility = _appSettingModel!!.SensorVisibility(4)
-
         tx_id.text = getString(R.string.id)
         tx_sensor1.text = _appSettingModel!!.SensorName(0)
         tx_sensor2.text = _appSettingModel!!.SensorName(1)
@@ -144,7 +144,6 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
         tx_sensor4.text = _appSettingModel!!.SensorName(3)
         tx_sensor5.text = _appSettingModel!!.SensorName(4)
         tx_time.text = getString(R.string.time)
-
         tx_title_content.removeAllViewsInLayout()
 
         if (_appSettingModel!!.SensorQuantity() > 5)
@@ -222,14 +221,9 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
 
         btn_clean.text = getString(R.string.clean_db)
         btn_clean.setOnClickListener {
-            val ServerIP = _appSettingModel!!.ServerIp()
-            val user = _appSettingModel!!.Username()
-            val pass = _appSettingModel!!.Password()
-            val phpAddress = "http://$ServerIP/clean_db.php?&server=$ServerIP&user=$user&pass=$pass"
-
             alert("你要確定喔?") {
                 yesButton {
-                    TryEditDataBase(phpAddress)
+                    TryEditDataBase(PhpUrlDto(activity).CleanDatabase)
                 }
                 noButton { }
             }.show()
@@ -237,20 +231,15 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
 
         btn_confirm.text = getString(R.string.deleted)
         btn_confirm.setOnClickListener {
-            val ServerIP = _appSettingModel!!.ServerIp()
-            val user = _appSettingModel!!.Username()
-            val pass = _appSettingModel!!.Password()
-            val id = edit_from.text.toString()
+            val id1 = edit_from.text.toString()
             val id2 = edit_to.text.toString()
-
             val regIdDeleted = Regex("[1-9]\\d*")
 
-            if (id.matches(regIdDeleted) && id2.matches(regIdDeleted))
+            if (id1.matches(regIdDeleted) && id2.matches(regIdDeleted))
             {
-                val phpAddress = "http://$ServerIP/deletedjson.php?&server=$ServerIP&user=$user&pass=$pass&id=$id&id2=$id2"
                 alert("你要確定喔?") {
                     yesButton {
-                        TryEditDataBase(phpAddress)
+                        TryEditDataBase(PhpUrlDto(activity).DeletedDataById(id1, id2))
                     }
                     noButton { }
                 }.show()
@@ -348,17 +337,13 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
 
     private fun BackUpHistoryData()
     {
-        val username = _appSettingModel!!.Username()
-        val password = _appSettingModel!!.Password()
-        val serverIp = _appSettingModel!!.ServerIp()
         _historyDataBackUpHelper = HttpHelper.InitInstance(activity)
         _historyDataBackUpHelper!!.SetHttpAction(object : IHttpAction
         {
             override fun OnHttpRequest()
             {
-                val phpAddress = "http://$serverIp/android_mysql.php?&server=$serverIp&user=$username&pass=$password"
                 DataWriter.WriteData(activity, _appSettingModel!!.FileSavedName()
-                        , HttpRequest.DownloadFromMySQL("society", phpAddress))
+                        , HttpRequest.DownloadFromMySQL("society", PhpUrlDto(activity).LoadingWholeData))
                 toast("備份完成")
             }
 

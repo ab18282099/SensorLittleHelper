@@ -13,6 +13,7 @@ import com.example.user.soil_supervise_kotlin.MySqlDb.DbAction
 import com.example.user.soil_supervise_kotlin.MySqlDb.IDbResponse
 import com.example.user.soil_supervise_kotlin.Utility.ExitApplication
 import com.example.user.soil_supervise_kotlin.Model.AppSettingModel
+import com.example.user.soil_supervise_kotlin.Dto.PhpUrlDto
 import com.example.user.soil_supervise_kotlin.R
 import kotlinx.android.synthetic.main.fragment_login.*
 import org.jetbrains.anko.toast
@@ -85,10 +86,8 @@ class LoginFragment : BaseFragment(), FragmentBackPressedListener
         }, 1000)
     }
 
-    private fun TryConnectDataBase(user: String, pass: String)
+    private fun TryConnectDataBase(username: String, password: String)
     {
-        val ServerIP = _appSettingModel!!.ServerIp()
-        val phpAddress = "http://$ServerIP/conn_json.php?&server=$ServerIP&user=$user&pass=$pass"
         val loginAction = DbAction(activity)
         loginAction.SetResponse(object : IDbResponse
         {
@@ -116,7 +115,7 @@ class LoginFragment : BaseFragment(), FragmentBackPressedListener
                 PutLoginInfo()
             }
         })
-        loginAction.DoDbOperate(phpAddress)
+        loginAction.DoDbOperate(PhpUrlDto(activity).ConnectDbByLogin(username, password))
     }
 
     private fun PutLoginInfo()

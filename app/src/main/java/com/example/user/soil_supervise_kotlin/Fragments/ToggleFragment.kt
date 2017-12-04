@@ -94,11 +94,8 @@ class ToggleFragment : BaseFragment(), FragmentBackPressedListener
                 }
                 else
                 {
-                    val ipAddress = _appSettingModel!!.WifiIp()
-                    val port = _appSettingModel!!.WifiPort()
-                    val parameterValue = _appSettingModel!!.SensorPin(position) // pin 7~12
-
-                    TryTogglePin(ipAddress, port, parameterValue)
+                    TryTogglePin(_appSettingModel!!.WifiIp(),
+                            _appSettingModel!!.WifiPort(), _appSettingModel!!.SensorPin(position))
                 }
             }
         })
