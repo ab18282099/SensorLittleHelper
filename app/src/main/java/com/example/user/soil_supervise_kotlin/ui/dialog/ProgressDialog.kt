@@ -1,4 +1,4 @@
-package com.example.user.soil_supervise_kotlin.ui
+package com.example.user.soil_supervise_kotlin.ui.dialog
 
 import android.app.AlertDialog
 import android.content.Context

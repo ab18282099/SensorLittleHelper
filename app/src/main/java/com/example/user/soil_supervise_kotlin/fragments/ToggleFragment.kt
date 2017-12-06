@@ -10,13 +10,13 @@ import android.view.View
 import android.view.ViewGroup
 import com.example.user.soil_supervise_kotlin.db.HttpHelper
 import com.example.user.soil_supervise_kotlin.db.IHttpAction
-import com.example.user.soil_supervise_kotlin.ui.RecyclerView.RecyclerViewOnItemClickListener
+import com.example.user.soil_supervise_kotlin.ui.recyclerView.RecyclerViewOnItemClickListener
 import com.example.user.soil_supervise_kotlin.utility.HttpRequest
-import com.example.user.soil_supervise_kotlin.ui.ProgressDialog
+import com.example.user.soil_supervise_kotlin.ui.dialog.ProgressDialog
 import com.example.user.soil_supervise_kotlin.models.AppSettingModel
 import com.example.user.soil_supervise_kotlin.R
-import com.example.user.soil_supervise_kotlin.ui.RecyclerView.SimpleDividerItemDecoration
-import com.example.user.soil_supervise_kotlin.ui.RecyclerView.ToggleAdapter
+import com.example.user.soil_supervise_kotlin.ui.recyclerView.SimpleDividerItemDecoration
+import com.example.user.soil_supervise_kotlin.ui.recyclerView.ToggleAdapter
 import kotlinx.android.synthetic.main.fragment_toggle.*
 import org.jetbrains.anko.runOnUiThread
 import org.jetbrains.anko.toast

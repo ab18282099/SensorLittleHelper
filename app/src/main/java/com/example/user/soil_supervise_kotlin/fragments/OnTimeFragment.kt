@@ -1,8 +1,6 @@
 package com.example.user.soil_supervise_kotlin.fragments
 
-import android.app.AlertDialog
 import android.os.Bundle
-import android.os.Handler
 import android.support.v4.view.ViewPager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -10,20 +8,15 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.TextView
 import com.android.volley.*
 import com.example.user.soil_supervise_kotlin.db.DbAction
 import com.example.user.soil_supervise_kotlin.db.IDbResponse
-import com.example.user.soil_supervise_kotlin.db.HttpHelper
-import com.example.user.soil_supervise_kotlin.db.IHttpAction
-import com.example.user.soil_supervise_kotlin.utility.HttpRequest
-import com.example.user.soil_supervise_kotlin.ui.ProgressDialog
 import com.example.user.soil_supervise_kotlin.models.AppSettingModel
 import com.example.user.soil_supervise_kotlin.dto.PhpUrlDto
 import com.example.user.soil_supervise_kotlin.R
-import com.example.user.soil_supervise_kotlin.ui.RecyclerView.OnTimeAdapter
-import com.example.user.soil_supervise_kotlin.ui.RecyclerView.SimpleDividerItemDecoration
+import com.example.user.soil_supervise_kotlin.ui.dialog.AutoToggleDialog
+import com.example.user.soil_supervise_kotlin.ui.recyclerView.OnTimeAdapter
+import com.example.user.soil_supervise_kotlin.ui.recyclerView.SimpleDividerItemDecoration
 import org.jetbrains.anko.alert
 import org.jetbrains.anko.noButton
 import org.jetbrains.anko.toast
@@ -43,18 +36,14 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
         }
     }
 
-    private var _count = 5
-    private var _countHandler: Handler? = null
-    private var _countRunnable: Runnable? = null
     private var _recyclerOnTime: RecyclerView? = null
     private var _appSettingModel: AppSettingModel? = null
-    private var _wifiToggleHelper : HttpHelper? = null
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View
     {
         val view = inflater!!.inflate(R.layout.fragment_on_time, container, false)
         _appSettingModel = AppSettingModel(activity)
-        _recyclerOnTime = view.findViewById<RecyclerView>(R.id.recycler_on_time) as RecyclerView
+        _recyclerOnTime = view.findViewById(R.id.recycler_on_time)
         val layoutManger = LinearLayoutManager(activity)
         layoutManger.orientation = LinearLayoutManager.VERTICAL
         _recyclerOnTime?.layoutManager = layoutManger
@@ -64,7 +53,7 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
 
     override fun OnFragmentBackPressed()
     {
-        val vpMain = activity.findViewById<ViewPager>(R.id._vpMain) as ViewPager
+        val vpMain = activity.findViewById<ViewPager>(R.id._vpMain)
         vpMain.currentItem = 1
     }
 
@@ -150,7 +139,7 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
             {
                 true ->
                 {
-                    val autoDialog = AutoToggle(togglePin, "發現狀態改變！")
+                    val autoDialog = AutoToggleDialog(activity, togglePin, "發現狀態改變！")
                     autoDialog.show()
                     autoDialog.setCancelable(false)
                 }
@@ -159,7 +148,7 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
                     alert("警告！") {
                         message = toggleText + "數值狀態改變！是否移至Wi-Fi遙控頁面?"
                         yesButton {
-                            val vpMain = activity.findViewById<ViewPager>(R.id._vpMain) as ViewPager
+                            val vpMain = activity.findViewById<ViewPager>(R.id._vpMain)
                             vpMain.currentItem = 2
                         }
                         noButton { }
@@ -177,77 +166,5 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener
             return true
 
         return false
-    }
-
-    private fun AutoToggle(togglePin: String, message: String): AlertDialog
-    {
-        val nullParent: ViewGroup? = null
-        val convertView = LayoutInflater.from(activity).inflate(R.layout.dialog_count_down, nullParent)
-
-        val tx_count = convertView.findViewById<TextView>(R.id.tx_count) as TextView
-        val btn_cancel = convertView.findViewById<Button>(R.id.btn_cancel) as Button
-
-        val dialog = android.app.AlertDialog.Builder(activity).setView(convertView).create()
-
-        _countHandler = Handler()
-        _countRunnable = Runnable {
-            if (_count < 0)
-            {
-                dialog.dismiss()
-                _count = 5
-                _countHandler!!.removeCallbacks(_countRunnable)
-
-                val ipAddress = _appSettingModel!!.WifiIp()
-                val port = _appSettingModel!!.WifiPort()
-                TryTogglePin(ipAddress, port, togglePin)
-            }
-            else
-            {
-                _count -= 1
-                tx_count.text = getString(R.string.countDown, message, (_count + 1).toString(), togglePin)
-                _countHandler!!.postDelayed(_countRunnable, 1000)
-            }
-        }
-        _countHandler!!.post(_countRunnable)
-
-        btn_cancel.text = getString(R.string.cancel)
-        btn_cancel.setOnClickListener {
-            dialog.dismiss()
-            _count = 5
-            _countHandler!!.removeCallbacks(_countRunnable)
-        }
-
-        return dialog
-    }
-
-    private fun TryTogglePin(ipAddress: String, port: String, parameterValue: String)
-    {
-        _wifiToggleHelper = HttpHelper.InitInstance(activity)
-        _wifiToggleHelper!!.SetHttpAction(object : IHttpAction
-        {
-            override fun OnHttpRequest()
-            {
-                val requestReply = HttpRequest.SendToggleRequest(parameterValue, ipAddress, port, "pin")
-                val resultDialog = ProgressDialog.DialogProgress(activity, requestReply, View.GONE)
-                resultDialog.show()
-
-                val jsonResult = JSONObject(requestReply)
-
-                for (i in 0 until _appSettingModel!!.SensorQuantity())
-                {
-                    _appSettingModel!!.PutString("getPin" + i.toString() + "State", jsonResult.getString("PIN" + _appSettingModel!!.SensorPin(i)))
-                }
-            }
-
-            override fun OnException(e: Exception)
-            {
-                Log.e("Toggling Pin in OnTimeFragment", e.toString())
-            }
-
-            override fun OnPostExecute()
-            {
-            }
-        })
-        _wifiToggleHelper!!.StartHttpThread()
     }
 }

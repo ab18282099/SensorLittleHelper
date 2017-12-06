@@ -1,6 +1,5 @@
 package com.example.user.soil_supervise_kotlin.fragments
 
-import android.app.AlertDialog
 import android.os.Bundle
 import android.support.v4.view.ViewPager
 import android.support.v7.widget.LinearLayoutManager
@@ -8,15 +7,10 @@ import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.util.TypedValue
 import android.view.*
-import android.widget.Button
-import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
-import com.android.volley.*
 import com.example.user.soil_supervise_kotlin.activities.MainActivity
 import com.example.user.soil_supervise_kotlin.models.SensorDataModel
-import com.example.user.soil_supervise_kotlin.db.DbAction
-import com.example.user.soil_supervise_kotlin.db.IDbResponse
 import com.example.user.soil_supervise_kotlin.db.HttpHelper
 import com.example.user.soil_supervise_kotlin.db.IHttpAction
 import com.example.user.soil_supervise_kotlin.utility.DataWriter
@@ -24,11 +18,11 @@ import com.example.user.soil_supervise_kotlin.utility.HttpRequest
 import com.example.user.soil_supervise_kotlin.models.AppSettingModel
 import com.example.user.soil_supervise_kotlin.dto.PhpUrlDto
 import com.example.user.soil_supervise_kotlin.R
-import com.example.user.soil_supervise_kotlin.ui.RecyclerView.HistoryDataAdapter
-import com.example.user.soil_supervise_kotlin.ui.RecyclerView.SimpleDividerItemDecoration
+import com.example.user.soil_supervise_kotlin.ui.recyclerView.HistoryDataAdapter
+import com.example.user.soil_supervise_kotlin.ui.recyclerView.SimpleDividerItemDecoration
+import com.example.user.soil_supervise_kotlin.ui.dialog.DeleteDataDialog
 import kotlinx.android.synthetic.main.fragment_history.*
 import org.jetbrains.anko.*
-import org.json.JSONObject
 
 class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, FragmentMenuItemClickListener
 {
@@ -87,12 +81,12 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
 
         btn_deleted.text = getString(R.string.deleted)
         btn_deleted.setOnClickListener {
-            val dialog = SetDeletedDialog()
-            dialog.show()
+            val dialog = DeleteDataDialog(activity, this)
             dialog.window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
             dialog.window.clearFlags(WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM)
             dialog.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
             dialog.setCanceledOnTouchOutside(true)
+            dialog.show()
         }
     }
 
@@ -209,52 +203,6 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
         return _isSuccessLoad
     }
 
-    private fun SetDeletedDialog(): AlertDialog
-    {
-        val nullParent: ViewGroup? = null
-        val convertView = LayoutInflater.from(activity).inflate(R.layout.dialog_deleted, nullParent)
-        val edit_from = convertView.findViewById<EditText>(R.id.edit_from) as EditText
-        val edit_to = convertView.findViewById<EditText>(R.id.edit_to) as EditText
-        val btn_clean = convertView.findViewById<Button>(R.id.btn_clean) as Button
-        val btn_confirm = convertView.findViewById<Button>(R.id.btn_confirm) as Button
-        val dialog = android.app.AlertDialog.Builder(activity).setView(convertView).create()
-
-        btn_clean.text = getString(R.string.clean_db)
-        btn_clean.setOnClickListener {
-            alert("你要確定喔?") {
-                yesButton {
-                    TryEditDataBase(PhpUrlDto(activity).CleanDatabase)
-                }
-                noButton { }
-            }.show()
-        }
-
-        btn_confirm.text = getString(R.string.deleted)
-        btn_confirm.setOnClickListener {
-            val id1 = edit_from.text.toString()
-            val id2 = edit_to.text.toString()
-            val regIdDeleted = Regex("[1-9]\\d*")
-
-            if (id1.matches(regIdDeleted) && id2.matches(regIdDeleted))
-            {
-                alert("你要確定喔?") {
-                    yesButton {
-                        TryEditDataBase(PhpUrlDto(activity).DeletedDataById(id1, id2))
-                    }
-                    noButton { }
-                }.show()
-            }
-            else
-            {
-                val v = activity.vibrator
-                v.vibrate(500)
-                toast("輸入有誤")
-            }
-        }
-
-        return dialog
-    }
-
     private fun LeftView()
     {
         (activity as MainActivity).LoadHistoryData(this, activity, (_currentId1.toInt() - 100).toString(), (_currentId2.toInt() - 100).toString())
@@ -292,47 +240,6 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
             btn_right.isEnabled = true
             btn_deleted.isEnabled = true
         }
-    }
-
-    private fun TryEditDataBase(phpAddress: String)
-    {
-        val loginAction = DbAction(activity)
-        loginAction.SetResponse(object : IDbResponse
-        {
-            override fun OnSuccess(jsonObject: JSONObject)
-            {
-                when (jsonObject.getString("message"))
-                {
-                    "Deleted Successfully." ->
-                    {
-                        (activity as MainActivity).LoadHistoryData(this@HistoryDataFragment, activity, "1", "100")
-                        toast("刪除成功")
-                    }
-                    "DB is clean." ->
-                    {
-                        (activity as MainActivity).LoadHistoryData(this@HistoryDataFragment, activity, "1", "100")
-                        toast("清空完成")
-                    }
-                    else ->
-                    {
-                        toast("操作失敗")
-                    }
-                }
-            }
-
-            override fun OnException(e: Exception)
-            {
-                Log.e("editSensor", e.toString())
-                toast(e.toString())
-            }
-
-            override fun OnError(volleyError: VolleyError)
-            {
-                VolleyLog.e("ERROR", volleyError.toString())
-                toast("CONNECT ERROR")
-            }
-        })
-        loginAction.DoDbOperate(phpAddress)
     }
 
     private fun BackUpHistoryData()

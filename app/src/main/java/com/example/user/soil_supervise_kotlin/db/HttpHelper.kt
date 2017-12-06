@@ -5,7 +5,7 @@ import android.content.Context
 import android.os.Handler
 import android.os.HandlerThread
 import android.view.View
-import com.example.user.soil_supervise_kotlin.ui.ProgressDialog
+import com.example.user.soil_supervise_kotlin.ui.dialog.ProgressDialog
 
 class HttpHelper private constructor(context: Context)
 {

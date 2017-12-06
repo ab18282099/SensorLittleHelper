@@ -1,4 +1,4 @@
-package com.example.user.soil_supervise_kotlin.ui.RecyclerView
+package com.example.user.soil_supervise_kotlin.ui.recyclerView
 
 import android.view.View
 
