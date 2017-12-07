@@ -37,11 +37,11 @@ abstract class BaseActivity : AppCompatActivity()
         {
             super.setContentView(R.layout.activity_base)
 
-            _contentView = findViewById<LinearLayout>(R.id.layout_center) as LinearLayout
-            _mDrawerLayout = findViewById<DrawerLayout>(R.id.drawerLayout) as DrawerLayout
-            _drawerMenuListView = findViewById<ListView>(R.id.listDrawerMenu) as ListView
-            _toolBarTitle = findViewById<TextView>(R.id.toolbar_title) as TextView
-            _toolbarImage = findViewById<ImageView>(R.id._toolbarImage) as ImageView
+            _contentView = findViewById(R.id.layout_center)
+            _mDrawerLayout = findViewById(R.id.drawerLayout)
+            _drawerMenuListView = findViewById(R.id.listDrawerMenu)
+            _toolBarTitle = findViewById(R.id.toolbar_title)
+            _toolbarImage = findViewById(R.id._toolbarImage)
 
             _contentView!!.removeAllViews()
         }

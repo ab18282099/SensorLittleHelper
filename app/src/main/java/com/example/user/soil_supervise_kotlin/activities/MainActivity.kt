@@ -72,8 +72,8 @@ class MainActivity : BaseActivity()
 
     override fun InitActionBar()
     {
-        val drawerLayout = findViewById<DrawerLayout>(R.id.drawerLayout) as DrawerLayout
-        val toolbar = findViewById<Toolbar>(R.id.toolbar) as Toolbar
+        val drawerLayout = findViewById<DrawerLayout>(R.id.drawerLayout)
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
         val drawerMenuTextList = arrayOf("關於")
         val drawerMenuIconList = arrayOf(R.drawable.about)
         val items = java.util.ArrayList<Map<String, Any>>()
@@ -130,7 +130,7 @@ class MainActivity : BaseActivity()
         val fragmentsInViewPager = arrayOf(_fragmentLogin, _fragmentMain, _fragmentToggle, _fragmentOnTime, _fragmentHistory, _fragmentChart, _fragmentSetting)
         _fragmentList.addAll(fragmentsInViewPager)
 
-        _vpMain = findViewById<ViewPager>(R.id._vpMain) as ViewPager
+        _vpMain = findViewById<ViewPager>(R.id._vpMain)
     }
 
     override fun InitView()

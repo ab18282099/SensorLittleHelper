@@ -12,7 +12,7 @@ import com.example.user.soil_supervise_kotlin.db.IHttpAction
 import com.example.user.soil_supervise_kotlin.dto.PhpUrlDto
 import com.example.user.soil_supervise_kotlin.fragments.ChartFragment
 import com.example.user.soil_supervise_kotlin.models.AppSettingModel
-import com.example.user.soil_supervise_kotlin.ui.ChartEngine.MyChartFactory
+import com.example.user.soil_supervise_kotlin.ui.chartEngine.MyChartFactory
 import com.example.user.soil_supervise_kotlin.utility.HttpRequest
 import org.achartengine.chart.PointStyle
 import org.achartengine.model.TimeSeries

@@ -115,7 +115,7 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
 
     override fun OnFragmentBackPressed()
     {
-        val vpMain = activity.findViewById<ViewPager>(R.id._vpMain) as ViewPager
+        val vpMain = activity.findViewById<ViewPager>(R.id._vpMain)
         vpMain.currentItem = 1
     }
 
