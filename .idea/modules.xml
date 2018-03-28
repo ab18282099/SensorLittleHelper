@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Soil_supervise_kotlin.iml" filepath="$PROJECT_DIR$/Soil_supervise_kotlin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/SensorLittleHelper.iml" filepath="$PROJECT_DIR$/SensorLittleHelper.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/magicindicator/magicindicator.iml" filepath="$PROJECT_DIR$/magicindicator/magicindicator.iml" />
     </modules>

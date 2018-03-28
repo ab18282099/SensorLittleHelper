@@ -32,17 +32,17 @@ class ToggleAdapter constructor(context: Context) : RecyclerView.Adapter<ToggleA
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder
     {
-        val converterView = LayoutInflater.from(parent?.context)
+        val converterView = LayoutInflater.from(parent.context)
                 .inflate(R.layout.item_pin_list, parent, false)
         converterView.setOnClickListener(this)
         return ViewHolder(converterView)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder?, position: Int)
+    override fun onBindViewHolder(holder: ViewHolder, position: Int)
     {
-        holder!!.tx_toggle_sensor!!.text = _appSettingModel.SensorName(position)
+        holder.tx_toggle_sensor!!.text = _appSettingModel.SensorName(position)
         holder.tx_toggle_pin!!.text = _appSettingModel.SensorPin(position)
         holder.tx_toggle_state!!.text = _appSettingModel.PinState(position)
         holder.tx_toggle_app!!.text = _appSettingModel.PinAppliance(position)

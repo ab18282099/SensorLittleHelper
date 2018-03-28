@@ -1,2 +1,2 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merger version="3"><dataSet config="main"><source path="C:\Users\user\AndroidStudioProjects\Soil_supervise_kotlin\magicindicator\src\main\shaders"/></dataSet><dataSet config="debug"><source path="C:\Users\user\AndroidStudioProjects\Soil_supervise_kotlin\magicindicator\src\debug\shaders"/></dataSet></merger>
+<merger version="3"><dataSet config="main"><source path="K:\git\android\SensorLittleHelper\magicindicator\src\main\shaders"/></dataSet><dataSet config="debug"><source path="K:\git\android\SensorLittleHelper\magicindicator\src\debug\shaders"/></dataSet></merger>

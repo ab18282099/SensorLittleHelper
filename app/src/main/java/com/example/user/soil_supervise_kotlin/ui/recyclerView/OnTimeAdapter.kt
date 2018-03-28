@@ -28,20 +28,20 @@ class OnTimeAdapter constructor(context: Context, sensorOnTimeData: ArrayList<St
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder
     {
-        val converterView = LayoutInflater.from(parent?.context)
+        val converterView = LayoutInflater.from(parent.context)
                 .inflate(R.layout.item_on_time, parent, false)
         return ViewHolder(converterView)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder?, position: Int)
+    override fun onBindViewHolder(holder: ViewHolder, position: Int)
     {
         if (_sensorOnTimeData.isNotEmpty())
         {
             if (position == 0)
             {
-                holder!!.tx_on_time_title!!.text = _context.getString(R.string.ID)
+                holder.tx_on_time_title!!.text = _context.getString(R.string.ID)
                 holder.tx_on_time_text!!.text = _sensorOnTimeData[position]
 
                 holder.tx_on_time_text!!.visibility = View.VISIBLE
@@ -56,7 +56,7 @@ class OnTimeAdapter constructor(context: Context, sensorOnTimeData: ArrayList<St
 
                 if (sensorVisibility == View.VISIBLE)
                 {
-                    holder!!.tx_on_time_title!!.visibility = sensorVisibility
+                    holder.tx_on_time_title!!.visibility = sensorVisibility
                     holder.tx_on_time_text!!.visibility = sensorVisibility
 
                     holder.tx_on_time_title!!.text = _appSettingModel.SensorName(position - 1)
@@ -83,13 +83,13 @@ class OnTimeAdapter constructor(context: Context, sensorOnTimeData: ArrayList<St
                 }
                 else
                 {
-                    holder!!.tx_on_time_title!!.visibility = sensorVisibility
+                    holder.tx_on_time_title!!.visibility = sensorVisibility
                     holder.tx_on_time_text!!.visibility = sensorVisibility
                 }
             }
             else
             {
-                holder!!.tx_on_time_title!!.text = _context.getString(R.string.TIME)
+                holder.tx_on_time_title!!.text = _context.getString(R.string.TIME)
                 holder.tx_on_time_text!!.text = _sensorOnTimeData[position]
 
                 holder.tx_on_time_text!!.visibility = View.VISIBLE
@@ -101,7 +101,7 @@ class OnTimeAdapter constructor(context: Context, sensorOnTimeData: ArrayList<St
         }
         else
         {
-            holder!!.tx_on_time_title!!.visibility = View.GONE
+            holder.tx_on_time_title!!.visibility = View.GONE
             holder.tx_on_time_text!!.visibility = View.GONE
         }
     }

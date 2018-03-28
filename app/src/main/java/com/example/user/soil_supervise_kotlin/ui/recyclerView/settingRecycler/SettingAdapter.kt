@@ -38,9 +38,9 @@ class SettingAdapter constructor(context: Context,
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder
     {
-        val converterView = LayoutInflater.from(parent?.context)
+        val converterView = LayoutInflater.from(parent.context)
                 .inflate(R.layout.item_setting, parent, false)
         return ViewHolder(converterView)
     }
@@ -50,9 +50,9 @@ class SettingAdapter constructor(context: Context,
         return 5
     }
 
-    override fun onBindViewHolder(holder: ViewHolder?, position: Int)
+    override fun onBindViewHolder(holder: ViewHolder, position: Int)
     {
-        if (holder!!.adapterPosition == 4)
+        if (holder.adapterPosition == 4)
         {
             holder.switch_setting!!.visibility = View.VISIBLE
             holder.switch_setting!!.isChecked = _appSettingModel.IsAutoToggle()

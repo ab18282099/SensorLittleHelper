@@ -50,20 +50,19 @@ class HistoryDataAdapter constructor(context : Context, sensorDataList : ArrayLi
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): HistoryDataAdapter.ViewHolder
-    {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         Log.e("HistoryDataFragment", "onCreateViewHolder")
 
-        val converterView = LayoutInflater.from(parent?.context)
+        val converterView = LayoutInflater.from(parent.context)
                 .inflate(R.layout.item_sensor_data, parent, false)
         return ViewHolder(converterView)
     }
 
-    override fun onBindViewHolder(holder: HistoryDataAdapter.ViewHolder?, position: Int)
+    override fun onBindViewHolder(holder: HistoryDataAdapter.ViewHolder, position: Int)
     {
         Log.e("HistoryDataFragment", "onBindViewHolder")
 
-        holder!!.tx_item_sensor1!!.visibility = _appSettingModel.SensorVisibility(0)
+        holder.tx_item_sensor1!!.visibility = _appSettingModel.SensorVisibility(0)
         holder.tx_item_sensor2!!.visibility = _appSettingModel.SensorVisibility(1)
         holder.tx_item_sensor3!!.visibility = _appSettingModel.SensorVisibility(2)
         holder.tx_item_sensor4!!.visibility = _appSettingModel.SensorVisibility(3)

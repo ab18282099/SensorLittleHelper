@@ -35,16 +35,16 @@ class SensorDialogAdapter constructor(context: Context) : RecyclerView.Adapter<S
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): SensorDialogAdapter.ViewHolder
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SensorDialogAdapter.ViewHolder
     {
-        val converterView = LayoutInflater.from(parent?.context)
+        val converterView = LayoutInflater.from(parent.context)
                 .inflate(R.layout.item_sensor_setting, parent, false)
         return ViewHolder(converterView)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder?, position: Int)
+    override fun onBindViewHolder(holder: ViewHolder, position: Int)
     {
-        holder!!.checkText?.setOnCheckedChangeListener { _, b ->
+        holder.checkText?.setOnCheckedChangeListener { _, b ->
             if (b)
             {
                 _appSettingModel.PutBoolean("IsUsingSensor" + holder.adapterPosition.toString(), true)
