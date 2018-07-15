@@ -9,38 +9,31 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.example.user.soil_supervise_kotlin.ui.dialog.ProgressDialog
 
-class DbAction constructor(context: Context)
-{
-    private val _queue : RequestQueue = Volley.newRequestQueue(context)
-    private val _progressDialog : AlertDialog = ProgressDialog.DialogProgress(context, "連接中…", View.VISIBLE)
-    private var _dbResponse : IDbResponse? = null
+class DbAction constructor(context: Context) {
+    private val _queue: RequestQueue = Volley.newRequestQueue(context)
+    private val _progressDialog: AlertDialog = ProgressDialog.DialogProgress(context, "連接中…", View.VISIBLE)
+    private var _dbResponse: IDbResponse? = null
 
-    fun SetResponse(response: IDbResponse)
-    {
+    fun SetResponse(response: IDbResponse) {
         _dbResponse = response
     }
 
-    fun DoDbOperate(phpAddress: String)
-    {
-        if (_dbResponse != null)
-        {
+    fun DoDbOperate(phpAddress: String) {
+        if (_dbResponse != null) {
             _progressDialog.show()
             _progressDialog.setCancelable(false)
 
             val connectRequest = JsonObjectRequest(phpAddress, null, { jsonObject ->
-                try
-                {
+                try {
                     _dbResponse?.OnSuccess(jsonObject)
                 }
-                catch (e: Exception)
-                {
+                catch (e: Exception) {
                     _dbResponse?.OnException(e)
                 }
-                finally
-                {
+                finally {
                     _progressDialog.dismiss()
                 }
-            },{ volleyError ->
+            }, { volleyError ->
                 _dbResponse?.OnError(volleyError)
                 _progressDialog.dismiss()
             })
@@ -50,8 +43,7 @@ class DbAction constructor(context: Context)
                     DefaultRetryPolicy.DEFAULT_BACKOFF_MULT)
             _queue.add(connectRequest)
         }
-        else
-        {
+        else {
             throw NullPointerException("Null Response")
         }
     }

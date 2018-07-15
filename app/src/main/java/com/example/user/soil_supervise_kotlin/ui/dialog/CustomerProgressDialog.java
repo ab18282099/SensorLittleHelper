@@ -9,19 +9,16 @@ import android.widget.TextView;
 
 import com.example.user.soil_supervise_kotlin.R;
 
-public class CustomerProgressDialog extends AlertDialog
-{
+public class CustomerProgressDialog extends AlertDialog {
     private String _title;
     private DialogBackPressedListener _Listener;
 
-    public interface DialogBackPressedListener
-    {
+    public interface DialogBackPressedListener {
         void onBackPressedInDialog();
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         setContentView(R.layout.dialog_progress);
         ProgressBar progressBar = findViewById(R.id.progressBar);
         TextView tx_connecting = findViewById(R.id.tx_connecting);
@@ -31,19 +28,16 @@ public class CustomerProgressDialog extends AlertDialog
     }
 
     @Override
-    public void onBackPressed()
-    {
+    public void onBackPressed() {
         _Listener.onBackPressedInDialog();
     }
 
-    public CustomerProgressDialog(Context context, String title)
-    {
+    public CustomerProgressDialog(Context context, String title) {
         super(context);
         _title = title;
     }
 
-    public void setOnBackPressedListener(DialogBackPressedListener listener)
-    {
+    public void setOnBackPressedListener(DialogBackPressedListener listener) {
         _Listener = listener;
     }
 }

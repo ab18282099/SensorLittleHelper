@@ -14,16 +14,14 @@ import com.example.user.soil_supervise_kotlin.R
 import com.example.user.soil_supervise_kotlin.models.AppSettingModel
 import org.jetbrains.anko.textColor
 
-class HistoryDataAdapter constructor(context : Context, sensorDataList : ArrayList<Array<String?>>,
-                                     viewCount : Int) : RecyclerView.Adapter<HistoryDataAdapter.ViewHolder>()
-{
+class HistoryDataAdapter constructor(context: Context, sensorDataList: ArrayList<Array<String?>>,
+                                     viewCount: Int) : RecyclerView.Adapter<HistoryDataAdapter.ViewHolder>() {
     private val _appSettingModel = AppSettingModel(context)
     private val _context = context
     private val _sensorDataList = sensorDataList
     private val _viewCount = viewCount
 
-    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
-    {
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         // id
         var tx_item_id: TextView? = null
         // default 5 sensor
@@ -37,8 +35,7 @@ class HistoryDataAdapter constructor(context : Context, sensorDataList : ArrayLi
         // time
         var tx_item_time: TextView? = null
 
-        init
-        {
+        init {
             tx_item_id = itemView.findViewById<TextView>(R.id.tx_item_id) as TextView
             tx_item_sensor1 = itemView.findViewById<TextView>(R.id.tx_item_moisture) as TextView
             tx_item_sensor2 = itemView.findViewById<TextView>(R.id.tx_item_light) as TextView
@@ -58,8 +55,7 @@ class HistoryDataAdapter constructor(context : Context, sensorDataList : ArrayLi
         return ViewHolder(converterView)
     }
 
-    override fun onBindViewHolder(holder: HistoryDataAdapter.ViewHolder, position: Int)
-    {
+    override fun onBindViewHolder(holder: HistoryDataAdapter.ViewHolder, position: Int) {
         Log.e("HistoryDataFragment", "onBindViewHolder")
 
         holder.tx_item_sensor1!!.visibility = _appSettingModel.SensorVisibility(0)
@@ -70,12 +66,9 @@ class HistoryDataAdapter constructor(context : Context, sensorDataList : ArrayLi
 
         holder.tx_item_content?.removeAllViewsInLayout()
 
-        if (_sensorDataList.isNotEmpty())
-        {
-            if (_appSettingModel.SensorQuantity() > 5)
-            {
-                for (i in 0 until _appSettingModel.SensorQuantity() - 5)
-                {
+        if (_sensorDataList.isNotEmpty()) {
+            if (_appSettingModel.SensorQuantity() > 5) {
+                for (i in 0 until _appSettingModel.SensorQuantity() - 5) {
                     val txCustomer = TextView(_context)
                     val sensorData = _sensorDataList[i + 6][position]
                     SetSensorText(txCustomer, sensorData, i + 5)
@@ -99,29 +92,23 @@ class HistoryDataAdapter constructor(context : Context, sensorDataList : ArrayLi
         }
     }
 
-    override fun getItemCount(): Int
-    {
+    override fun getItemCount(): Int {
         if (_viewCount > 0) return _viewCount
         return 0
     }
 
-    private fun SetSensorText(textView: TextView?, sensorData: String?, position: Int)
-    {
-        if (sensorData == "")
-        {
+    private fun SetSensorText(textView: TextView?, sensorData: String?, position: Int) {
+        if (sensorData == "") {
             textView!!.text = sensorData
         }
-        else
-        {
+        else {
             val warnConditional1 = _appSettingModel.WarningCondition(position).toFloat()
 
-            if (sensorData!!.toFloat() < warnConditional1)
-            {
+            if (sensorData!!.toFloat() < warnConditional1) {
                 textView!!.text = sensorData
                 textView.textColor = Color.RED
             }
-            else
-            {
+            else {
                 textView!!.text = sensorData
                 textView.textColor = Color.BLACK
             }

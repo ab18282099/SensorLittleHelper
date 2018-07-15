@@ -19,12 +19,9 @@ import kotlinx.android.synthetic.main.fragment_login.*
 import org.jetbrains.anko.toast
 import org.json.JSONObject
 
-class LoginFragment : BaseFragment(), FragmentBackPressedListener
-{
-    companion object
-    {
-        fun NewInstance(): LoginFragment
-        {
+class LoginFragment : BaseFragment(), FragmentBackPressedListener {
+    companion object {
+        fun NewInstance(): LoginFragment {
             val fragment = LoginFragment()
             val args = Bundle()
             fragment.arguments = args
@@ -35,14 +32,12 @@ class LoginFragment : BaseFragment(), FragmentBackPressedListener
     private var _appSettingModel: AppSettingModel? = null
     private var _doubleBackToExit: Boolean? = null
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View
-    {
+    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _appSettingModel = AppSettingModel(activity)
         return inflater!!.inflate(R.layout.fragment_login, container, false)
     }
 
-    override fun onViewCreated(view: View?, savedInstanceState: Bundle?)
-    {
+    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         edit_user.text = SpannableStringBuilder("")
 
@@ -54,12 +49,10 @@ class LoginFragment : BaseFragment(), FragmentBackPressedListener
         rememberPass.text = "記住密碼"
         rememberPass.isChecked = _appSettingModel!!.IsRememberPassword()
         rememberPass.setOnCheckedChangeListener { _, isCheck ->
-            if (isCheck)
-            {
+            if (isCheck) {
                 _appSettingModel!!.PutBoolean("IsRememberPassword", true)
             }
-            else
-            {
+            else {
                 _appSettingModel!!.PutBoolean("IsRememberPassword", false)
             }
         }
@@ -70,10 +63,8 @@ class LoginFragment : BaseFragment(), FragmentBackPressedListener
         }
     }
 
-    override fun OnFragmentBackPressed()
-    {
-        if (_doubleBackToExit == true && _doubleBackToExit != null)
-        {
+    override fun OnFragmentBackPressed() {
+        if (_doubleBackToExit == true && _doubleBackToExit != null) {
             ExitApplication.InitInstance()?.Exit()
             return
         }
@@ -86,30 +77,24 @@ class LoginFragment : BaseFragment(), FragmentBackPressedListener
         }, 1000)
     }
 
-    private fun TryConnectDataBase(username: String, password: String)
-    {
+    private fun TryConnectDataBase(username: String, password: String) {
         val loginAction = DbAction(activity)
-        loginAction.SetResponse(object : IDbResponse
-        {
-            override fun OnSuccess(jsonObject: JSONObject)
-            {
-                if (jsonObject.getInt("success") == 1)
-                {
+        loginAction.SetResponse(object : IDbResponse {
+            override fun OnSuccess(jsonObject: JSONObject) {
+                if (jsonObject.getInt("success") == 1) {
                     toast("成功連接資料庫")
                     PutLoginInfo()
                     (activity.findViewById<ViewPager>(R.id._vpMain) as ViewPager).currentItem = 1
                 }
             }
 
-            override fun OnException(e: Exception)
-            {
+            override fun OnException(e: Exception) {
                 Log.e("Login database", e.toString())
                 toast("連接失敗")
                 PutLoginInfo()
             }
 
-            override fun OnError(volleyError: VolleyError)
-            {
+            override fun OnError(volleyError: VolleyError) {
                 VolleyLog.e("ERROR", volleyError.toString())
                 toast("CONNECT ERROR")
                 PutLoginInfo()
@@ -118,8 +103,7 @@ class LoginFragment : BaseFragment(), FragmentBackPressedListener
         loginAction.DoDbOperate(PhpUrlDto(activity).ConnectDbByLogin(username, password))
     }
 
-    private fun PutLoginInfo()
-    {
+    private fun PutLoginInfo() {
         _appSettingModel!!.PutString("Username", edit_user.text.toString())
         _appSettingModel!!.PutString("Password", edit_pass.text.toString())
     }

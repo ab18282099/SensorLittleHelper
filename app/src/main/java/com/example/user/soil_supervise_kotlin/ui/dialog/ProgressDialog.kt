@@ -7,12 +7,9 @@ import android.view.ViewGroup
 import android.widget.*
 import com.example.user.soil_supervise_kotlin.R
 
-class ProgressDialog
-{
-    companion object
-    {
-        fun DialogProgress(context: Context, title: String?, progressVisibility: Int): AlertDialog
-        {
+class ProgressDialog {
+    companion object {
+        fun DialogProgress(context: Context, title: String?, progressVisibility: Int): AlertDialog {
             val nullParent: ViewGroup? = null
             val convertView = LayoutInflater.from(context).inflate(R.layout.dialog_progress, nullParent)
 

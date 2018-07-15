@@ -16,23 +16,19 @@ import org.jetbrains.anko.textColor
 
 class MyCommonNavigatorAdapter(private val _fragmentTitleList: ArrayList<String>,
                                private val _fragmentImgList: ArrayList<Int>,
-                               private val _viewPager: ViewPager?) : CommonNavigatorAdapter()
-{
-    override fun getCount(): Int
-    {
+                               private val _viewPager: ViewPager?) : CommonNavigatorAdapter() {
+    override fun getCount(): Int {
         if (_fragmentTitleList.isEmpty()) return 0
         return _fragmentTitleList.size
     }
 
-    override fun getIndicator(context: Context?): IPagerIndicator
-    {
+    override fun getIndicator(context: Context?): IPagerIndicator {
         val indicator = LinePagerIndicator(context)
         indicator.mode = LinePagerIndicator.MODE_WRAP_CONTENT
         return indicator
     }
 
-    override fun getTitleView(context: Context?, index: Int): IPagerTitleView
-    {
+    override fun getTitleView(context: Context?, index: Int): IPagerTitleView {
         val commonPagerTitleView = CommonPagerTitleView(context)
         commonPagerTitleView.setContentView(R.layout.image_pager_title)
 
@@ -47,28 +43,23 @@ class MyCommonNavigatorAdapter(private val _fragmentTitleList: ArrayList<String>
             _viewPager?.currentItem = index
         }
 
-        commonPagerTitleView.onPagerTitleChangeListener = object : CommonPagerTitleView.OnPagerTitleChangeListener
-        {
-            override fun onSelected(index: Int, totalCount: Int)
-            {
+        commonPagerTitleView.onPagerTitleChangeListener = object : CommonPagerTitleView.OnPagerTitleChangeListener {
+            override fun onSelected(index: Int, totalCount: Int) {
                 titleText.textColor = Color.BLACK
             }
 
-            override fun onDeselected(index: Int, totalCount: Int)
-            {
+            override fun onDeselected(index: Int, totalCount: Int) {
                 titleText.textColor = Color.LTGRAY
             }
 
-            override fun onEnter(index: Int, totalCount: Int, enterPercent: Float, leftToRight: Boolean)
-            {
+            override fun onEnter(index: Int, totalCount: Int, enterPercent: Float, leftToRight: Boolean) {
                 titleText.visibility = View.VISIBLE
 
                 titleImg.scaleX = (0.8f + (1.3f - 0.8f) * enterPercent)
                 titleImg.scaleY = (0.8f + (1.3f - 0.8f) * enterPercent)
             }
 
-            override fun onLeave(index: Int, totalCount: Int, leavePercent: Float, leftToRight: Boolean)
-            {
+            override fun onLeave(index: Int, totalCount: Int, leavePercent: Float, leftToRight: Boolean) {
                 titleText.visibility = View.GONE
 
                 titleImg.scaleX = (1.3f + (0.8f - 1.3f) * leavePercent)

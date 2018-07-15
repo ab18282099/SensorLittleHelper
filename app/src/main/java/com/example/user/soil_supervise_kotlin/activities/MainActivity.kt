@@ -30,8 +30,7 @@ import org.json.JSONArray
 import java.lang.ref.WeakReference
 import java.util.HashMap
 
-class MainActivity : BaseActivity()
-{
+class MainActivity : BaseActivity() {
     private val _fragmentLogin = LoginFragment.NewInstance() as Fragment //just test for ssd
     private val _fragmentSetting = SettingFragment.NewInstance() as Fragment // These fragments implement FragmentBackPressedListener, should be "as Fragment"
     private val _fragmentHistory = HistoryDataFragment.NewInstance() as Fragment
@@ -42,7 +41,7 @@ class MainActivity : BaseActivity()
     private val _fragmentList = ArrayList<Fragment>()
     private val _fragmentTitleList = ArrayList<String>()
     private val _fragmentImgList = ArrayList<Int>()
-    private var _httpHelper : HttpHelper? = null
+    private var _httpHelper: HttpHelper? = null
     private val _activeFragmentList = ArrayList<WeakReference<Fragment?>>()
     private var _vpMain: ViewPager? = null
     private var _mAdapter: FragmentViewPagerAdapter? = null
@@ -51,8 +50,7 @@ class MainActivity : BaseActivity()
     private var _doubleBackToExit: Boolean? = null
     private var _appSettingModel: AppSettingModel? = null
 
-    override fun onCreate(savedInstanceState: Bundle?)
-    {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         _appSettingModel = AppSettingModel(this)
@@ -64,21 +62,18 @@ class MainActivity : BaseActivity()
         ExitApplication.InitInstance()!!.AddActivity(this)
     }
 
-    override fun onAttachFragment(fragment: Fragment?)
-    {
+    override fun onAttachFragment(fragment: Fragment?) {
         super.onAttachFragment(fragment)
         _activeFragmentList.add(WeakReference(fragment))
     }
 
-    override fun InitActionBar()
-    {
+    override fun InitActionBar() {
         val drawerLayout = findViewById<DrawerLayout>(R.id.drawerLayout)
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         val drawerMenuTextList = arrayOf("關於")
         val drawerMenuIconList = arrayOf(R.drawable.about)
         val items = java.util.ArrayList<Map<String, Any>>()
-        for (i in drawerMenuTextList.indices)
-        {
+        for (i in drawerMenuTextList.indices) {
             val item = HashMap<String, Any>()
             item.put("icon", drawerMenuIconList[i])
             item.put("text", drawerMenuTextList[i])
@@ -101,15 +96,12 @@ class MainActivity : BaseActivity()
         })
 
         SetDrawerListener(object : ActionBarDrawerToggle(this, drawerLayout,
-                toolbar, R.string.drawer_open, R.string.drawer_close)
-        {
+                toolbar, R.string.drawer_open, R.string.drawer_close) {
         })
 
         SetDrawMenuAdapterAndItemClickListener(drawerMenuAdapter, { adapterView, view, i, l ->
-            when(i)
-            {
-                0 ->
-                {
+            when (i) {
+                0 -> {
                     alert("Create by SHENG-WEI LIN,\nOctober 2017") {
                         yesButton { }
                     }.show()
@@ -119,8 +111,7 @@ class MainActivity : BaseActivity()
     }
 
     //After onCreate(in baseActivity) add Fragment
-    override fun FindView()
-    {
+    override fun FindView() {
         val fragmentsTitleList = arrayOf("登入", "主頁", "Wi-Fi遙控", "即時監控", "歷史數據", "折線圖", "設定")
         _fragmentTitleList.addAll(fragmentsTitleList)
 
@@ -133,8 +124,7 @@ class MainActivity : BaseActivity()
         _vpMain = findViewById<ViewPager>(R.id._vpMain)
     }
 
-    override fun InitView()
-    {
+    override fun InitView() {
         _mAdapter = FragmentViewPagerAdapter(fragmentManager, _fragmentList)
         _vpMain?.adapter = _mAdapter
 
@@ -146,18 +136,13 @@ class MainActivity : BaseActivity()
         ViewPagerHelper.bind(magic_indicator, _vpMain)
 
         //USE "object" to init component
-        _vpMain?.addOnPageChangeListener(object : ViewPager.OnPageChangeListener
-        {
-            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int)
-            {
+        _vpMain?.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
             }
 
-            override fun onPageSelected(position: Int)
-            {
-                when (position)
-                {
-                    0 ->
-                    {
+            override fun onPageSelected(position: Int) {
+                when (position) {
+                    0 -> {
                         SetActivityTitle("登入")
                         SetRightImageAndClickListener(R.drawable.exit, View.OnClickListener {
                             alert("你確定要離開?") {
@@ -167,8 +152,7 @@ class MainActivity : BaseActivity()
                         })
                         RemoveCallOnTime()
                     }
-                    1 ->
-                    {
+                    1 -> {
                         val MainFragmentMenuItemClickListener = _mAdapter!!.GetFragment(1) as FragmentMenuItemClickListener
                         SetActivityTitle("主頁")
                         SetRightImageAndClickListener(R.drawable.login, View.OnClickListener {
@@ -177,8 +161,7 @@ class MainActivity : BaseActivity()
                         SetMenuClickListener(MainFragmentMenuItemClickListener)
                         RemoveCallOnTime()
                     }
-                    2 ->
-                    {
+                    2 -> {
                         SetActivityTitle("Wi-Fi遙控")
                         SetRightImageAndClickListener(R.drawable.main, View.OnClickListener {
                             _vpMain?.currentItem = 1
@@ -187,8 +170,7 @@ class MainActivity : BaseActivity()
                         toggleFragment.SetToggleRecycler()
                         RemoveCallOnTime()
                     }
-                    3 ->
-                    {
+                    3 -> {
                         val onTimeFragment = _mAdapter!!.GetFragment(3) as OnTimeFragment
                         SetActivityTitle("即時監控")
                         SetRightImageAndClickListener(R.drawable.refresh, View.OnClickListener {
@@ -197,8 +179,7 @@ class MainActivity : BaseActivity()
                         })
                         LoadOnTimeData(onTimeFragment)
                     }
-                    4 ->
-                    {
+                    4 -> {
                         val historyFragment = _mAdapter!!.GetFragment(4) as HistoryDataFragment
                         val historyFragmentMenuClickListener = historyFragment as FragmentMenuItemClickListener
 
@@ -213,16 +194,14 @@ class MainActivity : BaseActivity()
 
                         RemoveCallOnTime()
                     }
-                    5 ->
-                    {
+                    5 -> {
                         SetActivityTitle("折線圖")
                         SetRightImageAndClickListener(R.drawable.main, View.OnClickListener {
                             _vpMain?.currentItem = 1
                         })
                         RemoveCallOnTime()
                     }
-                    6 ->
-                    {
+                    6 -> {
                         SetActivityTitle("設定")
                         SetRightImageAndClickListener(R.drawable.main, View.OnClickListener {
                             _vpMain?.currentItem = 1
@@ -232,25 +211,20 @@ class MainActivity : BaseActivity()
                 }
             }
 
-            override fun onPageScrollStateChanged(state: Int)
-            {
+            override fun onPageScrollStateChanged(state: Int) {
             }
         })
     }
 
-    override fun onBackPressed()
-    {
+    override fun onBackPressed() {
         val activeFragment = GetActiveFragment()
-        if (activeFragment.isNotEmpty())
-        {
+        if (activeFragment.isNotEmpty()) {
             activeFragment.asSequence()
                     .filter { it is FragmentBackPressedListener }
                     .forEach { (it as FragmentBackPressedListener).OnFragmentBackPressed() }
         }
-        else
-        {
-            if (_doubleBackToExit == true && _doubleBackToExit != null)
-            {
+        else {
+            if (_doubleBackToExit == true && _doubleBackToExit != null) {
                 ExitApplication.InitInstance()?.Exit()
                 return
             }
@@ -263,21 +237,17 @@ class MainActivity : BaseActivity()
         }
     }
 
-    override fun onDestroy()
-    {
+    override fun onDestroy() {
         if (_httpHelper != null)
             _httpHelper!!.RecycleThread()
 
         super.onDestroy()
     }
 
-    fun LoadHistoryData(historyFragment: HistoryDataFragment, context: Context, id1: String, id2: String)
-    {
+    fun LoadHistoryData(historyFragment: HistoryDataFragment, context: Context, id1: String, id2: String) {
         _httpHelper = HttpHelper.InitInstance(context)
-        _httpHelper!!.SetHttpAction(object : IHttpAction
-        {
-            override fun OnHttpRequest()
-            {
+        _httpHelper!!.SetHttpAction(object : IHttpAction {
+            override fun OnHttpRequest() {
                 val data = HttpRequest.DownloadFromMySQL("society", PhpUrlDto(context).LoadingHistoryDataById(id1, id2))
                 val model = SensorDataModel()
                 val dataParser = SensorDataParser(context)
@@ -294,15 +264,13 @@ class MainActivity : BaseActivity()
                 }
             }
 
-            override fun OnException(e : Exception)
-            {
+            override fun OnException(e: Exception) {
                 if (historyFragment.GetLoadSuccess()) // if last time is success
                 {
                     historyFragment.SetLoadSuccess(false) // this time is not success
                     LoadHistoryData(historyFragment, context, (id1.toInt() - 100).toString(), (id2.toInt() - 100).toString())
                 }
-                else
-                {
+                else {
                     historyFragment.SetCurrentId("1", "100")
                     historyFragment.SetDataModel(SensorDataModel())
                 }
@@ -310,15 +278,13 @@ class MainActivity : BaseActivity()
                 runOnUiThread { historyFragment.RenewRecyclerView() }
             }
 
-            override fun OnPostExecute()
-            {
+            override fun OnPostExecute() {
             }
         })
         _httpHelper!!.StartHttpThread()
     }
 
-    fun LoadOnTimeData(onTimeFragment: OnTimeFragment)
-    {
+    fun LoadOnTimeData(onTimeFragment: OnTimeFragment) {
         _onTimeHandler = Handler()
         _onTimeRunnable = Runnable {
             onTimeFragment.TryLoadLastData()
@@ -327,16 +293,13 @@ class MainActivity : BaseActivity()
         _onTimeHandler!!.postDelayed(_onTimeRunnable, 200)
     }
 
-    private fun RemoveCallOnTime()
-    {
-        if (_onTimeHandler != null && _onTimeRunnable != null)
-        {
+    private fun RemoveCallOnTime() {
+        if (_onTimeHandler != null && _onTimeRunnable != null) {
             _onTimeHandler!!.removeCallbacks(_onTimeRunnable)
         }
     }
 
-    private fun GetActiveFragment(): ArrayList<Fragment?>
-    {
+    private fun GetActiveFragment(): ArrayList<Fragment?> {
         val ret = ArrayList<Fragment?>()
         val weak_ret = _activeFragmentList.asSequence().filter { it.get()!!.isVisible and it.get()!!.userVisibleHint }
         weak_ret.forEach { ret.add(it.get()) }

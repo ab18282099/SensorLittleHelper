@@ -10,12 +10,9 @@ import com.example.user.soil_supervise_kotlin.R
 import com.example.user.soil_supervise_kotlin.ui.dialog.SetChartDialog
 import kotlinx.android.synthetic.main.fragment_chart.*
 
-class ChartFragment : BaseFragment(), FragmentBackPressedListener
-{
-    companion object
-    {
-        fun NewInstance(): ChartFragment
-        {
+class ChartFragment : BaseFragment(), FragmentBackPressedListener {
+    companion object {
+        fun NewInstance(): ChartFragment {
             val fragment = ChartFragment()
             val args = Bundle()
             fragment.arguments = args
@@ -25,16 +22,14 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener
 
     private var _appSettingModel: AppSettingModel? = null
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View
-    {
+    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val view = inflater!!.inflate(R.layout.fragment_chart, container, false)
         _appSettingModel = AppSettingModel(activity)
 
         return view
     }
 
-    override fun onViewCreated(view: View?, savedInstanceState: Bundle?)
-    {
+    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         btn_chart_dialog.text = "選擇感測器"
@@ -45,8 +40,7 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener
         }
     }
 
-    override fun OnFragmentBackPressed()
-    {
+    override fun OnFragmentBackPressed() {
         val vpMain = activity.findViewById<ViewPager>(R.id._vpMain)
         vpMain.currentItem = 1
     }

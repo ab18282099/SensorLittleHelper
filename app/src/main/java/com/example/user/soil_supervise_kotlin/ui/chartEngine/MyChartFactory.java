@@ -6,10 +6,8 @@ import org.achartengine.chart.TimeChart;
 import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 
-public class MyChartFactory
-{
-    private MyChartFactory()
-    {
+public class MyChartFactory {
+    private MyChartFactory() {
     }
 
     public static MyGraphicalView getTimeChartView(Context context, XYMultipleSeriesDataset dataset, XYMultipleSeriesRenderer renderer, String format) {
@@ -20,7 +18,7 @@ public class MyChartFactory
     }
 
     private static void checkParameters(XYMultipleSeriesDataset dataset, XYMultipleSeriesRenderer renderer) {
-        if(dataset == null || renderer == null || dataset.getSeriesCount() != renderer.getSeriesRendererCount()) {
+        if (dataset == null || renderer == null || dataset.getSeriesCount() != renderer.getSeriesRendererCount()) {
             throw new IllegalArgumentException("Dataset and renderer should be not null and should have the same number of series");
         }
     }

@@ -16,12 +16,9 @@ import kotlinx.android.synthetic.main.fragment_setting.*
 import org.jetbrains.anko.toast
 import org.jetbrains.anko.vibrator
 
-class SettingFragment : BaseFragment(), FragmentBackPressedListener
-{
-    companion object
-    {
-        fun NewInstance(): SettingFragment
-        {
+class SettingFragment : BaseFragment(), FragmentBackPressedListener {
+    companion object {
+        fun NewInstance(): SettingFragment {
             val fragment = SettingFragment()
             val args = Bundle()
             fragment.arguments = args
@@ -32,11 +29,10 @@ class SettingFragment : BaseFragment(), FragmentBackPressedListener
     private var _mainSettingDataTemp = arrayOfNulls<String>(4)
     private var _mainSettingDataText = arrayOfNulls<String>(5)
     private var _recyclerSetting: RecyclerView? = null
-    private var _mAdapter : SettingAdapter? = null
+    private var _mAdapter: SettingAdapter? = null
     private var _appSettingModel: AppSettingModel? = null
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View
-    {
+    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val view = inflater!!.inflate(R.layout.fragment_setting, container, false)
         _recyclerSetting = view.findViewById(R.id._recyclerSetting)
 
@@ -57,8 +53,7 @@ class SettingFragment : BaseFragment(), FragmentBackPressedListener
         return view
     }
 
-    override fun onViewCreated(view: View?, savedInstanceState: Bundle?)
-    {
+    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         btn_sensor_setting.text = getString(R.string.sensor_setting)
@@ -77,28 +72,24 @@ class SettingFragment : BaseFragment(), FragmentBackPressedListener
         }
     }
 
-    override fun OnFragmentBackPressed()
-    {
+    override fun OnFragmentBackPressed() {
         val vpMain = activity.findViewById<ViewPager>(R.id._vpMain)
         vpMain.currentItem = 1
     }
 
-    private fun DoneSetting()
-    {
+    private fun DoneSetting() {
         val regIPAddress = Regex("^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\$")
         val regPort = Regex("([0-9][0-9])|([0-9][0-9][0-9])")
 
         if (_mainSettingDataTemp[0]!!.matches(regIPAddress) && _mainSettingDataTemp[1]!!.matches(regPort) &&
-                _mainSettingDataTemp[2]!!.matches(regIPAddress) && _mainSettingDataTemp[3] != "")
-        {
+                _mainSettingDataTemp[2]!!.matches(regIPAddress) && _mainSettingDataTemp[3] != "") {
             toast("設定成功")
             _appSettingModel!!.PutString("WifiIp", _mainSettingDataTemp[0])
             _appSettingModel!!.PutString("WifiPort", _mainSettingDataTemp[1])
             _appSettingModel!!.PutString("ServerIp", _mainSettingDataTemp[2])
             _appSettingModel!!.PutString("FileSavedName", _mainSettingDataTemp[3])
         }
-        else
-        {
+        else {
             val v = activity.vibrator
             v.vibrate(500)
             toast("設定失敗")

@@ -24,12 +24,9 @@ import com.example.user.soil_supervise_kotlin.ui.dialog.DeleteDataDialog
 import kotlinx.android.synthetic.main.fragment_history.*
 import org.jetbrains.anko.*
 
-class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, FragmentMenuItemClickListener
-{
-    companion object
-    {
-        fun NewInstance(): HistoryDataFragment
-        {
+class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, FragmentMenuItemClickListener {
+    companion object {
+        fun NewInstance(): HistoryDataFragment {
             val fragment = HistoryDataFragment()
             val args = Bundle()
             fragment.arguments = args
@@ -44,16 +41,14 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
     private var _currentId1 = ""
     private var _currentId2 = ""
     private var _isSuccessLoad = false
-    private var _historyDataBackUpHelper : HttpHelper? = null
+    private var _historyDataBackUpHelper: HttpHelper? = null
 
-    override fun onCreate(savedInstanceState: Bundle?)
-    {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
     }
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View
-    {
+    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val view = inflater!!.inflate(R.layout.fragment_history, container, false)
         _appSettingModel = AppSettingModel(activity)
         _recyclerHistory = view.findViewById<RecyclerView>(R.id._recyclerHistory) as RecyclerView
@@ -65,8 +60,7 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
         return view
     }
 
-    override fun onViewCreated(view: View?, savedInstanceState: Bundle?)
-    {
+    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         btn_left.text = "上一頁"
@@ -90,21 +84,17 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?)
-    {
+    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
         inflater!!.inflate(R.menu.menu_history, menu)
 
         super.onCreateOptionsMenu(menu, inflater)
     }
 
-    override fun FragmentMenuItemClickListenerObject(): (MenuItem) -> Boolean
-    {
+    override fun FragmentMenuItemClickListenerObject(): (MenuItem) -> Boolean {
         return { item ->
 
-            when(item.itemId)
-            {
-                R.id.menu_backup ->
-                {
+            when (item.itemId) {
+                R.id.menu_backup -> {
                     BackUpHistoryData()
                 }
             }
@@ -113,19 +103,16 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
         }
     }
 
-    override fun OnFragmentBackPressed()
-    {
+    override fun OnFragmentBackPressed() {
         val vpMain = activity.findViewById<ViewPager>(R.id._vpMain)
         vpMain.currentItem = 1
     }
 
-    fun SetDataModel(model: SensorDataModel)
-    {
+    fun SetDataModel(model: SensorDataModel) {
         _sensorDataModel = model
     }
 
-    fun RenewSensorTitle()
-    {
+    fun RenewSensorTitle() {
         tx_sensor1.visibility = _appSettingModel!!.SensorVisibility(0)
         tx_sensor2.visibility = _appSettingModel!!.SensorVisibility(1)
         tx_sensor3.visibility = _appSettingModel!!.SensorVisibility(2)
@@ -140,12 +127,10 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
         tx_time.text = getString(R.string.time)
         tx_title_content.removeAllViewsInLayout()
 
-        if (_appSettingModel!!.SensorQuantity() > 5)
-        {
+        if (_appSettingModel!!.SensorQuantity() > 5) {
             tx_title_content.visibility = View.VISIBLE
 
-            for (i in 0 until _appSettingModel!!.SensorQuantity() - 5)
-            {
+            for (i in 0 until _appSettingModel!!.SensorQuantity() - 5) {
                 val txCustomerTitle = TextView(activity)
                 val height = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, (50).toFloat(), activity.resources.displayMetrics)
                 txCustomerTitle.text = _appSettingModel!!.SensorName(i + 5)
@@ -154,20 +139,17 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
                 tx_title_content.addView(txCustomerTitle)
             }
         }
-        else
-        {
+        else {
             tx_title_content.visibility = View.GONE
         }
 
         sensorTitle!!.invalidate()
     }
 
-    fun RenewRecyclerView()
-    {
+    fun RenewRecyclerView() {
         val model = _sensorDataModel
 
-        when (model.SensorDataLength)
-        {
+        when (model.SensorDataLength) {
             in 1 until 100 -> _viewCount = model.SensorDataLength
             0 -> _viewCount = 0
             else -> _viewCount = 100
@@ -177,62 +159,49 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
         CheckButton()
     }
 
-    fun SetCurrentId(id : String, id2 : String)
-    {
+    fun SetCurrentId(id: String, id2: String) {
         _currentId1 = id
         _currentId2 = id2
     }
 
-    fun SetLoadSuccess(isSuccess : Boolean)
-    {
+    fun SetLoadSuccess(isSuccess: Boolean) {
         _isSuccessLoad = isSuccess
     }
 
-    fun GetCurrentId1() : String
-    {
+    fun GetCurrentId1(): String {
         return _currentId1
     }
 
-    fun GetCurrentId2() : String
-    {
+    fun GetCurrentId2(): String {
         return _currentId2
     }
 
-    fun GetLoadSuccess() : Boolean
-    {
+    fun GetLoadSuccess(): Boolean {
         return _isSuccessLoad
     }
 
-    private fun LeftView()
-    {
+    private fun LeftView() {
         (activity as MainActivity).LoadHistoryData(this, activity, (_currentId1.toInt() - 100).toString(), (_currentId2.toInt() - 100).toString())
         CheckButton()
     }
 
-    private fun RightView()
-    {
+    private fun RightView() {
         (activity as MainActivity).LoadHistoryData(this, activity, (_currentId1.toInt() + 100).toString(), (_currentId2.toInt() + 100).toString())
         CheckButton()
     }
 
-    private fun CheckButton()
-    {
-        if (_viewCount == 0)
-        {
+    private fun CheckButton() {
+        if (_viewCount == 0) {
             btn_left.isEnabled = false
             btn_right.isEnabled = false
             btn_deleted.isEnabled = false
         }
-        else
-        {
-            when (_currentId1 == "1")
-            {
-                true->
-                {
+        else {
+            when (_currentId1 == "1") {
+                true -> {
                     btn_left.isEnabled = false
                 }
-                false->
-                {
+                false -> {
                     btn_left.isEnabled = true
                 }
             }
@@ -242,26 +211,21 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
         }
     }
 
-    private fun BackUpHistoryData()
-    {
+    private fun BackUpHistoryData() {
         _historyDataBackUpHelper = HttpHelper.InitInstance(activity)
-        _historyDataBackUpHelper!!.SetHttpAction(object : IHttpAction
-        {
-            override fun OnHttpRequest()
-            {
+        _historyDataBackUpHelper!!.SetHttpAction(object : IHttpAction {
+            override fun OnHttpRequest() {
                 DataWriter.WriteData(activity, _appSettingModel!!.FileSavedName()
                         , HttpRequest.DownloadFromMySQL("society", PhpUrlDto(activity).LoadingWholeData))
                 toast("備份完成")
             }
 
-            override fun OnException(e : Exception)
-            {
+            override fun OnException(e: Exception) {
                 Log.e("Backing up history data", e.toString())
                 toast(e.toString())
             }
 
-            override fun OnPostExecute()
-            {
+            override fun OnPostExecute() {
             }
         })
         _historyDataBackUpHelper!!.StartHttpThread()

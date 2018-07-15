@@ -1,8 +1,7 @@
 package com.example.user.soil_supervise_kotlin.db
 
-interface IHttpAction
-{
+interface IHttpAction {
     fun OnHttpRequest()
-    fun OnException(e : Exception)
+    fun OnException(e: Exception)
     fun OnPostExecute()
 }

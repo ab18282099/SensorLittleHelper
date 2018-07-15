@@ -17,12 +17,9 @@ import java.net.SocketTimeoutException
 import java.net.URI
 import java.util.ArrayList
 
-class HttpRequest
-{
-    companion object
-    {
-        fun SendToggleRequest(parameterValue: String, ipAddress: String, portNumber: String, parameterName: String): String?
-        {
+class HttpRequest {
+    companion object {
+        fun SendToggleRequest(parameterValue: String, ipAddress: String, portNumber: String, parameterName: String): String? {
             var serverResponse: String?
 
             val getRequest = HttpGet() // create an HTTP GET object
@@ -30,8 +27,7 @@ class HttpRequest
                     .setConnectTimeout(10000)
                     .setSocketTimeout(10000).build()
             val httpclient = HttpClientBuilder.create().setDefaultRequestConfig(requestConfig).build() // create an HTTP client
-            try
-            {
+            try {
                 val website = URI("http://$ipAddress:$portNumber/?$parameterName=$parameterValue")
                 getRequest.uri = website // set the URL of the GET request
                 val response = httpclient.execute(getRequest) // execute the request
@@ -44,40 +40,32 @@ class HttpRequest
                 EntityUtils.consume(httpEntity)
                 inputStream.close()
             }
-            catch (e: SocketTimeoutException)
-            {
+            catch (e: SocketTimeoutException) {
                 Log.e("log_tag_sock", e.toString())
                 serverResponse = e.message
             }
-            catch (e: ConnectTimeoutException)
-            {
+            catch (e: ConnectTimeoutException) {
                 Log.e("log_tag_conn", e.toString())
                 serverResponse = e.message
             }
-            catch (e: IOException)
-            {
+            catch (e: IOException) {
                 Log.e("log_tag_IO", e.toString())
                 serverResponse = e.message
             }
-            catch (e: NullPointerException)
-            {
+            catch (e: NullPointerException) {
                 Log.e("log_tag_null", e.toString())
                 serverResponse = e.message
             }
-            catch (e: Exception)
-            {
+            catch (e: Exception) {
                 Log.e("log_tag_pin", e.toString())
                 serverResponse = e.message
             }
-            finally
-            {
-                try
-                {
+            finally {
+                try {
                     httpclient.close()
                     getRequest.releaseConnection()
                 }
-                catch (e: Exception)
-                {
+                catch (e: Exception) {
                     Log.e("log_tag_close", e.toString())
                 }
             }
@@ -85,16 +73,14 @@ class HttpRequest
             return serverResponse
         }
 
-        fun DownloadFromMySQL(query: String, phpAddress : String?): String?
-        {
+        fun DownloadFromMySQL(query: String, phpAddress: String?): String? {
             var result: String?
             val post = HttpPost(phpAddress)
             val requestConfig = RequestConfig.custom()
                     .setConnectTimeout(5000)
                     .setSocketTimeout(5000).build()
             val httpClient = HttpClientBuilder.create().setDefaultRequestConfig(requestConfig).build()
-            try
-            {
+            try {
                 val nameValuePairs = ArrayList<NameValuePair>()
                 nameValuePairs.add(BasicNameValuePair("category", query))
                 post.entity = UrlEncodedFormEntity(nameValuePairs)
@@ -104,8 +90,7 @@ class HttpRequest
                 val bufReader = BufferedReader(InputStreamReader(inputStream, "utf-8"), 8)
                 val builder = StringBuilder()
                 var line: String? = null
-                while ({ line = bufReader.readLine(); line }() != null)
-                {
+                while ({ line = bufReader.readLine(); line }() != null) {
                     builder.append(line)
                     builder.append(System.lineSeparator())
                 }
@@ -113,35 +98,28 @@ class HttpRequest
                 inputStream.close()
                 result = builder.toString()
             }
-            catch (e: SocketTimeoutException)
-            {
+            catch (e: SocketTimeoutException) {
                 Log.e("log_tag_sock", e.toString())
                 result = e.message
             }
-            catch (e: ConnectTimeoutException)
-            {
+            catch (e: ConnectTimeoutException) {
                 Log.e("log_tag_conn", e.toString())
                 result = e.message
             }
-            catch (e: IOException)
-            {
+            catch (e: IOException) {
                 Log.e("log_tag_IO", e.toString())
                 result = e.message
             }
-            catch (e: Exception)
-            {
+            catch (e: Exception) {
                 Log.e("log_tag", e.toString())
                 result = e.message
             }
-            finally
-            {
-                try
-                {
+            finally {
+                try {
                     httpClient.close()
                     post.releaseConnection()
                 }
-                catch (e: Exception)
-                {
+                catch (e: Exception) {
                     Log.e("log_tag_close", e.toString())
                 }
             }

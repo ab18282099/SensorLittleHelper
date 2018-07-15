@@ -14,8 +14,7 @@ import android.widget.*
 import com.example.user.soil_supervise_kotlin.fragments.FragmentMenuItemClickListener
 import com.example.user.soil_supervise_kotlin.R
 
-abstract class BaseActivity : AppCompatActivity()
-{
+abstract class BaseActivity : AppCompatActivity() {
     private var _contentView: LinearLayout? = null //layout_center
     private var _mDrawerLayout: DrawerLayout? = null
     private var _drawerMenuListView: ListView? = null
@@ -24,15 +23,13 @@ abstract class BaseActivity : AppCompatActivity()
     private var _toolbarImage: ImageView? = null
     private var _onNavigationClickListener: ((View) -> Unit)? = null
 
-    override fun onCreate(savedInstanceState: Bundle?)
-    {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_base)
         Log.e("baseActivity", "onCreate")
     }
 
-    override fun setContentView(@LayoutRes layoutResID: Int)
-    {
+    override fun setContentView(@LayoutRes layoutResID: Int) {
         if (_contentView == null && R.layout.activity_base == layoutResID) // for base activity and drawerLayout
         {
             super.setContentView(R.layout.activity_base)
@@ -64,42 +61,35 @@ abstract class BaseActivity : AppCompatActivity()
         Log.e("baseActivity", "setContentView")
     }
 
-    fun SetMenuClickListener(onMenuItemClickListener: FragmentMenuItemClickListener)
-    {
+    fun SetMenuClickListener(onMenuItemClickListener: FragmentMenuItemClickListener) {
         _mToolbar!!.setOnMenuItemClickListener(onMenuItemClickListener.FragmentMenuItemClickListenerObject())
     }
 
-    fun SetActivityTitle(text: String)
-    {
+    fun SetActivityTitle(text: String) {
         _toolBarTitle!!.text = text
     }
 
-    fun SetRightImageAndClickListener(@DrawableRes imgId: Int, listener: View.OnClickListener)
-    {
+    fun SetRightImageAndClickListener(@DrawableRes imgId: Int, listener: View.OnClickListener) {
         _toolbarImage!!.setImageDrawable(ContextCompat.getDrawable(this, imgId))
         _toolbarImage!!.setOnClickListener(listener)
     }
 
-    fun SetOnNavigationClickListener(onClickListener : (View) -> Unit)
-    {
+    fun SetOnNavigationClickListener(onClickListener: (View) -> Unit) {
         this._onNavigationClickListener = onClickListener
     }
 
-    fun SetDrawerListener(drawerToggle: ActionBarDrawerToggle)
-    {
+    fun SetDrawerListener(drawerToggle: ActionBarDrawerToggle) {
         drawerToggle.syncState()
         _mDrawerLayout!!.addDrawerListener(drawerToggle)
     }
 
     fun SetDrawMenuAdapterAndItemClickListener(adapter: SimpleAdapter,
-                                               itemClickListener: (AdapterView<*>?, View?, Int, Long) -> Unit)
-    {
+                                               itemClickListener: (AdapterView<*>?, View?, Int, Long) -> Unit) {
         _drawerMenuListView!!.adapter = adapter
         _drawerMenuListView!!.setOnItemClickListener(itemClickListener)
     }
 
-    private fun BeforeSetActionBar()
-    {
+    private fun BeforeSetActionBar() {
         _mToolbar = findViewById<Toolbar>(R.id.toolbar) as Toolbar
         _mToolbar!!.setTitleTextColor(Color.WHITE)
         _mToolbar!!.title = ""
@@ -108,12 +98,10 @@ abstract class BaseActivity : AppCompatActivity()
 
     //abstract fun InitActionBar
 
-    private fun AfterSetActionBar()
-    {
+    private fun AfterSetActionBar() {
         setSupportActionBar(_mToolbar)
 
-        if (supportActionBar != null)
-        {
+        if (supportActionBar != null) {
             supportActionBar!!.setDisplayShowTitleEnabled(false)
 
             //use DrawerLayout
