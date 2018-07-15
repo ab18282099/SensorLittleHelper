@@ -6,7 +6,7 @@ android {
     compileSdkVersion 27
     buildToolsVersion '27.0.3'
     defaultConfig {
-        applicationId "com.example.user.soil_supervise_kotlin"
+        applicationId "com.example.user.siolSupervise"
         minSdkVersion 24
         targetSdkVersion 27
         versionCode 1
