@@ -58,21 +58,21 @@ class HistoryDataAdapter constructor(context: Context, sensorDataList: ArrayList
     override fun onBindViewHolder(holder: HistoryDataAdapter.ViewHolder, position: Int) {
         Log.e("HistoryDataFragment", "onBindViewHolder")
 
-        holder.tx_item_sensor1!!.visibility = _appSettingModel.SensorVisibility(0)
-        holder.tx_item_sensor2!!.visibility = _appSettingModel.SensorVisibility(1)
-        holder.tx_item_sensor3!!.visibility = _appSettingModel.SensorVisibility(2)
-        holder.tx_item_sensor4!!.visibility = _appSettingModel.SensorVisibility(3)
-        holder.tx_item_sensor5!!.visibility = _appSettingModel.SensorVisibility(4)
+        holder.tx_item_sensor1!!.visibility = _appSettingModel.sensorVisibility(0)
+        holder.tx_item_sensor2!!.visibility = _appSettingModel.sensorVisibility(1)
+        holder.tx_item_sensor3!!.visibility = _appSettingModel.sensorVisibility(2)
+        holder.tx_item_sensor4!!.visibility = _appSettingModel.sensorVisibility(3)
+        holder.tx_item_sensor5!!.visibility = _appSettingModel.sensorVisibility(4)
 
         holder.tx_item_content?.removeAllViewsInLayout()
 
         if (_sensorDataList.isNotEmpty()) {
-            if (_appSettingModel.SensorQuantity() > 5) {
-                for (i in 0 until _appSettingModel.SensorQuantity() - 5) {
+            if (_appSettingModel.sensorQuantity() > 5) {
+                for (i in 0 until _appSettingModel.sensorQuantity() - 5) {
                     val txCustomer = TextView(_context)
                     val sensorData = _sensorDataList[i + 6][position]
-                    SetSensorText(txCustomer, sensorData, i + 5)
-                    txCustomer.visibility = _appSettingModel.SensorVisibility(i + 5)
+                    setSensorText(txCustomer, sensorData, i + 5)
+                    txCustomer.visibility = _appSettingModel.sensorVisibility(i + 5)
 
                     val height = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, (50).toFloat(), _context.resources.displayMetrics)
                     txCustomer.layoutParams = LinearLayout.LayoutParams(height.toInt(), LinearLayout.LayoutParams.WRAP_CONTENT)
@@ -82,13 +82,13 @@ class HistoryDataAdapter constructor(context: Context, sensorDataList: ArrayList
             }
 
             holder.tx_item_id!!.text = _sensorDataList[0][position] // id dataList[0]
-            holder.tx_item_time!!.text = _sensorDataList[_appSettingModel.SensorQuantity() + 1][position] // id dataList[last]
+            holder.tx_item_time!!.text = _sensorDataList[_appSettingModel.sensorQuantity() + 1][position] // id dataList[last]
 
-            SetSensorText(holder.tx_item_sensor1, _sensorDataList[1][position], 0)
-            SetSensorText(holder.tx_item_sensor2, _sensorDataList[2][position], 1)
-            SetSensorText(holder.tx_item_sensor3, _sensorDataList[3][position], 2)
-            SetSensorText(holder.tx_item_sensor4, _sensorDataList[4][position], 3)
-            SetSensorText(holder.tx_item_sensor5, _sensorDataList[5][position], 4)
+            setSensorText(holder.tx_item_sensor1, _sensorDataList[1][position], 0)
+            setSensorText(holder.tx_item_sensor2, _sensorDataList[2][position], 1)
+            setSensorText(holder.tx_item_sensor3, _sensorDataList[3][position], 2)
+            setSensorText(holder.tx_item_sensor4, _sensorDataList[4][position], 3)
+            setSensorText(holder.tx_item_sensor5, _sensorDataList[5][position], 4)
         }
     }
 
@@ -97,12 +97,12 @@ class HistoryDataAdapter constructor(context: Context, sensorDataList: ArrayList
         return 0
     }
 
-    private fun SetSensorText(textView: TextView?, sensorData: String?, position: Int) {
+    private fun setSensorText(textView: TextView?, sensorData: String?, position: Int) {
         if (sensorData == "") {
             textView!!.text = sensorData
         }
         else {
-            val warnConditional1 = _appSettingModel.WarningCondition(position).toFloat()
+            val warnConditional1 = _appSettingModel.warningCondition(position).toFloat()
 
             if (sensorData!!.toFloat() < warnConditional1) {
                 textView!!.text = sensorData

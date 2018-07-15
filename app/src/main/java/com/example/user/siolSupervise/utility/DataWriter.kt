@@ -9,7 +9,7 @@ import java.io.FileWriter
 
 class DataWriter {
     companion object {
-        fun WriteData(context: Context, fileName: String, strWrite: String?) {
+        fun writeData(context: Context, fileName: String, strWrite: String?) {
             try {
                 val mSDFile: File
                 if (Environment.getExternalStorageState().equals(Environment.MEDIA_REMOVED)) {

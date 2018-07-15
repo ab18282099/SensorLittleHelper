@@ -12,7 +12,7 @@ import kotlinx.android.synthetic.main.fragment_chart.*
 
 class ChartFragment : BaseFragment(), FragmentBackPressedListener {
     companion object {
-        fun NewInstance(): ChartFragment {
+        fun newInstance(): ChartFragment {
             val fragment = ChartFragment()
             val args = Bundle()
             fragment.arguments = args
@@ -40,7 +40,7 @@ class ChartFragment : BaseFragment(), FragmentBackPressedListener {
         }
     }
 
-    override fun OnFragmentBackPressed() {
+    override fun onFragmentBackPressed() {
         val vpMain = activity.findViewById<ViewPager>(R.id._vpMain)
         vpMain.currentItem = 1
     }

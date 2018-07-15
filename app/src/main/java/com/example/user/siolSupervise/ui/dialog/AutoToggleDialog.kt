@@ -36,9 +36,9 @@ class AutoToggleDialog constructor(context: Context, togglePin: String, message:
                 _count = 5
                 _countHandler!!.removeCallbacks(_countRunnable)
 
-                val ipAddress = _appSettingModel.WifiIp()
-                val port = _appSettingModel.WifiPort()
-                TryTogglePin(ipAddress, port, _togglePin)
+                val ipAddress = _appSettingModel.wifiIp()
+                val port = _appSettingModel.wifiPort()
+                tryTogglePin(ipAddress, port, _togglePin)
             }
             else {
                 _count -= 1
@@ -56,28 +56,28 @@ class AutoToggleDialog constructor(context: Context, togglePin: String, message:
         }
     }
 
-    private fun TryTogglePin(ipAddress: String, port: String, parameterValue: String) {
-        val wifiToggleHelper = HttpHelper.InitInstance(_context)
-        wifiToggleHelper!!.SetHttpAction(object : IHttpAction {
-            override fun OnHttpRequest() {
-                val requestReply = HttpRequest.SendToggleRequest(parameterValue, ipAddress, port, "pin")
-                val resultDialog = ProgressDialog.DialogProgress(_context, requestReply, View.GONE)
+    private fun tryTogglePin(ipAddress: String, port: String, parameterValue: String) {
+        val wifiToggleHelper = HttpHelper.initInstance(_context)
+        wifiToggleHelper!!.setHttpAction(object : IHttpAction {
+            override fun onHttpRequest() {
+                val requestReply = HttpRequest.sendToggleRequest(parameterValue, ipAddress, port, "pin")
+                val resultDialog = ProgressDialog.dialogProgress(_context, requestReply, View.GONE)
                 resultDialog.show()
 
                 val jsonResult = JSONObject(requestReply)
 
-                for (i in 0 until _appSettingModel.SensorQuantity()) {
-                    _appSettingModel.PutString("getPin" + i.toString() + "State", jsonResult.getString("PIN" + _appSettingModel.SensorPin(i)))
+                for (i in 0 until _appSettingModel.sensorQuantity()) {
+                    _appSettingModel.putString("getPin" + i.toString() + "State", jsonResult.getString("PIN" + _appSettingModel.sensorPin(i)))
                 }
             }
 
-            override fun OnException(e: Exception) {
+            override fun onException(e: Exception) {
                 Log.e("Toggling Pin in OnTimeFragment", e.toString())
             }
 
-            override fun OnPostExecute() {
+            override fun onPostExecute() {
             }
         })
-        wifiToggleHelper.StartHttpThread()
+        wifiToggleHelper.startHttpThread()
     }
 }

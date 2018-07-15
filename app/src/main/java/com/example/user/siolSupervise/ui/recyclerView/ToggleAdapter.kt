@@ -37,12 +37,12 @@ class ToggleAdapter constructor(context: Context) : RecyclerView.Adapter<ToggleA
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.tx_toggle_sensor!!.text = _appSettingModel.SensorName(position)
-        holder.tx_toggle_pin!!.text = _appSettingModel.SensorPin(position)
-        holder.tx_toggle_state!!.text = _appSettingModel.PinState(position)
-        holder.tx_toggle_app!!.text = _appSettingModel.PinAppliance(position)
+        holder.tx_toggle_sensor!!.text = _appSettingModel.sensorName(position)
+        holder.tx_toggle_pin!!.text = _appSettingModel.sensorPin(position)
+        holder.tx_toggle_state!!.text = _appSettingModel.pinState(position)
+        holder.tx_toggle_app!!.text = _appSettingModel.pinAppliance(position)
 
-        if (_appSettingModel.SensorVisibility(position) == View.GONE) {
+        if (_appSettingModel.sensorVisibility(position) == View.GONE) {
             holder.tx_toggle_sensor!!.setTextColor(Color.LTGRAY)
             holder.tx_toggle_pin!!.setTextColor(Color.LTGRAY)
             holder.tx_toggle_state!!.setTextColor(Color.LTGRAY)
@@ -62,16 +62,16 @@ class ToggleAdapter constructor(context: Context) : RecyclerView.Adapter<ToggleA
     // use "CallBack"
     override fun onClick(p0: View?) {
         if (onItemClickListener != null) {
-            onItemClickListener?.OnRecyclerViewItemClick(p0, p0?.tag as Int)
+            onItemClickListener?.onRecyclerViewItemClick(p0, p0?.tag as Int)
         }
     }
 
-    fun SetOnItemClickListener(listener: RecyclerViewOnItemClickListener) {
+    fun setOnItemClickListener(listener: RecyclerViewOnItemClickListener) {
         onItemClickListener = listener
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     override fun getItemCount(): Int {
-        return if (_appSettingModel.SensorQuantity() > 0) _appSettingModel.SensorQuantity() else 0
+        return if (_appSettingModel.sensorQuantity() > 0) _appSettingModel.sensorQuantity() else 0
     }
 }

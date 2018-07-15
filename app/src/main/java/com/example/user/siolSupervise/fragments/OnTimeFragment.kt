@@ -25,7 +25,7 @@ import org.json.JSONObject
 
 class OnTimeFragment : BaseFragment(), FragmentBackPressedListener {
     companion object {
-        fun NewInstance(): OnTimeFragment {
+        fun newInstance(): OnTimeFragment {
             val fragment = OnTimeFragment()
             val args = Bundle()
             fragment.arguments = args
@@ -47,21 +47,21 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener {
         return view
     }
 
-    override fun OnFragmentBackPressed() {
+    override fun onFragmentBackPressed() {
         val vpMain = activity.findViewById<ViewPager>(R.id._vpMain)
         vpMain.currentItem = 1
     }
 
-    fun TryLoadLastData() {
+    fun tryLoadLastData() {
         val refreshDataAction = DbAction(activity)
-        refreshDataAction.SetResponse(object : IDbResponse {
-            override fun OnSuccess(jsonObject: JSONObject) {
+        refreshDataAction.setResponse(object : IDbResponse {
+            override fun onSuccess(jsonObject: JSONObject) {
                 val sensorData = ArrayList<String?>()
 
-                for (i in 0 until _appSettingModel!!.SensorQuantity() + 2) {
+                for (i in 0 until _appSettingModel!!.sensorQuantity() + 2) {
                     when (i) {
                         0 -> sensorData.add(jsonObject.getString("ID"))
-                        _appSettingModel!!.SensorQuantity() + 1 -> sensorData.add(jsonObject.getString("time"))
+                        _appSettingModel!!.sensorQuantity() + 1 -> sensorData.add(jsonObject.getString("time"))
                         else -> sensorData.add(jsonObject.getString("sensor_" + (i).toString()))
                     }
                 }
@@ -69,43 +69,43 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener {
                 _recyclerOnTime?.adapter = OnTimeAdapter(activity, sensorData)
                 _recyclerOnTime?.addItemDecoration(SimpleDividerItemDecoration(activity))
                 toast("連接成功")
-                WarningFunction(sensorData)
+                warningFunction(sensorData)
             }
 
-            override fun OnException(e: Exception) {
-                Log.e("LoadOnTimeData", e.toString())
+            override fun onException(e: Exception) {
+                Log.e("loadOnTimeData", e.toString())
                 toast(e.toString())
             }
 
-            override fun OnError(volleyError: VolleyError) {
+            override fun onError(volleyError: VolleyError) {
                 VolleyLog.e("ERROR", volleyError.toString())
                 toast("CONNECT ERROR")
             }
         })
-        refreshDataAction.DoDbOperate(PhpUrlDto(activity).LoadingLastData)
+        refreshDataAction.doDbOperate(PhpUrlDto(activity).LoadingLastData)
     }
 
-    private fun WarningFunction(sensorDataList: ArrayList<String?>) {
+    private fun warningFunction(sensorDataList: ArrayList<String?>) {
         val toggleSensorList = ArrayList<String>()
         val toggleSensorPinList = ArrayList<String>()
         val toggleText: String
         val togglePin: String
 
-        for (i in 1.._appSettingModel!!.SensorQuantity()) {
-            val warnCondition = _appSettingModel!!.WarningCondition(i - 1).toFloat()
+        for (i in 1.._appSettingModel!!.sensorQuantity()) {
+            val warnCondition = _appSettingModel!!.warningCondition(i - 1).toFloat()
             val sensorDataFloat = if (sensorDataList[i] == "") (-1).toFloat() else sensorDataList[i]!!.toFloat()
 
-            if (_appSettingModel!!.SensorVisibility(i - 1) == View.VISIBLE) {
-                if (IsWarning(sensorDataFloat, warnCondition)) {
-                    if (_appSettingModel!!.PinState(i - 1) == "OFF") {
-                        toggleSensorList.add(_appSettingModel!!.SensorName(i - 1))
-                        toggleSensorPinList.add(_appSettingModel!!.SensorPin(i - 1))
+            if (_appSettingModel!!.sensorVisibility(i - 1) == View.VISIBLE) {
+                if (isWarning(sensorDataFloat, warnCondition)) {
+                    if (_appSettingModel!!.pinState(i - 1) == "OFF") {
+                        toggleSensorList.add(_appSettingModel!!.sensorName(i - 1))
+                        toggleSensorPinList.add(_appSettingModel!!.sensorPin(i - 1))
                     }
                 }
                 else {
-                    if (_appSettingModel!!.PinState(i - 1) == "ON") {
-                        toggleSensorList.add(_appSettingModel!!.SensorName(i - 1))
-                        toggleSensorPinList.add(_appSettingModel!!.SensorPin(i - 1))
+                    if (_appSettingModel!!.pinState(i - 1) == "ON") {
+                        toggleSensorList.add(_appSettingModel!!.sensorName(i - 1))
+                        toggleSensorPinList.add(_appSettingModel!!.sensorPin(i - 1))
                     }
                 }
             }
@@ -115,7 +115,7 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener {
             toggleText = toggleSensorList.joinToString(separator = ", ")
             togglePin = toggleSensorPinList.joinToString(separator = ",")
 
-            when (_appSettingModel!!.IsAutoToggle()) {
+            when (_appSettingModel!!.isAutoToggle()) {
                 true -> {
                     val autoDialog = AutoToggleDialog(activity, togglePin, "發現狀態改變！")
                     autoDialog.show()
@@ -135,7 +135,7 @@ class OnTimeFragment : BaseFragment(), FragmentBackPressedListener {
         }
     }
 
-    private fun IsWarning(sensorData: Float?, warnConditional: Float?): Boolean {
+    private fun isWarning(sensorData: Float?, warnConditional: Float?): Boolean {
         val invalidFloat = (-1).toFloat()
 
         if (sensorData != null && warnConditional != null && sensorData != invalidFloat && sensorData < warnConditional)

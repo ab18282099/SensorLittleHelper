@@ -9,13 +9,13 @@ import org.json.JSONException
 class SensorDataParser constructor(context: Context) {
     private val _appSettingModel = AppSettingModel(context)
 
-    fun GetSensorData(jsonArray: JSONArray): ArrayList<Array<String?>> {
-        val jsonList = ArrayList<Array<String?>>(_appSettingModel.SensorQuantity() + 2)
+    fun getSensorData(jsonArray: JSONArray): ArrayList<Array<String?>> {
+        val jsonList = ArrayList<Array<String?>>(_appSettingModel.sensorQuantity() + 2)
 
         try {
             val jsonArrayLength: Int = jsonArray.length()
 
-            for (i in 0 until _appSettingModel.SensorQuantity() + 2) {
+            for (i in 0 until _appSettingModel.sensorQuantity() + 2) {
                 if (i == 0) {
                     val arrayTemp = arrayOfNulls<String?>(jsonArrayLength)
 
@@ -25,7 +25,7 @@ class SensorDataParser constructor(context: Context) {
 
                     jsonList.add(i, arrayTemp)
                 }
-                else if (i == _appSettingModel.SensorQuantity() + 1) {
+                else if (i == _appSettingModel.sensorQuantity() + 1) {
                     val arrayTemp = arrayOfNulls<String?>(jsonArrayLength)
 
                     for (k in 0 until jsonArrayLength) {
@@ -52,7 +52,7 @@ class SensorDataParser constructor(context: Context) {
         return jsonList
     }
 
-    fun GetJsonArrayLength(jsonArray: JSONArray): Int {
+    fun getJsonArrayLength(jsonArray: JSONArray): Int {
         if (jsonArray.length() != 0) return jsonArray.length()
         return 0
     }

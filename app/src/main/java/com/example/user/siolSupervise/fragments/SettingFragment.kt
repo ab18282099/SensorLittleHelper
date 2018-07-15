@@ -18,7 +18,7 @@ import org.jetbrains.anko.vibrator
 
 class SettingFragment : BaseFragment(), FragmentBackPressedListener {
     companion object {
-        fun NewInstance(): SettingFragment {
+        fun newInstance(): SettingFragment {
             val fragment = SettingFragment()
             val args = Bundle()
             fragment.arguments = args
@@ -40,8 +40,8 @@ class SettingFragment : BaseFragment(), FragmentBackPressedListener {
 
         _mainSettingDataText = arrayOf("1.ESP8266之IP位址 ", "2.ESP8266之通訊埠 ", "3.Server IP位置 ",
                 "4.歷史資料儲存檔名 ", "5.AUTO TOGGLE ")
-        _mainSettingDataTemp = arrayOf(_appSettingModel!!.WifiIp(), _appSettingModel!!.WifiPort(),
-                _appSettingModel!!.ServerIp(), _appSettingModel!!.FileSavedName())
+        _mainSettingDataTemp = arrayOf(_appSettingModel!!.wifiIp(), _appSettingModel!!.wifiPort(),
+                _appSettingModel!!.serverIp(), _appSettingModel!!.fileSavedName())
 
         val layoutManger = LinearLayoutManager(activity)
         layoutManger.orientation = LinearLayoutManager.VERTICAL
@@ -68,26 +68,26 @@ class SettingFragment : BaseFragment(), FragmentBackPressedListener {
 
         btn_done_setting.text = getString(R.string.done)
         btn_done_setting.setOnClickListener {
-            DoneSetting()
+            doneSetting()
         }
     }
 
-    override fun OnFragmentBackPressed() {
+    override fun onFragmentBackPressed() {
         val vpMain = activity.findViewById<ViewPager>(R.id._vpMain)
         vpMain.currentItem = 1
     }
 
-    private fun DoneSetting() {
+    private fun doneSetting() {
         val regIPAddress = Regex("^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\$")
         val regPort = Regex("([0-9][0-9])|([0-9][0-9][0-9])")
 
         if (_mainSettingDataTemp[0]!!.matches(regIPAddress) && _mainSettingDataTemp[1]!!.matches(regPort) &&
                 _mainSettingDataTemp[2]!!.matches(regIPAddress) && _mainSettingDataTemp[3] != "") {
             toast("設定成功")
-            _appSettingModel!!.PutString("WifiIp", _mainSettingDataTemp[0])
-            _appSettingModel!!.PutString("WifiPort", _mainSettingDataTemp[1])
-            _appSettingModel!!.PutString("ServerIp", _mainSettingDataTemp[2])
-            _appSettingModel!!.PutString("FileSavedName", _mainSettingDataTemp[3])
+            _appSettingModel!!.putString("wifiIp", _mainSettingDataTemp[0])
+            _appSettingModel!!.putString("wifiPort", _mainSettingDataTemp[1])
+            _appSettingModel!!.putString("serverIp", _mainSettingDataTemp[2])
+            _appSettingModel!!.putString("fileSavedName", _mainSettingDataTemp[3])
         }
         else {
             val v = activity.vibrator

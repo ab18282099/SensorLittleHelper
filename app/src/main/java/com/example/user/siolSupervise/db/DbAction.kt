@@ -11,30 +11,30 @@ import com.example.user.siolSupervise.ui.dialog.ProgressDialog
 
 class DbAction constructor(context: Context) {
     private val _queue: RequestQueue = Volley.newRequestQueue(context)
-    private val _progressDialog: AlertDialog = ProgressDialog.DialogProgress(context, "連接中…", View.VISIBLE)
+    private val _progressDialog: AlertDialog = ProgressDialog.dialogProgress(context, "連接中…", View.VISIBLE)
     private var _dbResponse: IDbResponse? = null
 
-    fun SetResponse(response: IDbResponse) {
+    fun setResponse(response: IDbResponse) {
         _dbResponse = response
     }
 
-    fun DoDbOperate(phpAddress: String) {
+    fun doDbOperate(phpAddress: String) {
         if (_dbResponse != null) {
             _progressDialog.show()
             _progressDialog.setCancelable(false)
 
             val connectRequest = JsonObjectRequest(phpAddress, null, { jsonObject ->
                 try {
-                    _dbResponse?.OnSuccess(jsonObject)
+                    _dbResponse?.onSuccess(jsonObject)
                 }
                 catch (e: Exception) {
-                    _dbResponse?.OnException(e)
+                    _dbResponse?.onException(e)
                 }
                 finally {
                     _progressDialog.dismiss()
                 }
             }, { volleyError ->
-                _dbResponse?.OnError(volleyError)
+                _dbResponse?.onError(volleyError)
                 _progressDialog.dismiss()
             })
 

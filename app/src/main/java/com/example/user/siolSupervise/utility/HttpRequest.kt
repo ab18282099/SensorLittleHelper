@@ -19,7 +19,7 @@ import java.util.ArrayList
 
 class HttpRequest {
     companion object {
-        fun SendToggleRequest(parameterValue: String, ipAddress: String, portNumber: String, parameterName: String): String? {
+        fun sendToggleRequest(parameterValue: String, ipAddress: String, portNumber: String, parameterName: String): String? {
             var serverResponse: String?
 
             val getRequest = HttpGet() // create an HTTP GET object
@@ -73,7 +73,7 @@ class HttpRequest {
             return serverResponse
         }
 
-        fun DownloadFromMySQL(query: String, phpAddress: String?): String? {
+        fun downloadFromMySQL(query: String, phpAddress: String?): String? {
             var result: String?
             val post = HttpPost(phpAddress)
             val requestConfig = RequestConfig.custom()

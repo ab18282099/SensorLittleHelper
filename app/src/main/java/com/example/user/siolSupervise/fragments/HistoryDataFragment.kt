@@ -26,7 +26,7 @@ import org.jetbrains.anko.*
 
 class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, FragmentMenuItemClickListener {
     companion object {
-        fun NewInstance(): HistoryDataFragment {
+        fun newInstance(): HistoryDataFragment {
             val fragment = HistoryDataFragment()
             val args = Bundle()
             fragment.arguments = args
@@ -66,11 +66,11 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
         btn_left.text = "上一頁"
         btn_right.text = "下一頁"
         btn_left.setOnClickListener {
-            LeftView()
+            leftView()
         }
 
         btn_right.setOnClickListener {
-            RightView()
+            rightView()
         }
 
         btn_deleted.text = getString(R.string.deleted)
@@ -90,12 +90,12 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
         super.onCreateOptionsMenu(menu, inflater)
     }
 
-    override fun FragmentMenuItemClickListenerObject(): (MenuItem) -> Boolean {
+    override fun fragmentMenuItemClickListenerObject(): (MenuItem) -> Boolean {
         return { item ->
 
             when (item.itemId) {
                 R.id.menu_backup -> {
-                    BackUpHistoryData()
+                    backUpHistoryData()
                 }
             }
 
@@ -103,38 +103,38 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
         }
     }
 
-    override fun OnFragmentBackPressed() {
+    override fun onFragmentBackPressed() {
         val vpMain = activity.findViewById<ViewPager>(R.id._vpMain)
         vpMain.currentItem = 1
     }
 
-    fun SetDataModel(model: SensorDataModel) {
+    fun setDataModel(model: SensorDataModel) {
         _sensorDataModel = model
     }
 
-    fun RenewSensorTitle() {
-        tx_sensor1.visibility = _appSettingModel!!.SensorVisibility(0)
-        tx_sensor2.visibility = _appSettingModel!!.SensorVisibility(1)
-        tx_sensor3.visibility = _appSettingModel!!.SensorVisibility(2)
-        tx_sensor4.visibility = _appSettingModel!!.SensorVisibility(3)
-        tx_sensor5.visibility = _appSettingModel!!.SensorVisibility(4)
+    fun renewSensorTitle() {
+        tx_sensor1.visibility = _appSettingModel!!.sensorVisibility(0)
+        tx_sensor2.visibility = _appSettingModel!!.sensorVisibility(1)
+        tx_sensor3.visibility = _appSettingModel!!.sensorVisibility(2)
+        tx_sensor4.visibility = _appSettingModel!!.sensorVisibility(3)
+        tx_sensor5.visibility = _appSettingModel!!.sensorVisibility(4)
         tx_id.text = getString(R.string.id)
-        tx_sensor1.text = _appSettingModel!!.SensorName(0)
-        tx_sensor2.text = _appSettingModel!!.SensorName(1)
-        tx_sensor3.text = _appSettingModel!!.SensorName(2)
-        tx_sensor4.text = _appSettingModel!!.SensorName(3)
-        tx_sensor5.text = _appSettingModel!!.SensorName(4)
+        tx_sensor1.text = _appSettingModel!!.sensorName(0)
+        tx_sensor2.text = _appSettingModel!!.sensorName(1)
+        tx_sensor3.text = _appSettingModel!!.sensorName(2)
+        tx_sensor4.text = _appSettingModel!!.sensorName(3)
+        tx_sensor5.text = _appSettingModel!!.sensorName(4)
         tx_time.text = getString(R.string.time)
         tx_title_content.removeAllViewsInLayout()
 
-        if (_appSettingModel!!.SensorQuantity() > 5) {
+        if (_appSettingModel!!.sensorQuantity() > 5) {
             tx_title_content.visibility = View.VISIBLE
 
-            for (i in 0 until _appSettingModel!!.SensorQuantity() - 5) {
+            for (i in 0 until _appSettingModel!!.sensorQuantity() - 5) {
                 val txCustomerTitle = TextView(activity)
                 val height = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, (50).toFloat(), activity.resources.displayMetrics)
-                txCustomerTitle.text = _appSettingModel!!.SensorName(i + 5)
-                txCustomerTitle.visibility = _appSettingModel!!.SensorVisibility(i + 5)
+                txCustomerTitle.text = _appSettingModel!!.sensorName(i + 5)
+                txCustomerTitle.visibility = _appSettingModel!!.sensorVisibility(i + 5)
                 txCustomerTitle.layoutParams = LinearLayout.LayoutParams(height.toInt(), LinearLayout.LayoutParams.WRAP_CONTENT)
                 tx_title_content.addView(txCustomerTitle)
             }
@@ -146,7 +146,7 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
         sensorTitle!!.invalidate()
     }
 
-    fun RenewRecyclerView() {
+    fun renewRecyclerView() {
         val model = _sensorDataModel
 
         when (model.SensorDataLength) {
@@ -156,41 +156,41 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
         }
 
         _recyclerHistory?.adapter = HistoryDataAdapter(activity, model.SensorDataList, _viewCount)
-        CheckButton()
+        checkButton()
     }
 
-    fun SetCurrentId(id: String, id2: String) {
+    fun setCurrentId(id: String, id2: String) {
         _currentId1 = id
         _currentId2 = id2
     }
 
-    fun SetLoadSuccess(isSuccess: Boolean) {
+    fun setLoadSuccess(isSuccess: Boolean) {
         _isSuccessLoad = isSuccess
     }
 
-    fun GetCurrentId1(): String {
+    fun getCurrentIdOne(): String {
         return _currentId1
     }
 
-    fun GetCurrentId2(): String {
+    fun getCurrentIdTwo(): String {
         return _currentId2
     }
 
-    fun GetLoadSuccess(): Boolean {
+    fun getLoadSuccess(): Boolean {
         return _isSuccessLoad
     }
 
-    private fun LeftView() {
-        (activity as MainActivity).LoadHistoryData(this, activity, (_currentId1.toInt() - 100).toString(), (_currentId2.toInt() - 100).toString())
-        CheckButton()
+    private fun leftView() {
+        (activity as MainActivity).loadHistoryData(this, activity, (_currentId1.toInt() - 100).toString(), (_currentId2.toInt() - 100).toString())
+        checkButton()
     }
 
-    private fun RightView() {
-        (activity as MainActivity).LoadHistoryData(this, activity, (_currentId1.toInt() + 100).toString(), (_currentId2.toInt() + 100).toString())
-        CheckButton()
+    private fun rightView() {
+        (activity as MainActivity).loadHistoryData(this, activity, (_currentId1.toInt() + 100).toString(), (_currentId2.toInt() + 100).toString())
+        checkButton()
     }
 
-    private fun CheckButton() {
+    private fun checkButton() {
         if (_viewCount == 0) {
             btn_left.isEnabled = false
             btn_right.isEnabled = false
@@ -211,23 +211,23 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
         }
     }
 
-    private fun BackUpHistoryData() {
-        _historyDataBackUpHelper = HttpHelper.InitInstance(activity)
-        _historyDataBackUpHelper!!.SetHttpAction(object : IHttpAction {
-            override fun OnHttpRequest() {
-                DataWriter.WriteData(activity, _appSettingModel!!.FileSavedName()
-                        , HttpRequest.DownloadFromMySQL("society", PhpUrlDto(activity).LoadingWholeData))
+    private fun backUpHistoryData() {
+        _historyDataBackUpHelper = HttpHelper.initInstance(activity)
+        _historyDataBackUpHelper!!.setHttpAction(object : IHttpAction {
+            override fun onHttpRequest() {
+                DataWriter.writeData(activity, _appSettingModel!!.fileSavedName()
+                        , HttpRequest.downloadFromMySQL("society", PhpUrlDto(activity).LoadingWholeData))
                 toast("備份完成")
             }
 
-            override fun OnException(e: Exception) {
+            override fun onException(e: Exception) {
                 Log.e("Backing up history data", e.toString())
                 toast(e.toString())
             }
 
-            override fun OnPostExecute() {
+            override fun onPostExecute() {
             }
         })
-        _historyDataBackUpHelper!!.StartHttpThread()
+        _historyDataBackUpHelper!!.startHttpThread()
     }
 }

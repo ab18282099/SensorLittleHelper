@@ -24,7 +24,7 @@ class FragmentViewPagerAdapter constructor(fragmentManager: FragmentManager,
         return fragment
     }
 
-    fun GetFragment(position: Int): Fragment {
+    fun getFragment(position: Int): Fragment {
         return _fragmentList[position]
     }
 }

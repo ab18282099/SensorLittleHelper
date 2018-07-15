@@ -9,7 +9,7 @@ import com.example.user.siolSupervise.R
 
 class ProgressDialog {
     companion object {
-        fun DialogProgress(context: Context, title: String?, progressVisibility: Int): AlertDialog {
+        fun dialogProgress(context: Context, title: String?, progressVisibility: Int): AlertDialog {
             val nullParent: ViewGroup? = null
             val convertView = LayoutInflater.from(context).inflate(R.layout.dialog_progress, nullParent)
 

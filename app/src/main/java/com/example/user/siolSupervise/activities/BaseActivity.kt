@@ -50,55 +50,55 @@ abstract class BaseActivity : AppCompatActivity() {
                     LinearLayout.LayoutParams.MATCH_PARENT))
 
             //do not change sequence
-            FindView()
-            InitView()
+            findView()
+            initView()
 
             //do not change sequence
-            BeforeSetActionBar()
-            InitActionBar()
-            AfterSetActionBar()
+            beforeSetActionBar()
+            initActionBar()
+            afterSetActionBar()
         }
         Log.e("baseActivity", "setContentView")
     }
 
-    fun SetMenuClickListener(onMenuItemClickListener: FragmentMenuItemClickListener) {
-        _mToolbar!!.setOnMenuItemClickListener(onMenuItemClickListener.FragmentMenuItemClickListenerObject())
+    fun setMenuClickListener(onMenuItemClickListener: FragmentMenuItemClickListener) {
+        _mToolbar!!.setOnMenuItemClickListener(onMenuItemClickListener.fragmentMenuItemClickListenerObject())
     }
 
-    fun SetActivityTitle(text: String) {
+    fun setActivityTitle(text: String) {
         _toolBarTitle!!.text = text
     }
 
-    fun SetRightImageAndClickListener(@DrawableRes imgId: Int, listener: View.OnClickListener) {
+    fun setRightImageAndClickListener(@DrawableRes imgId: Int, listener: View.OnClickListener) {
         _toolbarImage!!.setImageDrawable(ContextCompat.getDrawable(this, imgId))
         _toolbarImage!!.setOnClickListener(listener)
     }
 
-    fun SetOnNavigationClickListener(onClickListener: (View) -> Unit) {
+    fun setOnNavigationClickListener(onClickListener: (View) -> Unit) {
         this._onNavigationClickListener = onClickListener
     }
 
-    fun SetDrawerListener(drawerToggle: ActionBarDrawerToggle) {
+    fun setDrawerListener(drawerToggle: ActionBarDrawerToggle) {
         drawerToggle.syncState()
         _mDrawerLayout!!.addDrawerListener(drawerToggle)
     }
 
-    fun SetDrawMenuAdapterAndItemClickListener(adapter: SimpleAdapter,
+    fun setDrawMenuAdapterAndItemClickListener(adapter: SimpleAdapter,
                                                itemClickListener: (AdapterView<*>?, View?, Int, Long) -> Unit) {
         _drawerMenuListView!!.adapter = adapter
         _drawerMenuListView!!.setOnItemClickListener(itemClickListener)
     }
 
-    private fun BeforeSetActionBar() {
+    private fun beforeSetActionBar() {
         _mToolbar = findViewById<Toolbar>(R.id.toolbar) as Toolbar
         _mToolbar!!.setTitleTextColor(Color.WHITE)
         _mToolbar!!.title = ""
         _mToolbar!!.isEnabled = true
     }
 
-    //abstract fun InitActionBar
+    //abstract fun initActionBar
 
-    private fun AfterSetActionBar() {
+    private fun afterSetActionBar() {
         setSupportActionBar(_mToolbar)
 
         if (supportActionBar != null) {
@@ -113,9 +113,9 @@ abstract class BaseActivity : AppCompatActivity() {
         _mToolbar!!.setNavigationOnClickListener(_onNavigationClickListener)
     }
 
-    abstract fun InitActionBar()
+    abstract fun initActionBar()
 
-    abstract fun FindView()
+    abstract fun findView()
 
-    abstract fun InitView()
+    abstract fun initView()
 }

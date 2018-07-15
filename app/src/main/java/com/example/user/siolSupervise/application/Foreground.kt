@@ -42,7 +42,7 @@ class Foreground : Application.ActivityLifecycleCallbacks {
                     l.onBecameForeground()
                 }
                 catch (exc: Exception) {
-                    //                    Log.e(TAG, "FragmentMenuItemClickListenerObject threw exception!", exc);
+                    //                    Log.e(TAG, "fragmentMenuItemClickListenerObject threw exception!", exc);
                 }
             }
         }
@@ -66,7 +66,7 @@ class Foreground : Application.ActivityLifecycleCallbacks {
                         l.onBecameBackground()
                     }
                     catch (exc: Exception) {
-                        // Log.e(TAG, "FragmentMenuItemClickListenerObject threw exception!", exc);
+                        // Log.e(TAG, "fragmentMenuItemClickListenerObject threw exception!", exc);
                     }
                 }
             }

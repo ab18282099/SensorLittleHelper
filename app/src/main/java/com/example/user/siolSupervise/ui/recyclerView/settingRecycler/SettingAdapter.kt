@@ -48,8 +48,8 @@ class SettingAdapter constructor(context: Context,
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         if (holder.adapterPosition == 4) {
             holder.switch_setting!!.visibility = View.VISIBLE
-            holder.switch_setting!!.isChecked = _appSettingModel.IsAutoToggle()
-            if (_appSettingModel.IsAutoToggle()) {
+            holder.switch_setting!!.isChecked = _appSettingModel.isAutoToggle()
+            if (_appSettingModel.isAutoToggle()) {
                 holder.switch_setting!!.text = _context.getString(R.string.on)
             }
             else {
@@ -58,12 +58,12 @@ class SettingAdapter constructor(context: Context,
             holder.switch_setting!!.setOnCheckedChangeListener { compoundButton, b ->
                 if (compoundButton.id == R.id.switch_setting) {
                     if (b) {
-                        _appSettingModel.PutBoolean("IsAutoToggle", true)
+                        _appSettingModel.putBoolean("isAutoToggle", true)
                         holder.switch_setting!!.text = _context.getString(R.string.on)
                         _context.toast("自動遙控開啟")
                     }
                     else {
-                        _appSettingModel.PutBoolean("IsAutoToggle", false)
+                        _appSettingModel.putBoolean("isAutoToggle", false)
                         holder.switch_setting!!.text = _context.getString(R.string.off)
                         _context.toast("自動遙控關閉")
                     }

@@ -15,7 +15,7 @@ import java.util.HashMap
 
 class MainFragment : BaseFragment(), FragmentBackPressedListener, FragmentMenuItemClickListener {
     companion object {
-        fun NewInstance(): MainFragment {
+        fun newInstance(): MainFragment {
             val fragment = MainFragment()
             val args = Bundle()
             fragment.arguments = args
@@ -63,7 +63,7 @@ class MainFragment : BaseFragment(), FragmentBackPressedListener, FragmentMenuIt
                 4 -> vpMain.currentItem = 5 // chart
                 5 -> {
                     alert("離開程式?") {
-                        yesButton { ExitApplication.InitInstance()!!.Exit() }
+                        yesButton { ExitApplication.initInstance()!!.exit() }
                         noButton { }
                     }.show()
                 }
@@ -77,7 +77,7 @@ class MainFragment : BaseFragment(), FragmentBackPressedListener, FragmentMenuIt
         super.onCreateOptionsMenu(menu, inflater)
     }
 
-    override fun FragmentMenuItemClickListenerObject(): (MenuItem) -> Boolean {
+    override fun fragmentMenuItemClickListenerObject(): (MenuItem) -> Boolean {
         val vpMain = activity.findViewById<ViewPager>(R.id._vpMain) as ViewPager
 
         return { item ->
@@ -106,7 +106,7 @@ class MainFragment : BaseFragment(), FragmentBackPressedListener, FragmentMenuIt
                 }
                 R.id.menu_mainExit -> {
                     alert("你確定要離開?") {
-                        yesButton { ExitApplication.InitInstance()?.Exit() }
+                        yesButton { ExitApplication.initInstance()?.exit() }
                         noButton { }
                     }.show()
                 }
@@ -116,7 +116,7 @@ class MainFragment : BaseFragment(), FragmentBackPressedListener, FragmentMenuIt
         }
     }
 
-    override fun OnFragmentBackPressed() {
+    override fun onFragmentBackPressed() {
         val vpMain = activity.findViewById<ViewPager>(R.id._vpMain) as ViewPager
         vpMain.currentItem = 0
     }

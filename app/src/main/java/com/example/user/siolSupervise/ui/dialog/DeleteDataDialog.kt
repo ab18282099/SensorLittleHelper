@@ -32,7 +32,7 @@ class DeleteDataDialog constructor(context: Context, parentFragment: HistoryData
         btn_clean.setOnClickListener {
             _context.alert("你要確定喔?") {
                 yesButton {
-                    TryEditDataBase(PhpUrlDto(_context).CleanDatabase)
+                    tryEditDataBase(PhpUrlDto(_context).CleanDatabase)
                 }
                 noButton { }
             }.show()
@@ -47,7 +47,7 @@ class DeleteDataDialog constructor(context: Context, parentFragment: HistoryData
             if (id1.matches(regIdDeleted) && id2.matches(regIdDeleted)) {
                 _context.alert("你要確定喔?") {
                     yesButton {
-                        TryEditDataBase(PhpUrlDto(_context).DeletedDataById(id1, id2))
+                        tryEditDataBase(PhpUrlDto(_context).deletedDataById(id1, id2))
                     }
                     noButton { }
                 }.show()
@@ -60,17 +60,17 @@ class DeleteDataDialog constructor(context: Context, parentFragment: HistoryData
         }
     }
 
-    private fun TryEditDataBase(phpAddress: String) {
+    private fun tryEditDataBase(phpAddress: String) {
         val loginAction = DbAction(_context)
-        loginAction.SetResponse(object : IDbResponse {
-            override fun OnSuccess(jsonObject: JSONObject) {
+        loginAction.setResponse(object : IDbResponse {
+            override fun onSuccess(jsonObject: JSONObject) {
                 when (jsonObject.getString("message")) {
                     "Deleted Successfully." -> {
-                        (_context as MainActivity).LoadHistoryData(_parentFragment, _context, "1", "100")
+                        (_context as MainActivity).loadHistoryData(_parentFragment, _context, "1", "100")
                         _context.toast("刪除成功")
                     }
                     "DB is clean." -> {
-                        (_context as MainActivity).LoadHistoryData(_parentFragment, _context, "1", "100")
+                        (_context as MainActivity).loadHistoryData(_parentFragment, _context, "1", "100")
                         _context.toast("清空完成")
                     }
                     else -> {
@@ -79,16 +79,16 @@ class DeleteDataDialog constructor(context: Context, parentFragment: HistoryData
                 }
             }
 
-            override fun OnException(e: Exception) {
+            override fun onException(e: Exception) {
                 Log.e("editSensor", e.toString())
                 _context.toast(e.toString())
             }
 
-            override fun OnError(volleyError: VolleyError) {
+            override fun onError(volleyError: VolleyError) {
                 VolleyLog.e("ERROR", volleyError.toString())
                 _context.toast("CONNECT ERROR")
             }
         })
-        loginAction.DoDbOperate(phpAddress)
+        loginAction.doDbOperate(phpAddress)
     }
 }

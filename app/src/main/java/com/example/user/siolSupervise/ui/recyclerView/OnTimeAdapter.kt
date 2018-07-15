@@ -43,22 +43,22 @@ class OnTimeAdapter constructor(context: Context, sensorOnTimeData: ArrayList<St
                 holder.tx_on_time_text!!.setTextColor(Color.BLACK)
                 holder.tx_on_time_title!!.setTextColor(Color.BLACK)
             }
-            else if (position in 1.._appSettingModel.SensorQuantity()) {
-                val sensorVisibility = _appSettingModel.SensorVisibility(position - 1)
+            else if (position in 1.._appSettingModel.sensorQuantity()) {
+                val sensorVisibility = _appSettingModel.sensorVisibility(position - 1)
 
                 if (sensorVisibility == View.VISIBLE) {
                     holder.tx_on_time_title!!.visibility = sensorVisibility
                     holder.tx_on_time_text!!.visibility = sensorVisibility
 
-                    holder.tx_on_time_title!!.text = _appSettingModel.SensorName(position - 1)
+                    holder.tx_on_time_title!!.text = _appSettingModel.sensorName(position - 1)
 
-                    val warnCondition = _appSettingModel.WarningCondition(position - 1).toFloat()
+                    val warnCondition = _appSettingModel.warningCondition(position - 1).toFloat()
                     val sensorDataFloat: Float
 
                     if (_sensorOnTimeData[position] == "") sensorDataFloat = (-1).toFloat()
                     else sensorDataFloat = _sensorOnTimeData[position]!!.toFloat()
 
-                    if (IsWarning(sensorDataFloat, warnCondition)) {
+                    if (isWarning(sensorDataFloat, warnCondition)) {
                         holder.tx_on_time_text!!.text = _context.getString(R.string.warn, _sensorOnTimeData[position], String.format("%.2f", warnCondition))
                         holder.tx_on_time_text!!.setTextColor(Color.RED)
                         holder.tx_on_time_title!!.setTextColor(Color.RED)
@@ -93,10 +93,10 @@ class OnTimeAdapter constructor(context: Context, sensorOnTimeData: ArrayList<St
     }
 
     override fun getItemCount(): Int {
-        return if (_sensorOnTimeData.isEmpty()) 0 else _appSettingModel.SensorQuantity() + 2
+        return if (_sensorOnTimeData.isEmpty()) 0 else _appSettingModel.sensorQuantity() + 2
     }
 
-    private fun IsWarning(sensorData: Float?, warnConditional: Float?): Boolean {
+    private fun isWarning(sensorData: Float?, warnConditional: Float?): Boolean {
         return (sensorData != null && warnConditional != null && sensorData != (-1).toFloat() && sensorData < warnConditional)
     }
 }

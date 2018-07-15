@@ -37,10 +37,10 @@ class SetChartDialog constructor(context: Context, parentFragment: ChartFragment
         val spinner_chart = findViewById<Spinner>(R.id.spinner_chart)
         val btn_set_chart = findViewById<Button>(R.id.btn_set_chart)
         var chartId = 0
-        val sensorTitleList = arrayOfNulls<String>(_appSettingModel.SensorQuantity())
+        val sensorTitleList = arrayOfNulls<String>(_appSettingModel.sensorQuantity())
 
-        for (i in 0 until _appSettingModel.SensorQuantity()) {
-            sensorTitleList[i] = _appSettingModel.SensorName(i)
+        for (i in 0 until _appSettingModel.sensorQuantity()) {
+            sensorTitleList[i] = _appSettingModel.sensorName(i)
         }
 
         val sensorListAdapter = ArrayAdapter(_context, android.R.layout.simple_spinner_dropdown_item, sensorTitleList)
@@ -55,32 +55,32 @@ class SetChartDialog constructor(context: Context, parentFragment: ChartFragment
         }
 
         btn_set_chart.setOnClickListener {
-            SetChartView(chartId)
+            setChartView(chartId)
             this.dismiss()
         }
     }
 
-    private fun SetChartView(chartID: Int) {
+    private fun setChartView(chartID: Int) {
         val tx_chartTitle = _parentFragment.find<TextView>(R.id.tx_chartTitle)
-        tx_chartTitle.text = _appSettingModel.SensorName(chartID)
-        val buildChartHelper = HttpHelper.InitInstance(_context)
-        buildChartHelper!!.SetHttpAction(object : IHttpAction {
-            override fun OnHttpRequest() {
-                ChartDataRenew(HttpRequest.DownloadFromMySQL("society",
+        tx_chartTitle.text = _appSettingModel.sensorName(chartID)
+        val buildChartHelper = HttpHelper.initInstance(_context)
+        buildChartHelper!!.setHttpAction(object : IHttpAction {
+            override fun onHttpRequest() {
+                chartDataRenew(HttpRequest.downloadFromMySQL("society",
                         PhpUrlDto(_context).LoadingWholeData), chartID)
             }
 
-            override fun OnException(e: Exception) {
+            override fun onException(e: Exception) {
                 _context.toast(e.toString())
             }
 
-            override fun OnPostExecute() {
+            override fun onPostExecute() {
             }
         })
-        buildChartHelper.StartHttpThread()
+        buildChartHelper.startHttpThread()
     }
 
-    private fun ChartDataRenew(jsonString: String?, chartId: Int) {
+    private fun chartDataRenew(jsonString: String?, chartId: Int) {
         val jsonArray = JSONArray(jsonString)
         val interval = if (jsonArray.length() > 500) (jsonArray.length()).div(500) else 1
         val x = ArrayList<kotlin.Array<Date?>>()
@@ -96,8 +96,8 @@ class SetChartDialog constructor(context: Context, parentFragment: ChartFragment
 
         x.add(timeData)
         y.add(ConvertUtils.convert(sensorData, java.lang.Double.TYPE) as DoubleArray)
-        val dataSet = BuildDataSet(_appSettingModel.SensorName(chartId), x, y, interval)
-        val renderer = BuildRenderer(Color.BLUE, PointStyle.CIRCLE, true,
+        val dataSet = buildDataSet(_appSettingModel.sensorName(chartId), x, y, interval)
+        val renderer = buildRenderer(Color.BLUE, PointStyle.CIRCLE, true,
                 "數據折線圖", "TIME", "%",
                 timeData[0]!!.time.toDouble(),
                 timeData[timeData.size - 1]!!.time.toDouble(),
@@ -116,7 +116,7 @@ class SetChartDialog constructor(context: Context, parentFragment: ChartFragment
         }
     }
 
-    private fun BuildDataSet(title: String, xValue: ArrayList<kotlin.Array<Date?>>,
+    private fun buildDataSet(title: String, xValue: ArrayList<kotlin.Array<Date?>>,
                              yVale: ArrayList<DoubleArray>, interval: Int): XYMultipleSeriesDataset {
         val dataSet = XYMultipleSeriesDataset()
         val series = TimeSeries(title)
@@ -130,7 +130,7 @@ class SetChartDialog constructor(context: Context, parentFragment: ChartFragment
         return dataSet
     }
 
-    private fun BuildRenderer(color: Int, style: PointStyle, fill: Boolean,
+    private fun buildRenderer(color: Int, style: PointStyle, fill: Boolean,
                               title: String, xTitle: String,
                               yTitle: String, xMin: Double, xMax: Double,
                               yMin: Double, yMax: Double, axisColor: Int): XYMultipleSeriesRenderer {

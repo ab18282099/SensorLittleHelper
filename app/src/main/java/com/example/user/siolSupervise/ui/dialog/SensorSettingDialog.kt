@@ -41,19 +41,19 @@ class SensorSettingDialog constructor(context: Context) : AlertDialog(context) {
 
         btn_insert.setOnClickListener {
             val id = dialogAdapter.itemCount
-            TryEditSensorQuantity("create_sensor", (id + 1).toString(), dialogAdapter)
+            tryEditSensorQuantity("create_sensor", (id + 1).toString(), dialogAdapter)
         }
         btn_drop.setOnClickListener {
-            if (_appSettingModel.SensorQuantity() == 5) {
+            if (_appSettingModel.sensorQuantity() == 5) {
                 _context.toast("At least 5 sensor")
             }
             else {
                 val id = dialogAdapter.itemCount
-                TryEditSensorQuantity("delete_sensor", id.toString(), dialogAdapter)
+                tryEditSensorQuantity("delete_sensor", id.toString(), dialogAdapter)
             }
         }
         btn_sensor_done.setOnClickListener {
-            val wrongInput = CheckInputType()
+            val wrongInput = checkInputType()
 
             if (wrongInput == -1) {
                 _context.toast("設定成功")
@@ -62,26 +62,26 @@ class SensorSettingDialog constructor(context: Context) : AlertDialog(context) {
             else {
                 val v = _context.vibrator
                 v.vibrate(500)
-                _context.toast("(" + _appSettingModel.SensorName(wrongInput) + ")" + "輸入有誤")
+                _context.toast("(" + _appSettingModel.sensorName(wrongInput) + ")" + "輸入有誤")
             }
         }
     }
 
-    private fun TryEditSensorQuantity(query: String, sensorId: String, dialogAdapter: SensorDialogAdapter) {
+    private fun tryEditSensorQuantity(query: String, sensorId: String, dialogAdapter: SensorDialogAdapter) {
         val addSensorAction = DbAction(_context)
-        addSensorAction.SetResponse(object : IDbResponse {
-            override fun OnSuccess(jsonObject: JSONObject) {
+        addSensorAction.setResponse(object : IDbResponse {
+            override fun onSuccess(jsonObject: JSONObject) {
                 val success = jsonObject.getInt("success")
                 val message = jsonObject.getString("message")
 
                 if (success == 1 && message == "Created Successfully.") {
-                    dialogAdapter.notifyItemInserted(_appSettingModel.SensorQuantity())
-                    _appSettingModel.PutInt("SensorQuantity", _appSettingModel.SensorQuantity() + 1)
+                    dialogAdapter.notifyItemInserted(_appSettingModel.sensorQuantity())
+                    _appSettingModel.putInt("sensorQuantity", _appSettingModel.sensorQuantity() + 1)
                     _context.toast("已新增Sensor")
                 }
                 else if (success == 1 && message == "Deleted Successfully.") {
-                    dialogAdapter.notifyItemRemoved(_appSettingModel.SensorQuantity() - 1)
-                    _appSettingModel.PutInt("SensorQuantity", _appSettingModel.SensorQuantity() - 1)
+                    dialogAdapter.notifyItemRemoved(_appSettingModel.sensorQuantity() - 1)
+                    _appSettingModel.putInt("sensorQuantity", _appSettingModel.sensorQuantity() - 1)
                     _context.toast("已移除Sensor")
                 }
                 else {
@@ -89,26 +89,26 @@ class SensorSettingDialog constructor(context: Context) : AlertDialog(context) {
                 }
             }
 
-            override fun OnException(e: Exception) {
+            override fun onException(e: Exception) {
                 Log.e("Editing db", e.toString())
             }
 
-            override fun OnError(volleyError: VolleyError) {
+            override fun onError(volleyError: VolleyError) {
                 VolleyLog.e("ERROR", volleyError.toString())
                 _context.toast("CONNECT ERROR")
             }
         })
-        addSensorAction.DoDbOperate(PhpUrlDto(_context).EditingSensorQuantityByQuery(query, sensorId))
+        addSensorAction.doDbOperate(PhpUrlDto(_context).editingSensorQuantityByQuery(query, sensorId))
     }
 
-    private fun CheckInputType(): Int {
+    private fun checkInputType(): Int {
         val regWarningCondition = Regex("[0-9]*.?[0-9]+")
         val regPin = Regex("[0-9]{1,2}")
-        val sensorQuantity = _appSettingModel.SensorQuantity()
+        val sensorQuantity = _appSettingModel.sensorQuantity()
 
         for (i in 0 until sensorQuantity) {
-            val warnCondition = _appSettingModel.WarningCondition(i)
-            val pin = _appSettingModel.SensorPin(i)
+            val warnCondition = _appSettingModel.warningCondition(i)
+            val pin = _appSettingModel.sensorPin(i)
 
             if (!warnCondition.matches(regWarningCondition) || !pin.matches(regPin)) {
                 return i

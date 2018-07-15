@@ -12,7 +12,7 @@ class HttpHelper private constructor(context: Context) {
         @Volatile
         private var instance: HttpHelper? = null
 
-        fun InitInstance(context: Context): HttpHelper? {
+        fun initInstance(context: Context): HttpHelper? {
             if (instance == null) {
                 synchronized(HttpHelper::class.java) {
                     if (instance == null)
@@ -26,13 +26,13 @@ class HttpHelper private constructor(context: Context) {
     private var _httpThread: HandlerThread? = null
     private var _uiHandler: Handler? = null
     private var _httpAction: IHttpAction? = null
-    private val _progressDialog: AlertDialog = ProgressDialog.DialogProgress(context, "連接中…", View.VISIBLE)
+    private val _progressDialog: AlertDialog = ProgressDialog.dialogProgress(context, "連接中…", View.VISIBLE)
 
-    fun SetHttpAction(action: IHttpAction) {
+    fun setHttpAction(action: IHttpAction) {
         _httpAction = action
     }
 
-    fun StartHttpThread() {
+    fun startHttpThread() {
         if (_httpAction != null) {
             _progressDialog.show()
             _progressDialog.setCancelable(false)
@@ -42,13 +42,13 @@ class HttpHelper private constructor(context: Context) {
             _uiHandler = Handler(_httpThread!!.looper)
             _uiHandler!!.post {
                 try {
-                    _httpAction!!.OnHttpRequest()
+                    _httpAction!!.onHttpRequest()
                 }
                 catch (e: Exception) {
-                    _httpAction!!.OnException(e)
+                    _httpAction!!.onException(e)
                 }
                 finally {
-                    _httpAction!!.OnPostExecute()
+                    _httpAction!!.onPostExecute()
 
                     _progressDialog.dismiss()
                 }
@@ -59,7 +59,7 @@ class HttpHelper private constructor(context: Context) {
         }
     }
 
-    fun RecycleThread() {
+    fun recycleThread() {
         if (_uiHandler != null && _httpThread != null) {
             _uiHandler!!.removeCallbacksAndMessages(null)
             _httpThread!!.quitSafely()

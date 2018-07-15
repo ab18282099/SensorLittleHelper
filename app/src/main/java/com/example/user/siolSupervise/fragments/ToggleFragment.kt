@@ -24,7 +24,7 @@ import org.json.JSONObject
 
 class ToggleFragment : BaseFragment(), FragmentBackPressedListener {
     companion object {
-        fun NewInstance(): ToggleFragment {
+        fun newInstance(): ToggleFragment {
             val fragment = ToggleFragment()
             val args = Bundle()
             fragment.arguments = args
@@ -53,8 +53,8 @@ class ToggleFragment : BaseFragment(), FragmentBackPressedListener {
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        tx_ip.text = getString(R.string.wifi_ip, _appSettingModel!!.WifiIp())
-        tx_port.text = getString(R.string.wifi_port, _appSettingModel!!.WifiPort())
+        tx_ip.text = getString(R.string.wifi_ip, _appSettingModel!!.wifiIp())
+        tx_port.text = getString(R.string.wifi_port, _appSettingModel!!.wifiPort())
         tx_name.text = getString(R.string.pin_title)
         tx_pin_num.text = getString(R.string.pin_num)
         tx_pin_state.text = getString(R.string.pin_state)
@@ -62,29 +62,29 @@ class ToggleFragment : BaseFragment(), FragmentBackPressedListener {
 
         btn_pin_state.text = getString(R.string.getPinState)
         btn_pin_state.setOnClickListener {
-            val ipAddress = _appSettingModel!!.WifiIp()
-            val port = _appSettingModel!!.WifiPort()
+            val ipAddress = _appSettingModel!!.wifiIp()
+            val port = _appSettingModel!!.wifiPort()
             val parameterValue = "78%78"
 
-            TryTogglePin(ipAddress, port, parameterValue)
+            tryTogglePin(ipAddress, port, parameterValue)
         }
     }
 
-    override fun OnFragmentBackPressed() {
+    override fun onFragmentBackPressed() {
         val vpMain = activity.findViewById<ViewPager>(R.id._vpMain) as ViewPager
         vpMain.currentItem = 1
     }
 
-    fun SetToggleRecycler() {
+    fun setToggleRecycler() {
         _toggleAdapter = ToggleAdapter(activity)
-        _toggleAdapter?.SetOnItemClickListener(object : RecyclerViewOnItemClickListener {
-            override fun OnRecyclerViewItemClick(view: View?, position: Int) {
-                if (_appSettingModel!!.SensorVisibility(position) == View.GONE) {
+        _toggleAdapter?.setOnItemClickListener(object : RecyclerViewOnItemClickListener {
+            override fun onRecyclerViewItemClick(view: View?, position: Int) {
+                if (_appSettingModel!!.sensorVisibility(position) == View.GONE) {
                     toast("THIS SENSOR NOT IN SERVICE")
                 }
                 else {
-                    TryTogglePin(_appSettingModel!!.WifiIp(),
-                            _appSettingModel!!.WifiPort(), _appSettingModel!!.SensorPin(position))
+                    tryTogglePin(_appSettingModel!!.wifiIp(),
+                            _appSettingModel!!.wifiPort(), _appSettingModel!!.sensorPin(position))
                 }
             }
         })
@@ -93,30 +93,30 @@ class ToggleFragment : BaseFragment(), FragmentBackPressedListener {
         _recyclerToggle?.addItemDecoration(SimpleDividerItemDecoration(activity))
     }
 
-    private fun TryTogglePin(ipAddress: String, port: String, parameterValue: String) {
-        _wifiToggleHelper = HttpHelper.InitInstance(activity)
-        _wifiToggleHelper!!.SetHttpAction(object : IHttpAction {
-            override fun OnHttpRequest() {
-                val requestReply = HttpRequest.SendToggleRequest(parameterValue, ipAddress, port, "pin")
-                val resultDialog = ProgressDialog.DialogProgress(activity, requestReply, View.GONE)
+    private fun tryTogglePin(ipAddress: String, port: String, parameterValue: String) {
+        _wifiToggleHelper = HttpHelper.initInstance(activity)
+        _wifiToggleHelper!!.setHttpAction(object : IHttpAction {
+            override fun onHttpRequest() {
+                val requestReply = HttpRequest.sendToggleRequest(parameterValue, ipAddress, port, "pin")
+                val resultDialog = ProgressDialog.dialogProgress(activity, requestReply, View.GONE)
                 resultDialog.show()
 
                 val jsonResult = JSONObject(requestReply)
 
-                for (i in 0 until _appSettingModel!!.SensorQuantity()) {
-                    _appSettingModel!!.PutString("getPin" + i.toString() + "State", jsonResult.getString("PIN" + _appSettingModel!!.SensorPin(i)))
+                for (i in 0 until _appSettingModel!!.sensorQuantity()) {
+                    _appSettingModel!!.putString("getPin" + i.toString() + "State", jsonResult.getString("PIN" + _appSettingModel!!.sensorPin(i)))
                 }
 
                 runOnUiThread { _toggleAdapter!!.notifyDataSetChanged() }
             }
 
-            override fun OnException(e: Exception) {
+            override fun onException(e: Exception) {
                 Log.e("Toggling pin", e.toString())
             }
 
-            override fun OnPostExecute() {
+            override fun onPostExecute() {
             }
         })
-        _wifiToggleHelper!!.StartHttpThread()
+        _wifiToggleHelper!!.startHttpThread()
     }
 }

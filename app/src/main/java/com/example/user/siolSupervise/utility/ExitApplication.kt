@@ -8,7 +8,7 @@ class ExitApplication {
         @Volatile
         private var instance: ExitApplication? = null
 
-        fun InitInstance(): ExitApplication? {
+        fun initInstance(): ExitApplication? {
             if (instance == null) {
                 synchronized(ExitApplication::class.java) {
                     if (instance == null) {
@@ -23,12 +23,12 @@ class ExitApplication {
     private val _activityList = LinkedList<Activity>()
 
     // add open activities in list_sensor_data
-    fun AddActivity(activity: Activity) {
+    fun addActivity(activity: Activity) {
         _activityList.add(activity)
     }
 
     // use "for" to close all activities
-    fun Exit() {
+    fun exit() {
         for (activity in _activityList) {
             activity.finish()
         }
