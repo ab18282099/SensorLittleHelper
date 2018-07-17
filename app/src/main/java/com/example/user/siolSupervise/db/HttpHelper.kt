@@ -9,48 +9,67 @@ import com.example.user.siolSupervise.ui.dialog.ProgressDialog
 
 class HttpHelper private constructor(context: Context) {
     companion object {
+
+        /**
+         * HttpHelper 的單例
+         */
         @Volatile
         private var instance: HttpHelper? = null
 
+        /**
+         * 初始化 HttpHelper 的實例
+         * @param context Ui context
+         */
         fun initInstance(context: Context): HttpHelper? {
-            if (instance == null) {
+            if (this.instance == null) {
                 synchronized(HttpHelper::class.java) {
-                    if (instance == null)
-                        instance = HttpHelper(context)
+                    if (this.instance == null)
+                        this.instance = HttpHelper(context)
                 }
             }
-            return instance
+            return this.instance
+        }
+
+        /**
+         * initInstance 後使用 useInstance 取得單例
+         */
+        fun useInstance(): HttpHelper? {
+            if (this.instance == null) {
+                throw NullPointerException("HttpHelper null")
+            }
+
+            return this.instance
         }
     }
 
-    private var _httpThread: HandlerThread? = null
-    private var _uiHandler: Handler? = null
-    private var _httpAction: IHttpAction? = null
-    private val _progressDialog: AlertDialog = ProgressDialog.dialogProgress(context, "連接中…", View.VISIBLE)
+    private var httpThread: HandlerThread? = null
+    private var uiHandler: Handler? = null
+    private var httpAction: IHttpAction? = null
+    private val progressDialog: AlertDialog = ProgressDialog.dialogProgress(context, "連接中…", View.VISIBLE)
 
     fun setHttpAction(action: IHttpAction) {
-        _httpAction = action
+        this.httpAction = action
     }
 
     fun startHttpThread() {
-        if (_httpAction != null) {
-            _progressDialog.show()
-            _progressDialog.setCancelable(false)
+        if (this.httpAction != null) {
+            this.progressDialog.show()
+            this.progressDialog.setCancelable(false)
 
-            _httpThread = HandlerThread("HttpThread")
-            _httpThread!!.start()
-            _uiHandler = Handler(_httpThread!!.looper)
-            _uiHandler!!.post {
+            this.httpThread = HandlerThread("HttpThread")
+            this.httpThread!!.start()
+            this.uiHandler = Handler(this.httpThread!!.looper)
+            this.uiHandler!!.post {
                 try {
-                    _httpAction!!.onHttpRequest()
+                    this.httpAction!!.onHttpRequest()
                 }
                 catch (e: Exception) {
-                    _httpAction!!.onException(e)
+                    this.httpAction!!.onException(e)
                 }
                 finally {
-                    _httpAction!!.onPostExecute()
+                    this.httpAction!!.onPostExecute()
 
-                    _progressDialog.dismiss()
+                    this.progressDialog.dismiss()
                 }
             }
         }
@@ -60,10 +79,10 @@ class HttpHelper private constructor(context: Context) {
     }
 
     fun recycleThread() {
-        if (_uiHandler != null && _httpThread != null) {
-            _uiHandler!!.removeCallbacksAndMessages(null)
-            _httpThread!!.quitSafely()
-            _httpThread!!.interrupt()
+        if (this.uiHandler != null && this.httpThread != null) {
+            this.uiHandler!!.removeCallbacksAndMessages(null)
+            this.httpThread!!.quitSafely()
+            this.httpThread!!.interrupt()
         }
     }
 }

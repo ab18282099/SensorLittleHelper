@@ -63,7 +63,7 @@ class SetChartDialog constructor(context: Context, parentFragment: ChartFragment
     private fun setChartView(chartID: Int) {
         val tx_chartTitle = _parentFragment.find<TextView>(R.id.tx_chartTitle)
         tx_chartTitle.text = _appSettingModel.sensorName(chartID)
-        val buildChartHelper = HttpHelper.initInstance(_context)
+        val buildChartHelper = HttpHelper.useInstance()
         buildChartHelper!!.setHttpAction(object : IHttpAction {
             override fun onHttpRequest() {
                 chartDataRenew(HttpRequest.downloadFromMySQL("society",

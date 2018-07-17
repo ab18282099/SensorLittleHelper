@@ -12,64 +12,154 @@ import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
 import android.widget.SimpleAdapter
-import com.example.user.siolSupervise.fragments.*
 import com.example.user.siolSupervise.db.HttpHelper
+import com.example.user.siolSupervise.db.IHttpAction
+import com.example.user.siolSupervise.dto.PhpUrlDto
+import com.example.user.siolSupervise.fragments.*
 import com.example.user.siolSupervise.fragments.FragmentBackPressedListener
 import com.example.user.siolSupervise.fragments.FragmentMenuItemClickListener
 import com.example.user.siolSupervise.models.AppSettingModel
-import com.example.user.siolSupervise.dto.PhpUrlDto
 import com.example.user.siolSupervise.models.SensorDataModel
-import com.example.user.siolSupervise.db.IHttpAction
-import com.example.user.siolSupervise.utility.*
 import com.example.user.siolSupervise.R
-import kotlinx.android.synthetic.main.activity_main.*
-import net.lucode.hackware.magicindicator.ViewPagerHelper
-import net.lucode.hackware.magicindicator.buildins.commonnavigator.CommonNavigator
-import org.jetbrains.anko.*
-import org.json.JSONArray
+import com.example.user.siolSupervise.utility.*
 import java.lang.ref.WeakReference
 import java.util.HashMap
+import kotlinx.android.synthetic.main.activity_main.*
+import net.lucode.hackware.magicindicator.buildins.commonnavigator.CommonNavigator
+import net.lucode.hackware.magicindicator.ViewPagerHelper
+import org.jetbrains.anko.*
+import org.json.JSONArray
 
+/**
+ * 首頁 Activity
+ */
 class MainActivity : BaseActivity() {
-    private val _fragmentLogin = LoginFragment.newInstance() as Fragment //just test for ssd
-    private val _fragmentSetting = SettingFragment.newInstance() as Fragment // These fragments implement FragmentBackPressedListener, should be "as Fragment"
-    private val _fragmentHistory = HistoryDataFragment.newInstance() as Fragment
-    private val _fragmentMain = MainFragment.newInstance() as Fragment
-    private val _fragmentOnTime = OnTimeFragment.newInstance() as Fragment
-    private val _fragmentChart = ChartFragment.newInstance() as Fragment
-    private val _fragmentToggle = ToggleFragment.newInstance() as Fragment
-    private val _fragmentList = ArrayList<Fragment>()
-    private val _fragmentTitleList = ArrayList<String>()
-    private val _fragmentImgList = ArrayList<Int>()
-    private var _httpHelper: HttpHelper? = null
-    private val _activeFragmentList = ArrayList<WeakReference<Fragment?>>()
-    private var _vpMain: ViewPager? = null
-    private var _mAdapter: FragmentViewPagerAdapter? = null
-    private var _onTimeHandler: Handler? = null
-    private var _onTimeRunnable: Runnable? = null
-    private var _doubleBackToExit: Boolean? = null
-    private var _appSettingModel: AppSettingModel? = null
 
+    // These fragments implement FragmentBackPressedListener, should be "as Fragment"
+
+    /**
+     * 登入畫面 fragment
+     */
+    private val loginFragment = LoginFragment.newInstance() as Fragment
+
+    /**
+     * 設定畫面 fragment
+     */
+    private val settingFragment = SettingFragment.newInstance() as Fragment
+
+    /**
+     * 感測器歷史數據清單畫面 fragment
+     */
+    private val historyViewFragment = HistoryDataFragment.newInstance() as Fragment
+
+    /**
+     * 首頁畫面 fragment
+     */
+    private val mainViewFragment = MainFragment.newInstance() as Fragment
+
+    /**
+     * 即時數據畫面 fragment
+     */
+    private val realTimeViewFragment = RealTimeFragment.newInstance() as Fragment
+
+    /**
+     * 感測器圖表畫面 fragment
+     */
+    private val chartViewFragment = ChartFragment.newInstance() as Fragment
+
+    /**
+     * 遙控功能 fragment
+     */
+    private val remoteControlFragment = RemoteControlFragment.newInstance() as Fragment
+
+    /**
+     * 需綁進 ViewPager 的 fragment 清單
+     */
+    private val fragmentList = ArrayList<Fragment>()
+
+    /**
+     * fragment 的標題清單
+     */
+    private val fragmentTitleList = ArrayList<String>()
+
+    /**
+     * fragment 畫面對應圖示 res id 清單
+     */
+    private val fragmentImageResList = ArrayList<Int>()
+
+    /**
+     * HTTP Helper
+     */
+    private var httpHelper: HttpHelper? = null
+
+    /**
+     * 載入 main activity 時所有 attach 的 fragment 弱引用
+     */
+    private val attachedFragmentList = ArrayList<WeakReference<Fragment?>>()
+
+    /**
+     * 主畫面 ViewPager
+     */
+    private var mainViewPager: ViewPager? = null
+
+    /**
+     * Fragment 轉接 ViewPager
+     */
+    private var fragmentViewPagerAdapter: FragmentViewPagerAdapter? = null
+
+    /**
+     * 即時數據畫面排程處理器
+     */
+    private var onTimeHandler: Handler? = null
+
+    /**
+     * 即時數據畫面排程工作
+     */
+    private var onTimeRunnable: Runnable? = null
+
+    /**
+     * 是否為第二次按下 back pressed
+     */
+    private var isDoubleBackPressed: Boolean = false
+
+    /**
+     * 應用程式設定資料模型
+     */
+    private var appSettingModel: AppSettingModel? = null
+
+    /**
+     * Activity onCreate
+     * @param savedInstanceState The savedInstanceState is a reference to a Bundle object that is passed into the onCreate method of every Android Activity.
+     * Activities have the ability, under special circumstances, to restore themselves to a previous state using the data stored in this bundle.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        _appSettingModel = AppSettingModel(this)
-        _appSettingModel!!.putString("username", "")
+        this.appSettingModel = AppSettingModel(this)
+        this.appSettingModel!!.putString("username", "")
 
-        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
-        setContentView(R.layout.activity_main)
+        this.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+        this.setContentView(R.layout.activity_main)
 
-        ExitApplication.initInstance()!!.addActivity(this)
+        this.httpHelper = HttpHelper.initInstance(this)
+        ExitApplication.useInstance()!!.addActivity(this)
     }
 
+    /**
+     * Activity onAttachFragment
+     * @param fragment the fragment attached
+     */
     override fun onAttachFragment(fragment: Fragment?) {
         super.onAttachFragment(fragment)
-        _activeFragmentList.add(WeakReference(fragment))
+        this.attachedFragmentList.add(WeakReference(fragment))
     }
 
+    /**
+     * 初始化 actionBar，綁定相關點擊事件
+     */
     override fun initActionBar() {
-        val drawerLayout = findViewById<DrawerLayout>(R.id.drawerLayout)
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        val drawerLayout = this.findViewById<DrawerLayout>(R.id.drawerLayout)
+        val toolbar = this.findViewById<Toolbar>(R.id.toolbar)
         val drawerMenuTextList = arrayOf("關於")
         val drawerMenuIconList = arrayOf(R.drawable.about)
         val items = java.util.ArrayList<Map<String, Any>>()
@@ -79,134 +169,174 @@ class MainActivity : BaseActivity() {
             item.put("text", drawerMenuTextList[i])
             items.add(item)
         }
-        val drawerMenuAdapter = SimpleAdapter(this, items, R.layout.item_draw_menu,
-                arrayOf("icon", "text"), intArrayOf(R.id.imageDrawMenu, R.id.textDrawMenu))
 
-        setActivityTitle("SOIL SUPERVISE")
+        // 建立 drawer menu 的 SimpleAdapter
+        val drawerMenuAdapter = SimpleAdapter(
+                this,
+                items,
+                R.layout.item_draw_menu,
+                arrayOf("icon", "text"),
+                intArrayOf(R.id.imageDrawMenu, R.id.textDrawMenu))
 
-        setRightImageAndClickListener(R.drawable.exit, View.OnClickListener {
-            alert("你確定要離開?") {
-                yesButton { ExitApplication.initInstance()?.exit() }
-                noButton { }
+        this.setActivityTitle("SOIL SUPERVISE")
+
+        this.setRightImageAndClickListener(R.drawable.exit, View.OnClickListener {
+            this.alert("你確定要離開?") {
+                this.yesButton { ExitApplication.useInstance()?.exit() }
+                this.noButton { }
             }.show()
         })
 
-        setOnNavigationClickListener({ _ ->
+        this.setOnNavigationClickListener({ _ ->
             drawerLayout.openDrawer(Gravity.START)
         })
 
-        setDrawerListener(object : ActionBarDrawerToggle(this, drawerLayout,
+        this.setDrawerListener(object : ActionBarDrawerToggle(this, drawerLayout,
                 toolbar, R.string.drawer_open, R.string.drawer_close) {
         })
 
-        setDrawMenuAdapterAndItemClickListener(drawerMenuAdapter, { adapterView, view, i, l ->
+        this.setDrawMenuAdapterAndItemClickListener(drawerMenuAdapter, { adapterView, view, i, l ->
             when (i) {
                 0 -> {
-                    alert("Create by SHENG-WEI LIN,\nOctober 2017") {
-                        yesButton { }
+                    this.alert("Create by SHENG-WEI LIN,\nOctober 2017") {
+                        this.yesButton { }
                     }.show()
                 }
             }
         })
     }
 
-    //After onCreate(in baseActivity) add Fragment
+    /**
+     * 尋找 MainActivity 的主要布局(fragments & ViewPager)
+     */
     override fun findView() {
         val fragmentsTitleList = arrayOf("登入", "主頁", "Wi-Fi遙控", "即時監控", "歷史數據", "折線圖", "設定")
-        _fragmentTitleList.addAll(fragmentsTitleList)
+        this.fragmentTitleList.addAll(fragmentsTitleList)
 
-        val image = arrayOf(R.drawable.login, R.drawable.main, R.drawable.wifi, R.drawable.current, R.drawable.historydata, R.drawable.chart, R.drawable.setting)
-        _fragmentImgList.addAll(image)
+        val images = arrayOf(
+                R.drawable.login,
+                R.drawable.main,
+                R.drawable.wifi,
+                R.drawable.current,
+                R.drawable.historydata,
+                R.drawable.chart,
+                R.drawable.setting)
+        this.fragmentImageResList.addAll(images)
 
-        val fragmentsInViewPager = arrayOf(_fragmentLogin, _fragmentMain, _fragmentToggle, _fragmentOnTime, _fragmentHistory, _fragmentChart, _fragmentSetting)
-        _fragmentList.addAll(fragmentsInViewPager)
+        val fragmentsInViewPager = arrayOf(
+                this.loginFragment,
+                this.mainViewFragment,
+                this.remoteControlFragment,
+                this.realTimeViewFragment,
+                this.historyViewFragment,
+                this.chartViewFragment,
+                this.settingFragment)
+        this.fragmentList.addAll(fragmentsInViewPager)
 
-        _vpMain = findViewById<ViewPager>(R.id._vpMain)
+        this.mainViewPager = this.findViewById(R.id._vpMain)
     }
 
+    /**
+     * 初始化 MainActivity 布局，綁定 fragment 與 ViewPager，並設定 ViewPager 頁面轉換監聽事件
+     */
     override fun initView() {
-        _mAdapter = FragmentViewPagerAdapter(fragmentManager, _fragmentList)
-        _vpMain?.adapter = _mAdapter
+        this.fragmentViewPagerAdapter = FragmentViewPagerAdapter(this.fragmentManager, this.fragmentList)
+        this.mainViewPager?.adapter = this.fragmentViewPagerAdapter
 
         val commonNavigator = CommonNavigator(this)
-        val mNavigatorAdapter = MyCommonNavigatorAdapter(_fragmentTitleList, _fragmentImgList, _vpMain)
+        val mNavigatorAdapter = MainCommonNavigatorAdapter(this.fragmentTitleList, this.fragmentImageResList, this.mainViewPager)
         commonNavigator.adapter = mNavigatorAdapter
-        magic_indicator.navigator = commonNavigator
+        this.magic_indicator.navigator = commonNavigator
 
-        ViewPagerHelper.bind(magic_indicator, _vpMain)
+        // 綁定底部 magic_indicator
+        ViewPagerHelper.bind(this.magic_indicator, this.mainViewPager)
 
-        //USE "object" to init component
-        _vpMain?.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+        // 設定 ViewPager 頁面轉換監聽事件
+        this.mainViewPager?.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
             override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
             }
 
             override fun onPageSelected(position: Int) {
                 when (position) {
+
+                    // 登入頁
                     0 -> {
-                        setActivityTitle("登入")
-                        setRightImageAndClickListener(R.drawable.exit, View.OnClickListener {
-                            alert("你確定要離開?") {
-                                yesButton { ExitApplication.initInstance()?.exit() }
-                                noButton { }
+                        this@MainActivity.setActivityTitle("登入")
+                        this@MainActivity.setRightImageAndClickListener(R.drawable.exit, View.OnClickListener {
+                            this@MainActivity.alert("你確定要離開?") {
+                                this.yesButton { ExitApplication.useInstance()?.exit() }
+                                this.noButton { }
                             }.show()
                         })
-                        removeCallOnTime()
+                        this@MainActivity.removeCallOnTime()
                     }
+
+                    // 主頁圖示選單頁
                     1 -> {
-                        val MainFragmentMenuItemClickListener = _mAdapter!!.getFragment(1) as FragmentMenuItemClickListener
-                        setActivityTitle("主頁")
-                        setRightImageAndClickListener(R.drawable.login, View.OnClickListener {
-                            _vpMain?.currentItem = 0
+                        val mainFragmentMenuItemClickListener = this@MainActivity.fragmentViewPagerAdapter!!.getFragment(1) as FragmentMenuItemClickListener
+                        this@MainActivity.setActivityTitle("主頁")
+                        this@MainActivity.setRightImageAndClickListener(R.drawable.login, View.OnClickListener {
+                            this@MainActivity.mainViewPager?.currentItem = 0
                         })
-                        setMenuClickListener(MainFragmentMenuItemClickListener)
-                        removeCallOnTime()
+                        this@MainActivity.setMenuClickListener(mainFragmentMenuItemClickListener)
+                        this@MainActivity.removeCallOnTime()
                     }
+
+                    // 遙控操作頁
                     2 -> {
-                        setActivityTitle("Wi-Fi遙控")
-                        setRightImageAndClickListener(R.drawable.main, View.OnClickListener {
-                            _vpMain?.currentItem = 1
+                        this@MainActivity.setActivityTitle("Wi-Fi遙控")
+                        this@MainActivity.setRightImageAndClickListener(R.drawable.main, View.OnClickListener {
+                            this@MainActivity.mainViewPager?.currentItem = 1
                         })
-                        val toggleFragment = _mAdapter!!.getFragment(2) as ToggleFragment
+                        val toggleFragment = this@MainActivity.fragmentViewPagerAdapter!!.getFragment(2) as RemoteControlFragment
                         toggleFragment.setToggleRecycler()
-                        removeCallOnTime()
+                        this@MainActivity.removeCallOnTime()
                     }
+
+                    // 即時數據頁
                     3 -> {
-                        val onTimeFragment = _mAdapter!!.getFragment(3) as OnTimeFragment
-                        setActivityTitle("即時監控")
-                        setRightImageAndClickListener(R.drawable.refresh, View.OnClickListener {
-                            removeCallOnTime()
-                            loadOnTimeData(onTimeFragment)
+                        val realTimeFragment = this@MainActivity.fragmentViewPagerAdapter!!.getFragment(3) as RealTimeFragment
+                        this@MainActivity.setActivityTitle("即時監控")
+                        this@MainActivity.setRightImageAndClickListener(R.drawable.refresh, View.OnClickListener {
+                            this@MainActivity.removeCallOnTime()
+                            this@MainActivity.loadOnTimeData(realTimeFragment)
                         })
-                        loadOnTimeData(onTimeFragment)
+                        this@MainActivity.loadOnTimeData(realTimeFragment)
                     }
+
+                    // 歷史數據頁
                     4 -> {
-                        val historyFragment = _mAdapter!!.getFragment(4) as HistoryDataFragment
+                        val historyFragment = this@MainActivity.fragmentViewPagerAdapter!!.getFragment(4) as HistoryDataFragment
                         val historyFragmentMenuClickListener = historyFragment as FragmentMenuItemClickListener
 
-                        setActivityTitle("歷史數據")
-                        setRightImageAndClickListener(R.drawable.refresh, View.OnClickListener {
-                            loadHistoryData(historyFragment, this@MainActivity, historyFragment.getCurrentIdOne(), historyFragment.getCurrentIdTwo())
+                        this@MainActivity.setActivityTitle("歷史數據")
+                        this@MainActivity.setRightImageAndClickListener(R.drawable.refresh, View.OnClickListener {
+                            this@MainActivity.loadHistoryData(historyFragment, this@MainActivity, historyFragment.getCurrentIdOne(), historyFragment.getCurrentIdTwo())
                         })
 
-                        setMenuClickListener(historyFragmentMenuClickListener)
+                        this@MainActivity.setMenuClickListener(historyFragmentMenuClickListener)
 
-                        loadHistoryData(historyFragment, this@MainActivity, "1", "100")
+                        this@MainActivity.loadHistoryData(historyFragment, this@MainActivity, "1", "100")
 
-                        removeCallOnTime()
+                        this@MainActivity.removeCallOnTime()
                     }
+
+                    // 數據趨勢圖頁面
                     5 -> {
-                        setActivityTitle("折線圖")
-                        setRightImageAndClickListener(R.drawable.main, View.OnClickListener {
-                            _vpMain?.currentItem = 1
+                        this@MainActivity.setActivityTitle("折線圖")
+                        this@MainActivity.setRightImageAndClickListener(R.drawable.main, View.OnClickListener {
+                            this@MainActivity.mainViewPager?.currentItem = 1
                         })
-                        removeCallOnTime()
+                        this@MainActivity.removeCallOnTime()
                     }
+
+                    // 應用程式設定頁
                     6 -> {
-                        setActivityTitle("設定")
-                        setRightImageAndClickListener(R.drawable.main, View.OnClickListener {
-                            _vpMain?.currentItem = 1
+                        this@MainActivity.setActivityTitle("設定")
+                        this@MainActivity.setRightImageAndClickListener(R.drawable.main, View.OnClickListener {
+                            this@MainActivity.mainViewPager?.currentItem = 1
                         })
-                        removeCallOnTime()
+                        this@MainActivity.removeCallOnTime()
                     }
                 }
             }
@@ -216,93 +346,130 @@ class MainActivity : BaseActivity() {
         })
     }
 
+    /**
+     * 返回鍵點擊監聽事件
+     */
     override fun onBackPressed() {
-        val activeFragment = getActiveFragment()
+        val activeFragment = this.getActiveFragment()
         if (activeFragment.isNotEmpty()) {
             activeFragment.asSequence()
                     .filter { it is FragmentBackPressedListener }
                     .forEach { (it as FragmentBackPressedListener).onFragmentBackPressed() }
         }
         else {
-            if (_doubleBackToExit == true && _doubleBackToExit != null) {
-                ExitApplication.initInstance()?.exit()
+            if (this.isDoubleBackPressed) {
+                ExitApplication.useInstance()?.exit()
                 return
             }
-            this._doubleBackToExit = true
-            toast("Press Back again to exit")
+            this.isDoubleBackPressed = true
+            this.toast("Press Back again to exit")
 
             Handler().postDelayed({
-                _doubleBackToExit = false
+                this.isDoubleBackPressed = false
             }, 1000)
         }
     }
 
+    /**
+     * activity onDestroy，在此回收 HttpHelper 的 HandlerThread
+     */
     override fun onDestroy() {
-        if (_httpHelper != null)
-            _httpHelper!!.recycleThread()
+
+        // 回收 httpHelper 執行序
+        if (this.httpHelper != null)
+            this.httpHelper!!.recycleThread()
 
         super.onDestroy()
     }
 
-    fun loadHistoryData(historyFragment: HistoryDataFragment, context: Context, id1: String, id2: String) {
-        _httpHelper = HttpHelper.initInstance(context)
-        _httpHelper!!.setHttpAction(object : IHttpAction {
+    /**
+     * 下載歷史數據
+     * @param historyFragment 歷史清單頁 fragment
+     * @param context 當前 app context
+     * @param idOne 欲下載的資料編號起始
+     * @param idTwo 欲下載的資料編號結尾
+     */
+    fun loadHistoryData(historyFragment: HistoryDataFragment, context: Context, idOne: String, idTwo: String) {
+
+        this.httpHelper!!.setHttpAction(object : IHttpAction {
             override fun onHttpRequest() {
-                val data = HttpRequest.downloadFromMySQL("society", PhpUrlDto(context).loadingHistoryDataById(id1, id2))
+
+                // 下載資料並進行轉檔
+                val data = HttpRequest.downloadFromMySQL("society", PhpUrlDto(context).loadingHistoryDataById(idOne, idTwo))
                 val model = SensorDataModel()
                 val dataParser = SensorDataParser(context)
                 model.SensorDataLength = dataParser.getJsonArrayLength(JSONArray(data))
                 model.SensorDataList = dataParser.getSensorData(JSONArray(data))
 
-                historyFragment.setCurrentId(id1, id2)
+                historyFragment.setCurrentId(idOne, idTwo)
                 historyFragment.setDataModel(model)
                 historyFragment.setLoadSuccess(true)
 
-                runOnUiThread {
+                // 完成資料載入後於 ui 執行序刷新畫面
+                this@MainActivity.runOnUiThread {
                     historyFragment.renewRecyclerView()
                     historyFragment.renewSensorTitle()
                 }
             }
 
             override fun onException(e: Exception) {
-                if (historyFragment.getLoadSuccess()) // if last time is success
+
+                // if last time is success
+                if (historyFragment.getLoadSuccess())
                 {
-                    historyFragment.setLoadSuccess(false) // this time is not success
-                    loadHistoryData(historyFragment, context, (id1.toInt() - 100).toString(), (id2.toInt() - 100).toString())
+                    // this time is not success
+                    historyFragment.setLoadSuccess(false)
+                    this@MainActivity.loadHistoryData(historyFragment, context, (idOne.toInt() - 100).toString(), (idTwo.toInt() - 100).toString())
                 }
                 else {
                     historyFragment.setCurrentId("1", "100")
                     historyFragment.setDataModel(SensorDataModel())
                 }
 
-                runOnUiThread { historyFragment.renewRecyclerView() }
+                this@MainActivity.runOnUiThread { historyFragment.renewRecyclerView() }
             }
 
             override fun onPostExecute() {
             }
         })
-        _httpHelper!!.startHttpThread()
+
+        this.httpHelper!!.startHttpThread()
     }
 
-    fun loadOnTimeData(onTimeFragment: OnTimeFragment) {
-        _onTimeHandler = Handler()
-        _onTimeRunnable = Runnable {
-            onTimeFragment.tryLoadLastData()
-            _onTimeHandler!!.postDelayed(_onTimeRunnable, 30000)
+    /**
+     * 載入即時數據資料
+     * @param realTimeFragment 即時數據頁面 fragment
+     */
+    private fun loadOnTimeData(realTimeFragment: RealTimeFragment) {
+        this.onTimeHandler = Handler()
+        this.onTimeRunnable = Runnable {
+            realTimeFragment.tryLoadLastData()
+            this.onTimeHandler!!.postDelayed(this.onTimeRunnable, 30000)
         }
-        _onTimeHandler!!.postDelayed(_onTimeRunnable, 200)
+
+        this.onTimeHandler!!.postDelayed(this.onTimeRunnable, 200)
     }
 
+    /**
+     * 移除即時數據載入工作排成
+     */
     private fun removeCallOnTime() {
-        if (_onTimeHandler != null && _onTimeRunnable != null) {
-            _onTimeHandler!!.removeCallbacks(_onTimeRunnable)
+        if (this.onTimeHandler != null && this.onTimeRunnable != null) {
+            this.onTimeHandler!!.removeCallbacks(this.onTimeRunnable)
         }
     }
 
+    /**
+     * 取得當前顯示頁面的 fragment
+     * @return 當前頁面 fragment
+     */
     private fun getActiveFragment(): ArrayList<Fragment?> {
         val ret = ArrayList<Fragment?>()
-        val weak_ret = _activeFragmentList.asSequence().filter { it.get()!!.isVisible and it.get()!!.userVisibleHint }
-        weak_ret.forEach { ret.add(it.get()) }
+        this.attachedFragmentList
+                .asSequence()
+                .filter { it.get()!!.isVisible and it.get()!!.userVisibleHint }
+                .forEach { ret.add(it.get()) }
+
         return ret
     }
 }

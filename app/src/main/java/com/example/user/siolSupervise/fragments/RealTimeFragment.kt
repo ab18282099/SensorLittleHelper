@@ -23,10 +23,10 @@ import org.jetbrains.anko.toast
 import org.jetbrains.anko.yesButton
 import org.json.JSONObject
 
-class OnTimeFragment : BaseFragment(), FragmentBackPressedListener {
+class RealTimeFragment : BaseFragment(), FragmentBackPressedListener {
     companion object {
-        fun newInstance(): OnTimeFragment {
-            val fragment = OnTimeFragment()
+        fun newInstance(): RealTimeFragment {
+            val fragment = RealTimeFragment()
             val args = Bundle()
             fragment.arguments = args
             return fragment

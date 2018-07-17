@@ -22,10 +22,10 @@ import org.jetbrains.anko.runOnUiThread
 import org.jetbrains.anko.toast
 import org.json.JSONObject
 
-class ToggleFragment : BaseFragment(), FragmentBackPressedListener {
+class RemoteControlFragment : BaseFragment(), FragmentBackPressedListener {
     companion object {
-        fun newInstance(): ToggleFragment {
-            val fragment = ToggleFragment()
+        fun newInstance(): RemoteControlFragment {
+            val fragment = RemoteControlFragment()
             val args = Bundle()
             fragment.arguments = args
             return fragment
@@ -94,7 +94,7 @@ class ToggleFragment : BaseFragment(), FragmentBackPressedListener {
     }
 
     private fun tryTogglePin(ipAddress: String, port: String, parameterValue: String) {
-        _wifiToggleHelper = HttpHelper.initInstance(activity)
+        _wifiToggleHelper = HttpHelper.useInstance()
         _wifiToggleHelper!!.setHttpAction(object : IHttpAction {
             override fun onHttpRequest() {
                 val requestReply = HttpRequest.sendToggleRequest(parameterValue, ipAddress, port, "pin")

@@ -9,39 +9,62 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.example.user.siolSupervise.ui.dialog.ProgressDialog
 
+/**
+ * 封裝使用 Volley 之 DB 操作模板
+ */
 class DbAction constructor(context: Context) {
-    private val _queue: RequestQueue = Volley.newRequestQueue(context)
-    private val _progressDialog: AlertDialog = ProgressDialog.dialogProgress(context, "連接中…", View.VISIBLE)
-    private var _dbResponse: IDbResponse? = null
 
+    /**
+     * request 序列
+     */
+    private val requestQueue: RequestQueue = Volley.newRequestQueue(context)
+
+    /**
+     * 載入畫面的彈出視窗
+     */
+    private val progressDialog: AlertDialog = ProgressDialog.dialogProgress(context, "連接中…", View.VISIBLE)
+
+    /**
+     * DB 回應
+     */
+    private var dbResponse: IDbResponse? = null
+
+    /**
+     * 設定 DB 回應介面
+     * @param response Db 回應介面
+     */
     fun setResponse(response: IDbResponse) {
-        _dbResponse = response
+        this.dbResponse = response
     }
 
+    /**
+     * 執行操作
+     * @param phpAddress php api 網址
+     */
     fun doDbOperate(phpAddress: String) {
-        if (_dbResponse != null) {
-            _progressDialog.show()
-            _progressDialog.setCancelable(false)
+        if (this.dbResponse != null) {
+            this.progressDialog.show()
+            this.progressDialog.setCancelable(false)
 
             val connectRequest = JsonObjectRequest(phpAddress, null, { jsonObject ->
                 try {
-                    _dbResponse?.onSuccess(jsonObject)
+                    this.dbResponse?.onSuccess(jsonObject)
                 }
                 catch (e: Exception) {
-                    _dbResponse?.onException(e)
+                    this.dbResponse?.onException(e)
                 }
                 finally {
-                    _progressDialog.dismiss()
+                    this.progressDialog.dismiss()
                 }
             }, { volleyError ->
-                _dbResponse?.onError(volleyError)
-                _progressDialog.dismiss()
+                this.dbResponse?.onError(volleyError)
+                this.progressDialog.dismiss()
             })
 
             connectRequest.retryPolicy = DefaultRetryPolicy(8000,
                     DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                     DefaultRetryPolicy.DEFAULT_BACKOFF_MULT)
-            _queue.add(connectRequest)
+            this.requestQueue.add(connectRequest)
         }
         else {
             throw NullPointerException("Null Response")

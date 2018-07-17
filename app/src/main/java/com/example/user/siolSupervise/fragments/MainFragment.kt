@@ -63,7 +63,7 @@ class MainFragment : BaseFragment(), FragmentBackPressedListener, FragmentMenuIt
                 4 -> vpMain.currentItem = 5 // chart
                 5 -> {
                     alert("離開程式?") {
-                        yesButton { ExitApplication.initInstance()!!.exit() }
+                        yesButton { ExitApplication.useInstance()!!.exit() }
                         noButton { }
                     }.show()
                 }
@@ -106,7 +106,7 @@ class MainFragment : BaseFragment(), FragmentBackPressedListener, FragmentMenuIt
                 }
                 R.id.menu_mainExit -> {
                     alert("你確定要離開?") {
-                        yesButton { ExitApplication.initInstance()?.exit() }
+                        yesButton { ExitApplication.useInstance()?.exit() }
                         noButton { }
                     }.show()
                 }

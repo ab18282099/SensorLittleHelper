@@ -65,7 +65,7 @@ class LoginFragment : BaseFragment(), FragmentBackPressedListener {
 
     override fun onFragmentBackPressed() {
         if (_doubleBackToExit == true && _doubleBackToExit != null) {
-            ExitApplication.initInstance()?.exit()
+            ExitApplication.useInstance()?.exit()
             return
         }
 

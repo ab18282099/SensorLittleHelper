@@ -57,7 +57,7 @@ class AutoToggleDialog constructor(context: Context, togglePin: String, message:
     }
 
     private fun tryTogglePin(ipAddress: String, port: String, parameterValue: String) {
-        val wifiToggleHelper = HttpHelper.initInstance(_context)
+        val wifiToggleHelper = HttpHelper.useInstance()
         wifiToggleHelper!!.setHttpAction(object : IHttpAction {
             override fun onHttpRequest() {
                 val requestReply = HttpRequest.sendToggleRequest(parameterValue, ipAddress, port, "pin")
@@ -72,7 +72,7 @@ class AutoToggleDialog constructor(context: Context, togglePin: String, message:
             }
 
             override fun onException(e: Exception) {
-                Log.e("Toggling Pin in OnTimeFragment", e.toString())
+                Log.e("Toggling Pin in RealTimeFragment", e.toString())
             }
 
             override fun onPostExecute() {

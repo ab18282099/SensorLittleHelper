@@ -8,7 +8,7 @@ class ExitApplication {
         @Volatile
         private var instance: ExitApplication? = null
 
-        fun initInstance(): ExitApplication? {
+        fun useInstance(): ExitApplication? {
             if (instance == null) {
                 synchronized(ExitApplication::class.java) {
                     if (instance == null) {

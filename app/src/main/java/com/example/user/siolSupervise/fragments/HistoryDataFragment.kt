@@ -149,10 +149,10 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
     fun renewRecyclerView() {
         val model = _sensorDataModel
 
-        when (model.SensorDataLength) {
-            in 1 until 100 -> _viewCount = model.SensorDataLength
-            0 -> _viewCount = 0
-            else -> _viewCount = 100
+        _viewCount = when (model.SensorDataLength) {
+            in 1 until 100 -> model.SensorDataLength
+            0 -> 0
+            else -> 100
         }
 
         _recyclerHistory?.adapter = HistoryDataAdapter(activity, model.SensorDataList, _viewCount)
@@ -212,7 +212,7 @@ class HistoryDataFragment : BaseFragment(), FragmentBackPressedListener, Fragmen
     }
 
     private fun backUpHistoryData() {
-        _historyDataBackUpHelper = HttpHelper.initInstance(activity)
+        _historyDataBackUpHelper = HttpHelper.useInstance()
         _historyDataBackUpHelper!!.setHttpAction(object : IHttpAction {
             override fun onHttpRequest() {
                 DataWriter.writeData(activity, _appSettingModel!!.fileSavedName()

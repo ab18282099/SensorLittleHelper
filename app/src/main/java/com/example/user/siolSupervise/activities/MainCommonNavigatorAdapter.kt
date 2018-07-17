@@ -14,33 +14,54 @@ import net.lucode.hackware.magicindicator.buildins.commonnavigator.indicators.Li
 import net.lucode.hackware.magicindicator.buildins.commonnavigator.titles.CommonPagerTitleView
 import org.jetbrains.anko.textColor
 
-class MyCommonNavigatorAdapter(private val _fragmentTitleList: ArrayList<String>,
-                               private val _fragmentImgList: ArrayList<Int>,
-                               private val _viewPager: ViewPager?) : CommonNavigatorAdapter() {
+/**
+ * 首頁 ViewPager 底部導覽列轉接
+ * @param fragmentTitleList fragment 頁面標題清單
+ * @param fragmentImgList fragment 頁面圖示清單
+ * @param viewPager MainActivity ViewPager
+ */
+class MainCommonNavigatorAdapter(
+        private val fragmentTitleList: ArrayList<String>,
+        private val fragmentImgList: ArrayList<Int>,
+        private val viewPager: ViewPager?) : CommonNavigatorAdapter() {
+
+    /**
+     * 取得數量
+     */
     override fun getCount(): Int {
-        if (_fragmentTitleList.isEmpty()) return 0
-        return _fragmentTitleList.size
+        if (this.fragmentTitleList.isEmpty()) return 0
+
+        return this.fragmentTitleList.size
     }
 
+    /**
+     * 取得 Indicator
+     * @param context Ui context
+     */
     override fun getIndicator(context: Context?): IPagerIndicator {
         val indicator = LinePagerIndicator(context)
         indicator.mode = LinePagerIndicator.MODE_WRAP_CONTENT
         return indicator
     }
 
+    /**
+     * 取得標題畫面
+     * @param context ui context
+     * @param index
+     */
     override fun getTitleView(context: Context?, index: Int): IPagerTitleView {
         val commonPagerTitleView = CommonPagerTitleView(context)
         commonPagerTitleView.setContentView(R.layout.image_pager_title)
 
         val titleImg = commonPagerTitleView.findViewById<ImageView>(R.id.title_img)
-        titleImg.setImageResource(_fragmentImgList[index])
+        titleImg.setImageResource(this.fragmentImgList[index])
 
         val titleText = commonPagerTitleView.findViewById<TextView>(R.id.title_text)
-        titleText.text = _fragmentTitleList[index]
+        titleText.text = this.fragmentTitleList[index]
         titleText.visibility = View.GONE
 
         commonPagerTitleView.setOnClickListener {
-            _viewPager?.currentItem = index
+            this.viewPager?.currentItem = index
         }
 
         commonPagerTitleView.onPagerTitleChangeListener = object : CommonPagerTitleView.OnPagerTitleChangeListener {
